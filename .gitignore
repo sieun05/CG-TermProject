@@ -1,0 +1,86 @@
+# ==========================
+# Visual Studio 기본 설정
+# ==========================
+.vs/
+*.vcxproj.user
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# ==========================
+# 빌드 결과물
+# ==========================
+Debug/
+Release/
+x64/
+x86/
+[Oo]bj/
+[Bb]in/
+ipch/
+*.obj
+*.pdb
+*.ilk
+*.exe
+*.dll
+*.lib
+*.log
+*.tlog
+*.cache
+*.lastbuildstate
+*.db
+*.opendb
+*.idb
+
+# ==========================
+# 임시 / 백업 / 설정 파일
+# ==========================
+*.tmp
+*.bak
+*.old
+*.userprefs
+*.ncb
+*.aps
+*.pch
+
+# ==========================
+# CMake (혹시 쓸 경우)
+# ==========================
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+build/
+out/
+*.cmake
+
+# ==========================
+# OpenGL 관련 외부 라이브러리
+# ==========================
+# (직접 추가한 외부 라이브러리는 vendor/ 같은 폴더로 관리 권장)
+# 라이브러리 빌드 결과물은 제외
+vendor/**/bin/
+vendor/**/lib/
+vendor/**/obj/
+
+# ==========================
+# OS별 임시 파일
+# ==========================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ==========================
+# 기타 IDE 파일
+# ==========================
+.idea/
+*.iml
+*.ipch
+*.VC.db
+*.VC.opendb
