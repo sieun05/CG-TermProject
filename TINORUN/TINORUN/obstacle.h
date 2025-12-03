@@ -17,9 +17,11 @@ class Obstacle : public GameObject {
 	~Obstacle();
 	Obstacle(const Obstacle& other) = delete;
 	Obstacle& operator=(const Obstacle& other) = delete;
+
 	// GameObject의 가상 함수들을 오버라이드
 	void Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc) override;
 	void Update() override;
+
 	// 모델 로딩
 	bool LoadOBJ(const std::string& objPath);
 	bool LoadTexture(const std::string& texturePath);

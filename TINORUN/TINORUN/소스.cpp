@@ -4,6 +4,7 @@
 #include "ground.h"
 #include "game_world.h"
 #include "tino.h"  // Tino 헤더 추가
+#include "temp_obstacle.h" // 장애물 헤더 추가
 
 #include "Axes.h"
 
@@ -41,7 +42,7 @@ void main(int argc, char** argv)
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);		//GLUT_DEPTH 깊이에 따른 은면제거
 	glutInitWindowPosition(100, 100);
 	glutInitWindowSize(width, height);
-	glutCreateWindow("Example17");
+	glutCreateWindow("TinoRun");
 
 	//--- GLEW 초기화하기
 	glewExperimental = GL_TRUE;
@@ -73,6 +74,7 @@ void InitBuffer()
 	//RectInit();<< 따로 초기화 함수 만들어서 호출만 하기 
 	GroundInit();
 	InitAxesBuffer();
+	InitObstacleBuffer(); // 장애물 버퍼 초기화 추가
 }
 
 void InitGameObjects()
@@ -138,6 +140,11 @@ GLvoid Reshape(int w, int h)
 
 GLvoid Timer(int value)
 {
+	const float deltaTime = 0.016f; // 약 60FPS 기준
+	
+	// ObstacleManager 업데이트 (5초마다 장애물 생성)
+	ObstacleManager::GetInstance().Update(deltaTime);
+	
 	// GameWorld를 통해 모든 객체 업데이트
 	g_gameWorld.UpdateAll();
 	
@@ -151,6 +158,10 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 	const float deltaTime = 0.016f; // 약 60FPS 기준
 
 	switch (key) {
+	case 's': // 수동으로 장애물 생성 (테스트용)
+	case 'S':
+		ObstacleManager::GetInstance().SpawnObstacle();
+		break;
 
 	case 'q':
 	case 'Q':

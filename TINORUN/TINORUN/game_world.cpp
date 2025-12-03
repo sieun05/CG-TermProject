@@ -1,4 +1,5 @@
 #include "game_world.h"
+#include "temp_obstacle.h"
 
 // 전역 게임 월드 인스턴스 정의
 GameWorld g_gameWorld;
@@ -11,10 +12,22 @@ void GameWorld::AddObject(std::unique_ptr<GameObject> object) {
 
 void GameWorld::RemoveInactiveObjects() {
     // remove_if와 erase를 사용하여 비활성화된 객체들 제거
+    // TempObstacle의 경우 ShouldBeRemoved() 조건도 확인
     gameObjects.erase(
         std::remove_if(gameObjects.begin(), gameObjects.end(),
             [](const std::unique_ptr<GameObject>& obj) {
-                return !obj->isActive;
+                if (!obj->isActive) {
+                    return true;
+                }
+                
+                // TempObstacle인 경우 추가 제거 조건 확인
+                TempObstacle* tempObstacle = dynamic_cast<TempObstacle*>(obj.get());
+                if (tempObstacle && tempObstacle->ShouldBeRemoved()) {
+                    std::cout << "장애물 제거: x = " << tempObstacle->position.x << std::endl;
+                    return true;
+                }
+                
+                return false;
             }),
         gameObjects.end()
     );
