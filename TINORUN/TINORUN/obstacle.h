@@ -1,0 +1,36 @@
+#pragma once
+#include "헤더.h"
+#include "game_object.h"
+#include <string>
+
+struct Vertex {
+	glm::vec3 position;
+	glm::vec3 color;      // 컬러 추가
+	glm::vec2 texCoord;
+	glm::vec3 normal;
+};
+
+class Obstacle : public GameObject {
+	public:
+	Obstacle() = default;
+	Obstacle(const std::string& objPath, const std::string& texturePath);
+	~Obstacle();
+	Obstacle(const Obstacle& other) = delete;
+	Obstacle& operator=(const Obstacle& other) = delete;
+	// GameObject의 가상 함수들을 오버라이드
+	void Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc) override;
+	void Update() override;
+	// 모델 로딩
+	bool LoadOBJ(const std::string& objPath);
+	bool LoadTexture(const std::string& texturePath);
+
+private:
+	std::vector<Vertex> vertices;
+	std::vector<unsigned int> indices;
+	GLuint VAO;
+	GLuint VBO;
+	GLuint EBO;
+	GLuint textureID;
+	bool isLoaded;
+	void SetupMesh();
+};
