@@ -57,10 +57,23 @@ void InitAxesBuffer() {
 	glBindVertexArray(0);
 }
 
-void DrawAxes()
+void DrawAxes(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 {
+
 	glBindVertexArray(VAO_axes);
+
+	// 모델 행렬 (좌표축은 원점에 고정)
+	glm::mat4 model = glm::mat4(1.0f);
+	
+	// MVP 행렬 계산
+	glm::mat4 mvp = gProjection * gView * model;
+
+	// 유니폼 설정
+	glUniformMatrix4fv(uMVP_loc, 1, GL_FALSE, &mvp[0][0]);
+
 	glLineWidth(2.0f);
 	glDrawArrays(GL_LINES, 0, 6); // 6개의 정점 = 3개의 선분
+	glLineWidth(1.0f); // 선 두께 복원
+	
 	glBindVertexArray(0);
 }

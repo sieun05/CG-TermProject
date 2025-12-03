@@ -136,7 +136,6 @@
     <ClInclude Include="game_world.h" />
     <ClInclude Include="ground.h" />
     <ClInclude Include="shader_func.h" />
-    <ClInclude Include="stb_image.h" />
     <ClInclude Include="tino.h" />
     <ClInclude Include="WindowToNDC.h" />
     <ClInclude Include="헤더.h" />

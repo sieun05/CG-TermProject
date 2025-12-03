@@ -49,8 +49,8 @@ bool Tino::LoadOBJ(const std::string& objPath)
                 std::cout << "대체 경로 시도: " << altPath3 << std::endl;
                 file.open(altPath3);
                 if (!file.is_open()) {
-                    std::cout << "OBJ 파일을 찾을 수 없어서 테스트 큐브를 생성합니다." << std::endl;
-                    return CreateTestCube();
+                    std::cout << "OBJ 파일을 찾을 수 없음." << std::endl;
+                    return false;
                 }
             }
         }
@@ -173,49 +173,6 @@ bool Tino::LoadOBJ(const std::string& objPath)
     
     return true;
 }
-
-// 테스트용 큐브 생성 함수 추가
-bool Tino::CreateTestCube() 
-{
-    std::cout << "테스트 큐브 생성 중..." << std::endl;
-    
-    vertices.clear();
-    indices.clear();
-    
-    // 간단한 큐브 정점들
-    vertices = {
-        // 앞면
-        {{-0.5f, -0.5f,  0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}},
-        {{ 0.5f, -0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}},
-        {{ 0.5f,  0.5f,  0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
-        {{-0.5f,  0.5f,  0.5f}, {1.0f, 1.0f, 0.0f}, {0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
-        
-        // 뒷면
-        {{ 0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}},
-        {{-0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 1.0f}, {1.0f, 0.0f}, {0.0f, 0.0f, -1.0f}},
-        {{-0.5f,  0.5f, -0.5f}, {0.5f, 0.5f, 0.5f}, {1.0f, 1.0f}, {0.0f, 0.0f, -1.0f}},
-        {{ 0.5f,  0.5f, -0.5f}, {1.0f, 0.5f, 0.0f}, {0.0f, 1.0f}, {0.0f, 0.0f, -1.0f}}
-    };
-    
-    indices = {
-        // 앞면
-        0, 1, 2,   2, 3, 0,
-        // 뒷면
-        4, 5, 6,   6, 7, 4,
-        // 왼쪽면
-        5, 0, 3,   3, 6, 5,
-        // 오른쪽면
-        1, 4, 7,   7, 2, 1,
-        // 아래면
-        5, 4, 1,   1, 0, 5,
-        // 위면
-        3, 2, 7,   7, 6, 3
-    };
-    
-    std::cout << "테스트 큐브 생성 완료: " << vertices.size() << " 정점, " << indices.size() << " 인덱스" << std::endl;
-    return true;
-}
-
 bool Tino::LoadTexture(const std::string& texturePath)
 {
     // 텍스처 로딩은 나중에 구현
@@ -276,6 +233,11 @@ void Tino::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 
     // 모델 매트릭스 계산
     glm::mat4 model = GetModelMatrix();
+	glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	model = model * rotate;
+	glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(-7.0f, 0.0f, 0.0f));
+	model = translate * model;
+
     glm::mat4 mvp = gProjection * gView * model;
 
     // 유니폼 설정

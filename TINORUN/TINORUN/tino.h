@@ -26,7 +26,6 @@ public:
     // 모델 로딩
     bool LoadOBJ(const std::string& objPath);
     bool LoadTexture(const std::string& texturePath);
-    bool CreateTestCube(); // 테스트용 큐브 생성
 
 private:
     std::vector<Vertex> vertices;
