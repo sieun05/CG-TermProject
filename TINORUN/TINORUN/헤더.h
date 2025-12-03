@@ -16,7 +16,7 @@
 
 using namespace std;
 
-// 공통 구조체 및 타입 정의
+// 색상 구조체 및 타입 정의
 struct RGBA { float r, g, b, a; };
 
 // 전역 변수 선언 (shaderProgramID는 shader_func.h에서 정의됨)
@@ -24,3 +24,7 @@ extern glm::mat4 gProjection;
 extern glm::mat4 gView;
 extern glm::mat4 gModel;
 extern GLint uMVP_loc;
+
+// 텍스처 관련 uniform 변수들
+extern GLint uUseTexture_loc;
+extern GLint uTextureSampler_loc;

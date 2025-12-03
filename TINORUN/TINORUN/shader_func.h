@@ -10,19 +10,33 @@ GLuint make_shaderProgram();
 void AfterMakeShaders();
 
 //--- 필요한변수선언
-GLuint shaderProgramID; //--- 세이더 프로그램 이름
-GLuint vertexShader;	//--- 버텍스세이더객체
-GLuint fragmentShader;	//--- 프래그먼트 세이더객체
+GLuint shaderProgramID; //--- 셰이더 프로그램 이름
+GLuint vertexShader;	//--- 버텍스셰이더객체
+GLuint fragmentShader;	//--- 프래그먼트 셰이더객체
+
+// 새로운 uniform 변수 위치들
+extern GLint uUseTexture_loc;
+extern GLint uTextureSampler_loc;
 
 void AfterMakeShaders()
 {
 	glUseProgram(shaderProgramID);
 	uMVP_loc = glGetUniformLocation(shaderProgramID, "uMVP");
 	if (uMVP_loc < 0) { printf("uMVP get error\n"); exit(1); }
+	
+	// 텍스처 관련 uniform 변수 위치 얻기
+	uUseTexture_loc = glGetUniformLocation(shaderProgramID, "useTexture");
+	uTextureSampler_loc = glGetUniformLocation(shaderProgramID, "textureSampler");
+	
+	// 텍스처 샘플러를 텍스처 유닛 0에 바인딩
+	if (uTextureSampler_loc >= 0) {
+		glUniform1i(uTextureSampler_loc, 0);
+	}
+	
 	glUseProgram(0);
 }
 
-char* filetobuf(const char* file)	//쉐이더 파일을 읽어 문자열로 변환하는 유틸리티 함수
+char* filetobuf(const char* file)	//셰이더 파일을 읽어 문자열로 반환하는 유틸리티 함수
 {
 	FILE* fptr;
 	long length;
@@ -44,8 +58,7 @@ char* filetobuf(const char* file)	//쉐이더 파일을 읽어 문자열로 변환하는 유틸리�
 	return buf;
 }
 
-
-//--- 버텍스세이더객체만들기
+//--- 버텍스셰이더객체만들기
 void make_vertexShaders()
 {
 	GLchar* vertexSource;
@@ -54,11 +67,11 @@ void make_vertexShaders()
 
 	vertexSource = filetobuf("vertex.glsl");
 
-	//버텍스 쉐이더 객체 만들기
+	//버텍스 셰이더 객체 만들기
 	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	//쉐이더 코드를 쉐이더 객체에 넣기
+	//셰이더 코드를 셰이더 객체에 넣기
 	glShaderSource(vertexShader, 1, &vertexSource, NULL);
-	//버텍스 쉐이더 컴파일하기
+	//버텍스 셰이더 컴파일하기
 	glCompileShader(vertexShader);
 
 	//컴파일이 제대로 되었는지 체크하기
@@ -81,7 +94,7 @@ void make_fragmentShaders()
 
 	//--- 프래그먼트세이더 객체 만들기
 	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	//--- 쉐이더코드를쉐이더객체에넣기
+	//--- 셰이더코드를셰이더객체에넣기
 	glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
 	//--- 프래그먼트세이더컴파일하기
 	glCompileShader(fragmentShader);
