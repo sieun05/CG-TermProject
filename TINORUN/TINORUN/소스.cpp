@@ -1,8 +1,14 @@
 #include "헤더.h"
 #include "WindowToNDC.h"
 #include "shader_func.h"
+#include "ground.h"
+#include "game_world.h"
+#include "tino.h"  // Tino 헤더 추가
+
+#include "Axes.h"
 
 void InitBuffer();
+void InitGameObjects();
 
 GLvoid drawScene();
 GLvoid Reshape(int w, int h);
@@ -18,6 +24,9 @@ glm::mat4 gView(1.0f);
 glm::mat4 gModel(1.0f);
 GLint uMVP_loc = -1;
 
+// 텍스처 관련 uniform 변수 정의
+GLint uUseTexture_loc = -1;
+GLint uTextureSampler_loc = -1;
 
 //--- 메인 함수
 void main(int argc, char** argv)
@@ -52,6 +61,7 @@ void main(int argc, char** argv)
 	glutTimerFunc(16, Timer, 1); // 약 60FPS로 타이머 시작
 
 	InitBuffer();
+	InitGameObjects();		// 게임 객체 초기화
 	glutMainLoop();
 }
 
@@ -61,6 +71,22 @@ void InitBuffer()
 	glEnable(GL_CULL_FACE);
 
 	//RectInit();<< 따로 초기화 함수 만들어서 호출만 하기 
+	GroundInit();
+	InitAxesBuffer();
+}
+
+void InitGameObjects()
+{
+	// Ground 객체 생성 및 GameWorld에 추가
+	auto ground = std::make_unique<Ground>(1, RGBA{ 231/255., 217/255., 176/255., 1.0f });
+	g_gameWorld.AddObject(std::move(ground));
+
+	// Tino 객체 생성 및 GameWorld에 추가
+	// 경로 수정: assets 폴더로 직접 접근
+	auto tino = std::make_unique<Tino>("assets/Tino.obj", "assets/Tino_base.png");
+	tino->position = glm::vec3(0.0f, 1.0f, 0.0f);  // Ground 위에 배치
+	tino->scale = glm::vec3(1.0f, 1.0f, 1.0f);     // 크기 조정 (우선 기본 크기로)
+	g_gameWorld.AddObject(std::move(tino));
 }
 
 //--- 출력 콜백함수
@@ -73,15 +99,18 @@ GLvoid drawScene()
 	//--- 렌더링 파이프라인에 세이더 불러우기
 	glUseProgram(shaderProgramID);
 
+	DrawAxes(); // 좌표축 그리기
+
 	// --- View: 카메라를 뒤쪽 위쪽에서 원점을 바라보도록 설정
 	gView = glm::mat4(1.0f);
 	gView = glm::lookAt(		//카메라 외부파라미터
-		glm::vec3(-1.0f, 2.0f, 3.0f),  // 카메라 위치 (x, y, z축이 모두 보이는 위치)	EYE
-		glm::vec3(0.0f, 0.0f, 0.0f),  // 바라보는 지점 (원점) 							AT
+		glm::vec3(-10.0f, 6.0f, 7.0f),  // 카메라 위치 (x, y, z축이 모두 보이는 위치)	EYE
+		glm::vec3(0.0f, 0.0f, -3.0f),  // 바라보는 지점 (원점) 							AT
 		glm::vec3(0.0f, 1.0f, 0.0f)   // 위쪽 방향 벡터 					 			UP
 	);
 
-	//RectDraw();<< 따로 렌더 함수 만들어서 호출만 하기 
+	// GameWorld를 통해 모든 객체 렌더링
+	g_gameWorld.DrawAll(gProjection, gView, uMVP_loc);
 
 	glutSwapBuffers();
 }
@@ -109,6 +138,9 @@ GLvoid Reshape(int w, int h)
 
 GLvoid Timer(int value)
 {
+	// GameWorld를 통해 모든 객체 업데이트
+	g_gameWorld.UpdateAll();
+	
 	glutPostRedisplay();
 	glutTimerFunc(16, Timer, 1); // 약 60FPS로 타이머 시작
 }
@@ -116,6 +148,8 @@ GLvoid Timer(int value)
 
 GLvoid Keyboard(unsigned char key, int x, int y)
 {
+	const float deltaTime = 0.016f; // 약 60FPS 기준
+
 	switch (key) {
 
 	case 'q':
