@@ -85,7 +85,7 @@ void InitGameObjects()
 	// 경로 수정: assets 폴더로 직접 접근
 	auto tino = std::make_unique<Tino>("assets/Tino.obj", "assets/Tino_base.png");
 	tino->position = glm::vec3(0.0f, 1.0f, 0.0f);  // Ground 위에 배치
-	tino->scale = glm::vec3(1.0f, 1.0f, 1.0f);     // 크기 조정 (우선 기본 크기로)
+	tino->scale = glm::vec3(0.7f, 0.7f, 0.7f);     // 크기 조정 (우선 기본 크기로)
 	g_gameWorld.AddObject(std::move(tino));
 }
 
