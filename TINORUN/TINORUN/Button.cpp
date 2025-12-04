@@ -6,6 +6,7 @@ Button::Button(float x, float y, float w, float h)
 	: x(x), y(y), w(w), h(h)
 {
 	InitBuffer();
+	InitTexture();
 
 	position = glm::vec3(x, y, 0.0f);
 	scale = glm::vec3(w, h, 1.0f);
@@ -14,15 +15,15 @@ Button::Button(float x, float y, float w, float h)
 void Button::InitBuffer()
 {
 	float vertices[] = {
-		// À§Ä¡         // ÅØ½ºÃ³ ÁÂÇ¥
-		-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, // ¿ŞÂÊ ¾Æ·¡
-		 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, // ¿À¸¥ÂÊ ¾Æ·¡
-		 0.5f,  0.5f, 0.0f, 1.0f, 1.0f, // ¿À¸¥ÂÊ À§
-		-0.5f,  0.5f, 0.0f, 0.0f, 1.0f  // ¿ŞÂÊ À§
+		// ìœ„ì¹˜                // ì»¬ëŸ¬              // í…ìŠ¤ì²˜ ì¢Œí‘œ
+		-0.5f, -0.5f, 0.0f,   1.0f, 1.0f, 1.0f,   0.0f, 0.0f, // ì™¼ìª½ ì•„ë˜
+		 0.5f, -0.5f, 0.0f,   1.0f, 1.0f, 1.0f,   1.0f, 0.0f, // ì˜¤ë¥¸ìª½ ì•„ë˜
+		 0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f, // ì˜¤ë¥¸ìª½ ìœ„
+		-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 1.0f,   0.0f, 1.0f  // ì™¼ìª½ ìœ„
 	};
 	unsigned int indices[] = {
-		0, 1, 2, // Ã¹ ¹øÂ° »ï°¢Çü
-		2, 3, 0  // µÎ ¹øÂ° »ï°¢Çü
+		0, 1, 2, // ì²« ë²ˆì§¸ ì‚¼ê°í˜•
+		2, 3, 0  // ë‘ ë²ˆì§¸ ì‚¼ê°í˜•
 	};
 
 	glGenVertexArrays(1, &VAO);
@@ -35,38 +36,43 @@ void Button::InitBuffer()
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-	// À§Ä¡ ¼Ó¼º
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	// ìœ„ì¹˜ ì†ì„± (location 0)
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	// ÅØ½ºÃ³ ÁÂÇ¥ ¼Ó¼º
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	// ì»¬ëŸ¬ ì†ì„± (location 1)
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
+	// í…ìŠ¤ì²˜ ì¢Œí‘œ ì†ì„± (location 2)
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+	glEnableVertexAttribArray(2);
 	glBindVertexArray(0);
 }
 
 void Button::InitTexture()
 {
-	// ÅØ½ºÃ³ ·Îµå ¹× »ı¼º
+	// í…ìŠ¤ì²˜ ë¡œë“œ ë° ìƒì„±
 	glGenTextures(1, &textureID);
 	glBindTexture(GL_TEXTURE_2D, textureID);
 
-	// ÅØ½ºÃ³ ¸Å°³º¯¼ö ¼³Á¤
+	// í…ìŠ¤ì²˜ ë§¤ê°œë³€ìˆ˜ ì„¤ì •
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	// ÀÌ¹ÌÁö ·Îµå (¿©±â¼­´Â ´Ü»ö ÀÌ¹ÌÁö »ç¿ë)
-	unsigned char* data = LoadDIBitmap("assets\start_button.bmp", &bmp);
+	// ì´ë¯¸ì§€ ë¡œë“œ (ì—¬ê¸°ì„œëŠ” ë‹¨ìƒ‰ ì´ë¯¸ì§€ ì‚¬ìš©)
+	unsigned char* data = LoadDIBitmap("assets\\start_button.bmp", &bmp);
 	if (data == NULL) {
-		std::cerr << "Failed to load texture: ½ÃÀÛ ¹öÆ°" << std::endl;
+		std::cerr << "Failed to load texture: ì‹œì‘ ë²„íŠ¼" << std::endl;
+		return;
 	}
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, 500, 212, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, bmp->bmiHeader.biWidth, bmp->bmiHeader.biHeight, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
+	glGenerateMipmap(GL_TEXTURE_2D);
 }
 
 void Button::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 {
-	// ½ÃÀÛ È­¸éÀÌ ¾Æ´Ï¶ó¸é ±×¸®Áö ¾ÊÀ½
+	// ì‹œì‘ í™”ë©´ì´ ì•„ë‹ˆë¼ë©´ ê·¸ë¦¬ì§€ ì•ŠìŒ
 	if (scene != GameState::TITLE) return;
 	
 	glm::mat4 model = glm::mat4(1.0f);
@@ -75,13 +81,18 @@ void Button::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 	glm::mat4 mvp = glm::mat4(1.0f) * model;
 
 	glUniformMatrix4fv(uMVP_loc, 1, GL_FALSE, &mvp[0][0]);
-	glUniform1d(uUseTexture_loc, true); // ÅØ½ºÃ³ »ç¿ë
+	glUniform1i(uUseTexture_loc, 1); // í…ìŠ¤ì²˜ ì‚¬ìš©
+
+	glActiveTexture(GL_TEXTURE0);
+	glUniform1i(uTextureSampler_loc, 0); // í…ìŠ¤ì²˜ ìœ ë‹› 0 ì‚¬ìš©
 	
 	glBindVertexArray(VAO);
 	glBindTexture(GL_TEXTURE_2D, textureID);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 	glBindVertexArray(0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glUniform1i(uUseTexture_loc, 0); // í…ìŠ¤ì²˜ ì‚¬ìš© ì•ˆí•¨
 }
 
 void Button::Update()
