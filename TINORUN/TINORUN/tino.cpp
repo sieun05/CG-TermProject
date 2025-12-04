@@ -1,5 +1,6 @@
 #include "tino.h"
 #include "game_state.h"
+#include "LoadBitmap.h"
 #include <fstream>
 #include <sstream>
 
@@ -18,6 +19,12 @@ Tino::Tino(const std::string& objPath, const std::string& texturePath)
     } else {
         std::cerr << "Tino 초기화 실패: OBJ 로딩 실패" << std::endl;
     }
+	if (LoadTexture(texturePath)) {
+		std::cout << "Tino 텍스처 로딩 성공!" << std::endl;
+	}
+	else {
+		std::cerr << "Tino 텍스처 로딩 실패!" << std::endl;
+	}
 }
 
 Tino::~Tino()
@@ -177,7 +184,25 @@ bool Tino::LoadOBJ(const std::string& objPath)
 bool Tino::LoadTexture(const std::string& texturePath)
 {
     // 텍스처 로딩은 나중에 구현
-    std::cout << "Texture loading not implemented yet: " << texturePath << std::endl;
+    // std::cout << "Texture loading not implemented yet: " << texturePath << std::endl;
+    // 텍스처 로드 및 생성
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+
+    // 텍스처 매개변수 설정
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // 이미지 로드 (여기서는 단색 이미지 사용)
+    unsigned char* data = LoadDIBitmap("assets\\Tino_base.bmp", &bmp);
+    if (data == NULL) {
+        std::cerr << "Failed to load texture: Tino_base" << std::endl;
+        return false;
+    }
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, bmp->bmiHeader.biWidth, bmp->bmiHeader.biHeight, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
     return true;
 }
 
@@ -228,15 +253,21 @@ void Tino::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     }
 
     // 텍스처 사용 모드 비활성화 (현재는 컬러만 사용)
-    if (uUseTexture_loc >= 0) {
-        glUniform1i(uUseTexture_loc, 0); // false
-    }
+    //if (uUseTexture_loc >= 0) {
+    //    glUniform1i(uUseTexture_loc, 0); // false
+    //}
+
+    glUniform1i(uUseTexture_loc, 1);
+
+    glActiveTexture(GL_TEXTURE0);
+    glUniform1i(uTextureSampler_loc, 0);
 
     glBindVertexArray(VAO);
+    glBindTexture(GL_TEXTURE_2D, textureID);
 
     // 모델 매트릭스 계산
     glm::mat4 model = GetModelMatrix();
-	glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	model = model * rotate;
 	glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(-7.0f, 0.0f, 0.0f));
 	model = translate * model;
@@ -259,6 +290,8 @@ void Tino::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     glBindVertexArray(0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glUniform1i(uUseTexture_loc, 0);
 }
 
 void Tino::Update()

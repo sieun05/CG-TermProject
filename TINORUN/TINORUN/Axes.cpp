@@ -1,4 +1,5 @@
 #include "Axes.h"
+#include "game_state.h"
 
 // 좌표축 관련 전역 변수 정의
 GLuint VAO_axes = 0;
@@ -59,6 +60,7 @@ void InitAxesBuffer() {
 
 void DrawAxes(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 {
+	if (scene == GameState::TITLE) return; // 타이틀에선 안 그림(구분용)
 
 	glBindVertexArray(VAO_axes);
 

@@ -35,6 +35,7 @@ private:
     GLuint VBO;
     GLuint EBO;
     GLuint textureID;
+    BITMAPINFO* bmp;
     
     bool isLoaded;
     

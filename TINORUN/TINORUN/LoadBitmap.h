@@ -5,7 +5,7 @@
 #include <windows.h>
 
 
-extern GLubyte* LoadDIBitmap(const char* filename, BITMAPINFO** info)
+inline GLubyte* LoadDIBitmap(const char* filename, BITMAPINFO** info)
 {
     FILE* fp;
     GLubyte* bits;
