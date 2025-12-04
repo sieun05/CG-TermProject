@@ -134,6 +134,7 @@
   <ItemGroup>
     <ClInclude Include="Axes.h" />
     <ClInclude Include="game_object.h" />
+    <ClInclude Include="game_state.h" />
     <ClInclude Include="game_world.h" />
     <ClInclude Include="ground.h" />
     <ClInclude Include="obstacle.h" />

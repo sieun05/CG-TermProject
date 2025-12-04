@@ -1,8 +1,10 @@
 #include "game_world.h"
 #include "temp_obstacle.h"
+#include "game_state.h"
 
 // 전역 게임 월드 인스턴스 정의
 GameWorld g_gameWorld;
+extern GameState scene;
 
 void GameWorld::AddObject(std::unique_ptr<GameObject> object) {
     if (object) {

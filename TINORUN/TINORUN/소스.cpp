@@ -4,7 +4,8 @@
 #include "ground.h"
 #include "game_world.h"
 #include "tino.h"  // Tino 헤더 추가
-#include "temp_obstacle.h" // 장애물 헤더 추가
+#include "temp_obstacle.h" // 장애물 헤더 추가 
+#include "game_state.h"
 
 #include "Axes.h"
 
@@ -28,6 +29,8 @@ GLint uMVP_loc = -1;
 // 텍스처 관련 uniform 변수 정의
 GLint uUseTexture_loc = -1;
 GLint uTextureSampler_loc = -1;
+
+extern GameState scene; // 게임 상태 전역 변수
 
 //--- 메인 함수
 void main(int argc, char** argv)
