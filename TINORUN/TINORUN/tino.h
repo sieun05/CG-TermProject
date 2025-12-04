@@ -1,15 +1,8 @@
 #pragma once
 #include "헤더.h"
 #include "game_object.h"
+#include "common.h"
 #include <string>
-
-// 정점 구조체
-struct Vertex {
-    glm::vec3 position;
-    glm::vec3 color;      // 컬러 추가
-    glm::vec2 texCoord;
-    glm::vec3 normal;
-};
 
 class Tino : public GameObject {
 public:
@@ -43,6 +36,5 @@ private:
 };
 
 // 유틸리티 함수들
-GLuint LoadTextureFromFile(const std::string& path);
-std::vector<std::string> Split(const std::string& str, char delimiter);
+// GLuint LoadTextureFromFile(const std::string& path);
 

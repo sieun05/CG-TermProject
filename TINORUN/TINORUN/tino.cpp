@@ -309,21 +309,3 @@ void Tino::Update()
 {
     // 필요한 업데이트 로직 구현
 }
-
-// 유틸리티 함수들
-std::vector<std::string> Split(const std::string& str, char delimiter)
-{
-    std::vector<std::string> tokens;
-    std::string token;
-    std::istringstream tokenStream(str);
-    while (std::getline(tokenStream, token, delimiter)) {
-        tokens.push_back(token);
-    }
-    return tokens;
-}
-
-GLuint LoadTextureFromFile(const std::string& path)
-{
-    // 텍스처 로딩은 나중에 구현
-    return 0;
-}
