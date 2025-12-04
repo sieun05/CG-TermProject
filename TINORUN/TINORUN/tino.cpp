@@ -1,4 +1,5 @@
 #include "tino.h"
+#include "game_state.h"
 #include <fstream>
 #include <sstream>
 
@@ -219,6 +220,8 @@ void Tino::SetupMesh()
 
 void Tino::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 {
+    //if (scene == GameState::TITLE) return; 
+
     if (!isLoaded) {
         std::cerr << "Tino가 로드되지 않아서 그릴 수 없습니다" << std::endl;
         return;

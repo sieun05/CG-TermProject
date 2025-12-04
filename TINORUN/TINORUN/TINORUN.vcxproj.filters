@@ -33,6 +33,9 @@
     <ClCompile Include="temp_obstacle.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="button.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="헤더.h">
@@ -63,6 +66,15 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="temp_obstacle.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="game_state.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Button.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadBitmap.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

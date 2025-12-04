@@ -1,11 +1,12 @@
 #include "헤더.h"
 #include "WindowToNDC.h"
 #include "shader_func.h"
-#include "ground.h"
+#include "game_state.h"
 #include "game_world.h"
+#include "ground.h"
 #include "tino.h"  // Tino 헤더 추가
 #include "temp_obstacle.h" // 장애물 헤더 추가 
-#include "game_state.h"
+#include "Button.h"	// 버튼 헤더 추가
 
 #include "Axes.h"
 
@@ -90,6 +91,9 @@ void InitGameObjects()
 	tino->position = glm::vec3(0.0f, 1.0f, 0.0f);  // Ground 위에 배치
 	tino->scale = glm::vec3(0.7f, 0.7f, 0.7f);     // 크기 조정 (우선 기본 크기로)
 	g_gameWorld.AddObject(std::move(tino));
+
+	auto start_button = std::move(std::make_unique<Button>(0.5f, -1.0f, 0.8f, 0.5f));
+	g_gameWorld.AddObject(std::move(start_button));
 }
 
 //--- 출력 콜백함수

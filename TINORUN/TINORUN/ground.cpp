@@ -1,4 +1,5 @@
 #include "ground.h"
+#include "game_state.h"
 
 GLuint VAO_ground{};
 GLuint VBO_ground[2]{};
@@ -184,6 +185,8 @@ void ChangeGroundColor(RGBA newColor)
 
 void Ground::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 {
+    if (scene == GameState::TITLE) return;
+
 	ChangeGroundColor(this->color);
 
     glBindVertexArray(VAO_ground);

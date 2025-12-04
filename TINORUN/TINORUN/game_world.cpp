@@ -4,7 +4,7 @@
 
 // 전역 게임 월드 인스턴스 정의
 GameWorld g_gameWorld;
-GameState scene = GameState::TITLE;
+GameState scene;
 
 void GameWorld::AddObject(std::unique_ptr<GameObject> object) {
     if (object) {

@@ -125,6 +125,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Axes.cpp" />
+    <ClCompile Include="button.cpp" />
     <ClCompile Include="game_world.cpp" />
     <ClCompile Include="ground.cpp" />
     <ClCompile Include="temp_obstacle.cpp" />
@@ -133,10 +134,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Axes.h" />
+    <ClInclude Include="Button.h" />
     <ClInclude Include="game_object.h" />
     <ClInclude Include="game_state.h" />
     <ClInclude Include="game_world.h" />
     <ClInclude Include="ground.h" />
+    <ClInclude Include="LoadBitmap.h" />
     <ClInclude Include="obstacle.h" />
     <ClInclude Include="shader_func.h" />
     <ClInclude Include="temp_obstacle.h" />
