@@ -42,7 +42,7 @@ void main(int argc, char** argv)
 	//--- 윈도우생성하기
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);		//GLUT_DEPTH 깊이에 따른 은면제거
-	glutInitWindowPosition(0, 0);
+	glutInitWindowPosition(100, 0);
 	glutInitWindowSize(width, height);
 	glutCreateWindow("TinoRun");
 
@@ -172,6 +172,19 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 	case 'Q':
 		exit(0);
 		break;
+
+	case '\r': 
+	case '\n':		// 엔터 누르면 시작
+		if (scene == GameState::TITLE) {
+			scene = GameState::LOBBY;
+			std::cout << "로비 화면" << std::endl;
+		}
+		else if (scene == GameState::LOBBY) {
+			scene = GameState::PLAYING;
+			std::cout << "게임 시작" << std::endl;
+		}
+
+	default: break;
 	}
 
 	glutPostRedisplay();
