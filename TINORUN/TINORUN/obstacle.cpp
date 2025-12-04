@@ -57,9 +57,9 @@ bool Obstacle::LoadOBJ(const std::string& objPath)
         std::cerr << "Failed to open OBJ file: " << objPath << std::endl;
 
         // 다른 경로들도 시도해보기
-        std::string altPath1 = "assets/obstacle1.obj";
-        std::string altPath2 = "../assets/obstacle1.obj";
-        std::string altPath3 = "./TINORUN/assets/obstacle1.obj";
+        std::string altPath1 = objPath;
+        std::string altPath2 = ".." + objPath;
+        std::string altPath3 = "./TINORUN/" + objPath;
 
         std::cout << "대체 경로 시도: " << altPath1 << std::endl;
         file.open(altPath1);
@@ -217,9 +217,9 @@ bool Obstacle::LoadTexture(const std::string& texturePath)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     // 이미지 로드 (여기서는 단색 이미지 사용)
-    unsigned char* data = LoadDIBitmap("assets\\obstacle1_base.bmp", &bmp);
+    unsigned char* data = LoadDIBitmap(texturePath.c_str(), &bmp);
     if (data == NULL) {
-        std::cerr << "Failed to load texture: obstacle1_base" << std::endl;
+        std::cerr << "Failed to load texture: " << texturePath << std::endl;
         return false;
     }
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, bmp->bmiHeader.biWidth, bmp->bmiHeader.biHeight, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
@@ -344,7 +344,7 @@ void ObstacleManager::SpawnObstacle()
     std::cout << "새로운 장애물 생성!" << std::endl;
 
     // 새로운 장애물 생성
-    auto obstacle = std::make_unique<Obstacle>("assets/obstacle1.obj", "assets/obstacle1_bass.bmp");
+    auto obstacle = std::make_unique<Obstacle>("assets/obstacle1.obj", "assets/obstacle1_base.bmp");
 
     // GameWorld에 추가
     g_gameWorld.AddObject(std::move(obstacle));
