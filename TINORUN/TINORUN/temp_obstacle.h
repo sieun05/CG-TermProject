@@ -48,7 +48,7 @@ private:
 void InitObstacleBuffer();
 
 // 장애물용 전역 변수
-extern GLuint VAO_obstacle;
-extern GLuint VBO_obstacle[2];
-extern GLuint EBO_obstacle;
+extern GLuint VAO_temp_obstacle;
+extern GLuint VBO_temp_obstacle[2];
+extern GLuint EBO_temp_obstacle;
 

@@ -1,5 +1,6 @@
 #include "game_world.h"
 #include "obstacle.h"
+#include "temp_obstacle.h"
 #include "game_state.h"
 
 // 전역 게임 월드 인스턴스 정의
@@ -39,6 +40,12 @@ void GameWorld::RemoveInactiveObjects() {
                 }
 
                 // TempObstacle인 경우 추가 제거 조건 확인
+                TempObstacle* tempObstacle = dynamic_cast<TempObstacle*>(obj.get());  // Obstacle 대신 TempObstacle 사용
+                if (tempObstacle && tempObstacle->ShouldBeRemoved()) {
+                    std::cout << "장애물 제거: x = " << tempObstacle->position.x << std::endl;
+                    return true;
+                }
+
                 Obstacle* obstacle = dynamic_cast<Obstacle*>(obj.get());
                 if (obstacle && obstacle->ShouldBeRemoved()) {
                     std::cout << "장애물 제거: x = " << obstacle->position.x << std::endl;

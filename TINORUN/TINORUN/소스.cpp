@@ -81,7 +81,7 @@ void InitBuffer()
 	//RectInit();<< 따로 초기화 함수 만들어서 호출만 하기 
 	GroundInit();
 	InitAxesBuffer();
-	//InitObstacleBuffer(); // 장애물 버퍼 초기화 추가
+	InitObstacleBuffer(); // 장애물 버퍼 초기화 추가 (주석 해제)
 }
 
 void InitGameObjects()

@@ -8,9 +8,9 @@ const float TempObstacle::REMOVAL_X_POSITION = -20.0f;
 const float TempObstacle::SPAWN_X_POSITION = 50.0f;
 
 // 장애물용 전역 변수 정의
-GLuint VAO_obstacle = 0;
-GLuint VBO_obstacle[2] = {0, };
-GLuint EBO_obstacle = 0;
+GLuint VAO_temp_obstacle = 0;
+GLuint VBO_temp_obstacle[2] = {0, };
+GLuint EBO_temp_obstacle = 0;
 
 void InitObstacleBuffer()
 {
@@ -60,27 +60,27 @@ void InitObstacleBuffer()
     };
 
     // VAO 생성 및 바인딩
-    glGenVertexArrays(1, &VAO_obstacle);
-    glBindVertexArray(VAO_obstacle);
+    glGenVertexArrays(1, &VAO_temp_obstacle);
+    glBindVertexArray(VAO_temp_obstacle);
 
     // VBO 생성
-    glGenBuffers(2, VBO_obstacle);
+    glGenBuffers(2, VBO_temp_obstacle);
 
     // 정점 위치 데이터
-    glBindBuffer(GL_ARRAY_BUFFER, VBO_obstacle[0]);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_temp_obstacle[0]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(obstacle_vertices), obstacle_vertices, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
     // 정점 색상 데이터
-    glBindBuffer(GL_ARRAY_BUFFER, VBO_obstacle[1]);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_temp_obstacle[1]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(obstacle_colors), obstacle_colors, GL_STATIC_DRAW);
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
     // EBO 설정
-    glGenBuffers(1, &EBO_obstacle);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO_obstacle);
+    glGenBuffers(1, &EBO_temp_obstacle);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO_temp_obstacle);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(obstacle_indices), obstacle_indices, GL_STATIC_DRAW);
 
     // 바인딩 해제
@@ -106,7 +106,7 @@ void TempObstacle::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
         glUniform1i(uUseTexture_loc, 0); // false
     }
 
-    glBindVertexArray(VAO_obstacle);
+    glBindVertexArray(VAO_temp_obstacle);
 
     // 모델 매트릭스 계산
     glm::mat4 model = GetModelMatrix();
