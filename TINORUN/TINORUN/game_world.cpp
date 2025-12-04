@@ -12,6 +12,22 @@ void GameWorld::AddObject(std::unique_ptr<GameObject> object) {
     }
 }
 
+void GameWorld::AddPendingObject(std::unique_ptr<GameObject> object) {
+    if (object) {
+        pendingObjects.push_back(std::move(object));
+    }
+}
+
+void GameWorld::ProcessPendingObjects() {
+    // 대기 중인 객체들을 실제 게임 객체 리스트에 추가
+    for (auto& obj : pendingObjects) {
+        if (obj) {
+            gameObjects.push_back(std::move(obj));
+        }
+    }
+    pendingObjects.clear();
+}
+
 void GameWorld::RemoveInactiveObjects() {
     // remove_if와 erase를 사용하여 비활성화된 객체들 제거
     // TempObstacle의 경우 ShouldBeRemoved() 조건도 확인
@@ -43,6 +59,9 @@ void GameWorld::UpdateAll() {
         }
     }
     
+    // Update 루프가 끝난 후에 대기 중인 객체들 추가
+    ProcessPendingObjects();
+    
     // 비활성화된 객체들 제거
     RemoveInactiveObjects();
 }
@@ -58,6 +77,7 @@ void GameWorld::DrawAll(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 
 void GameWorld::Clear() {
     gameObjects.clear();
+    pendingObjects.clear(); // 대기 객체들도 클리어
 }
 
 size_t GameWorld::GetActiveObjectCount() const {

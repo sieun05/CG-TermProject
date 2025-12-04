@@ -12,6 +12,12 @@ public:
     // 게임 객체 추가 (unique_ptr 사용으로 메모리 자동 관리)
     void AddObject(std::unique_ptr<GameObject> object);
     
+    // 대기열에 객체 추가 (Update 중 안전하게 추가)
+    void AddPendingObject(std::unique_ptr<GameObject> object);
+    
+    // 대기열의 객체들을 실제 게임 객체 리스트에 추가
+    void ProcessPendingObjects();
+    
     // 게임 객체 제거 (비활성화된 객체들 제거)
     void RemoveInactiveObjects();
     
@@ -29,6 +35,7 @@ public:
 
 private:
     std::vector<std::unique_ptr<GameObject>> gameObjects;
+    std::vector<std::unique_ptr<GameObject>> pendingObjects; // 대기열 추가
 };
 
 // 전역 게임 월드 인스턴스
