@@ -1,17 +1,11 @@
 #pragma once
 #include "헤더.h"
 #include "game_object.h"
+#include "common.h"
 #include <string>
 
-struct Vertex {
-	glm::vec3 position;
-	glm::vec3 color;      // 컬러 추가
-	glm::vec2 texCoord;
-	glm::vec3 normal;
-};
-
 class Obstacle : public GameObject {
-	public:
+public:
 	Obstacle() = default;
 	Obstacle(const std::string& objPath, const std::string& texturePath);
 	~Obstacle();
@@ -26,6 +20,12 @@ class Obstacle : public GameObject {
 	bool LoadOBJ(const std::string& objPath);
 	bool LoadTexture(const std::string& texturePath);
 
+	// 장애물이 제거되어야 하는지 확인
+	bool ShouldBeRemoved() const;
+
+	// 이동 속도 설정
+	void SetSpeed(float speed) { moveSpeed = speed; }
+
 private:
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
@@ -33,6 +33,36 @@ private:
 	GLuint VBO;
 	GLuint EBO;
 	GLuint textureID;
+	BITMAPINFO* bmp;
+
+	float moveSpeed;        // 이동 속도 (x축으로 이동)
+	static const float REMOVAL_X_POSITION; // 제거될 x 위치
+	static const float SPAWN_X_POSITION;   // 생성될 x 위치
+
 	bool isLoaded;
 	void SetupMesh();
 };
+
+class ObstacleManager {
+public:
+	static ObstacleManager& GetInstance();
+
+	void Update(float deltaTime);
+	void SpawnObstacle();
+
+	void SetSpawnInterval(float interval) { spawnInterval = interval; }
+
+private:
+	ObstacleManager() : spawnTimer(0.0f), spawnInterval(5.0f) {}
+
+	float spawnTimer;
+	float spawnInterval;
+};
+
+// 장애물용 정육면체 초기화 함수
+// void InitObstacleBuffer();
+
+// 장애물용 전역 변수
+extern GLuint VAO_obstacle;
+extern GLuint VBO_obstacle[2];
+extern GLuint EBO_obstacle;

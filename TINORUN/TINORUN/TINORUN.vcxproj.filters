@@ -13,6 +13,18 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="헤더 파일\manage">
+      <UniqueIdentifier>{77166196-c927-4074-8c2d-8cb3b23e7310}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\object">
+      <UniqueIdentifier>{53e7834a-a28b-463d-8c8d-28dd7d91256d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\another">
+      <UniqueIdentifier>{96e338a9-5ae2-42ce-9d4f-7e95a2bd6ee3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\shader">
+      <UniqueIdentifier>{f8988479-4493-4ef4-a46c-1983c47f08fa}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="소스.cpp">
@@ -36,54 +48,60 @@
     <ClCompile Include="button.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="obstacle.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="헤더.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="shader_func.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="WindowToNDC.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ground.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="game_object.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="game_world.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Axes.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="tino.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="obstacle.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="temp_obstacle.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>헤더 파일\manage</Filter>
     </ClInclude>
     <ClInclude Include="game_state.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>헤더 파일\manage</Filter>
+    </ClInclude>
+    <ClInclude Include="game_world.h">
+      <Filter>헤더 파일\manage</Filter>
+    </ClInclude>
+    <ClInclude Include="Axes.h">
+      <Filter>헤더 파일\object</Filter>
     </ClInclude>
     <ClInclude Include="Button.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>헤더 파일\object</Filter>
+    </ClInclude>
+    <ClInclude Include="ground.h">
+      <Filter>헤더 파일\object</Filter>
+    </ClInclude>
+    <ClInclude Include="obstacle.h">
+      <Filter>헤더 파일\object</Filter>
+    </ClInclude>
+    <ClInclude Include="temp_obstacle.h">
+      <Filter>헤더 파일\object</Filter>
+    </ClInclude>
+    <ClInclude Include="tino.h">
+      <Filter>헤더 파일\object</Filter>
     </ClInclude>
     <ClInclude Include="LoadBitmap.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>헤더 파일\another</Filter>
+    </ClInclude>
+    <ClInclude Include="shader_func.h">
+      <Filter>헤더 파일\another</Filter>
+    </ClInclude>
+    <ClInclude Include="common.h">
+      <Filter>헤더 파일\another</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowToNDC.h">
+      <Filter>헤더 파일\another</Filter>
+    </ClInclude>
+    <ClInclude Include="헤더.h">
+      <Filter>헤더 파일\another</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="vertex.glsl">
-      <Filter>소스 파일</Filter>
-    </None>
     <None Include="fragment.glsl">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\shader</Filter>
+    </None>
+    <None Include="vertex.glsl">
+      <Filter>소스 파일\shader</Filter>
     </None>
   </ItemGroup>
 </Project>

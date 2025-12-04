@@ -6,6 +6,7 @@
 #include "ground.h"
 #include "tino.h"  // Tino 헤더 추가
 #include "temp_obstacle.h" // 장애물 헤더 추가
+#include "obstacle.h" // 장애물 헤더 추가 
 #include "Button.h"	// 버튼 헤더 추가
 
 #include "Axes.h"
@@ -80,7 +81,7 @@ void InitBuffer()
 	//RectInit();<< 따로 초기화 함수 만들어서 호출만 하기 
 	GroundInit();
 	InitAxesBuffer();
-	InitObstacleBuffer(); // 장애물 버퍼 초기화 추가
+	//InitObstacleBuffer(); // 장애물 버퍼 초기화 추가
 }
 
 void InitGameObjects()
@@ -135,7 +136,7 @@ void InitGameObjects()
 //--- 출력 콜백함수
 GLvoid drawScene()
 {
-	glClearColor(0.8f, 0.8f, 1.0f, 1.0f);
+	glClearColor(0.7f, 0.95f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		//GL_DEPTH_BUFFER_BIT 깊이에 따른 은면제거
 
 
