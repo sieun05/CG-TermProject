@@ -4,26 +4,26 @@
 #include <fstream>
 #include <sstream>
 
-// STB ÀÌ¹ÌÁö ¶óÀÌºê·¯¸® ´ë½Å ÀÓ½Ã·Î ÅØ½ºÃ³ ¾øÀÌ ±¸Çö
+// STB ì´ë¯¸ì§€ ë¼ì´ë¸ŒëŸ¬ë¦¬ ëŒ€ì‹  ì„ì‹œë¡œ í…ìŠ¤ì²˜ ì—†ì´ êµ¬í˜„
 Tino::Tino(const std::string& objPath, const std::string& texturePath)
-    : VAO(0), VBO(0), EBO(0), textureID(0), isLoaded(false)
+    : VAO(0), VBO(0), EBO(0), textureID(0), bmp(nullptr), isLoaded(false)
 {
-    std::cout << "Tino »ı¼º ½Ãµµ, OBJ °æ·Î: " << objPath << std::endl;
+    std::cout << "Tino ìƒì„± ì‹œë„, OBJ ê²½ë¡œ: " << objPath << std::endl;
     
     if (LoadOBJ(objPath)) {
-        std::cout << "OBJ ·Îµù ¼º°ø!" << std::endl;
-        // ÅØ½ºÃ³´Â ³ªÁß¿¡ ±¸ÇöÇÏ°í ¿ì¼± ÄÃ·¯¸¸ »ç¿ë
+        std::cout << "OBJ ë¡œë”© ì„±ê³µ!" << std::endl;
+        // í…ìŠ¤ì²˜ëŠ” ë‚˜ì¤‘ì— êµ¬í˜„í•˜ê³  ìš°ì„  ì»¬ëŸ¬ë§Œ ì‚¬ìš©
         SetupMesh();
         isLoaded = true;
-        std::cout << "Tino ÃÊ±âÈ­ ¿Ï·á" << std::endl;
+        std::cout << "Tino ì´ˆê¸°í™” ì™„ë£Œ" << std::endl;
     } else {
-        std::cerr << "Tino ÃÊ±âÈ­ ½ÇÆĞ: OBJ ·Îµù ½ÇÆĞ" << std::endl;
+        std::cerr << "Tino ì´ˆê¸°í™” ì‹¤íŒ¨: OBJ ë¡œë”© ì‹¤íŒ¨" << std::endl;
     }
 	if (LoadTexture(texturePath)) {
-		std::cout << "Tino ÅØ½ºÃ³ ·Îµù ¼º°ø!" << std::endl;
+		std::cout << "Tino í…ìŠ¤ì²˜ ë¡œë”© ì„±ê³µ!" << std::endl;
 	}
 	else {
-		std::cerr << "Tino ÅØ½ºÃ³ ·Îµù ½ÇÆĞ!" << std::endl;
+		std::cerr << "Tino í…ìŠ¤ì²˜ ë¡œë”© ì‹¤íŒ¨!" << std::endl;
 	}
 }
 
@@ -37,27 +37,27 @@ Tino::~Tino()
 
 bool Tino::LoadOBJ(const std::string& objPath)
 {
-    std::cout << "OBJ ÆÄÀÏ ·Îµù ½ÃÀÛ: " << objPath << std::endl;
+    std::cout << "OBJ íŒŒì¼ ë¡œë”© ì‹œì‘: " << objPath << std::endl;
     
     std::ifstream file(objPath);
     if (!file.is_open()) {
         std::cerr << "Failed to open OBJ file: " << objPath << std::endl;
         
-        // ´Ù¸¥ °æ·Îµéµµ ½ÃµµÇØº¸±â
+        // ë‹¤ë¥¸ ê²½ë¡œë“¤ë„ ì‹œë„í•´ë³´ê¸°
         std::string altPath1 = "assets/Tino.obj";
         std::string altPath2 = "../assets/Tino.obj";
         std::string altPath3 = "./TINORUN/assets/Tino.obj";
         
-        std::cout << "´ëÃ¼ °æ·Î ½Ãµµ: " << altPath1 << std::endl;
+        std::cout << "ëŒ€ì²´ ê²½ë¡œ ì‹œë„: " << altPath1 << std::endl;
         file.open(altPath1);
         if (!file.is_open()) {
-            std::cout << "´ëÃ¼ °æ·Î ½Ãµµ: " << altPath2 << std::endl;
+            std::cout << "ëŒ€ì²´ ê²½ë¡œ ì‹œë„: " << altPath2 << std::endl;
             file.open(altPath2);
             if (!file.is_open()) {
-                std::cout << "´ëÃ¼ °æ·Î ½Ãµµ: " << altPath3 << std::endl;
+                std::cout << "ëŒ€ì²´ ê²½ë¡œ ì‹œë„: " << altPath3 << std::endl;
                 file.open(altPath3);
                 if (!file.is_open()) {
-                    std::cout << "OBJ ÆÄÀÏÀ» Ã£À» ¼ö ¾øÀ½." << std::endl;
+                    std::cout << "OBJ íŒŒì¼ì„ ì°¾ì„ ìˆ˜ ì—†ìŒ." << std::endl;
                     return false;
                 }
             }
@@ -78,90 +78,97 @@ bool Tino::LoadOBJ(const std::string& objPath)
         iss >> prefix;
 
         if (prefix == "v") {
-            // Á¤Á¡ À§Ä¡
+            // ì •ì  ìœ„ì¹˜
             glm::vec3 vertex;
             iss >> vertex.x >> vertex.y >> vertex.z;
             temp_vertices.push_back(vertex);
             vertexCount++;
         }
         else if (prefix == "vt") {
-            // ÅØ½ºÃ³ ÁÂÇ¥
+            // í…ìŠ¤ì²˜ ì¢Œí‘œ
             glm::vec2 texCoord;
             iss >> texCoord.x >> texCoord.y;
             temp_texCoords.push_back(texCoord);
         }
         else if (prefix == "vn") {
-            // ¹ı¼± º¤ÅÍ
+            // ë²•ì„  ë²¡í„°
             glm::vec3 normal;
             iss >> normal.x >> normal.y >> normal.z;
             temp_normals.push_back(normal);
         }
         else if (prefix == "f") {
-            // ¸é Á¤º¸
-            std::string vertex1, vertex2, vertex3;
-            iss >> vertex1 >> vertex2 >> vertex3;
-            faceCount++;
+            // ë©´ ì •ë³´
+			std::vector<std::string> faceVertices;
+            std::string vertexStr;
+			while (iss >> vertexStr) {
+				faceVertices.push_back(vertexStr);
+			}
+
+			if (faceVertices.size() < 3) continue; // ì‚¼ê°í˜•ì´ ì•„ë‹Œ ë©´ì€ ë¬´ì‹œ
+			faceCount++;
             
-            // "v/vt/vn" Çü½Ä ÆÄ½Ì
+            // "v/vt/vn" í˜•ì‹ íŒŒì‹±
             auto parseVertex = [](const std::string& vertexStr) {
                 std::vector<std::string> parts = Split(vertexStr, '/');
                 std::vector<unsigned int> indices;
                 for (const auto& part : parts) {
                     if (!part.empty()) {
-                        indices.push_back(std::stoi(part) - 1); // OBJ´Â 1-based ÀÎµ¦½º
+                        indices.push_back(std::stoi(part) - 1); // OBJëŠ” 1-based ì¸ë±ìŠ¤
                     } else {
-                        indices.push_back(0); // ºó ºÎºĞÀº 0À¸·Î Ã³¸®
+                        indices.push_back(0); // ë¹ˆ ë¶€ë¶„ì€ 0ìœ¼ë¡œ ì²˜ë¦¬
                     }
                 }
                 return indices;
             };
 
-            auto v1_indices = parseVertex(vertex1);
-            auto v2_indices = parseVertex(vertex2);
-            auto v3_indices = parseVertex(vertex3);
-
-            // °¢ Á¤Á¡ÀÇ ÀÎµ¦½º ÀúÀå
-            if (v1_indices.size() >= 1) vertexIndices.push_back(v1_indices[0]);
-            if (v1_indices.size() >= 2) texCoordIndices.push_back(v1_indices[1]);
-            if (v1_indices.size() >= 3) normalIndices.push_back(v1_indices[2]);
-
-            if (v2_indices.size() >= 1) vertexIndices.push_back(v2_indices[0]);
-            if (v2_indices.size() >= 2) texCoordIndices.push_back(v2_indices[1]);
-            if (v2_indices.size() >= 3) normalIndices.push_back(v2_indices[2]);
-
-            if (v3_indices.size() >= 1) vertexIndices.push_back(v3_indices[0]);
-            if (v3_indices.size() >= 2) texCoordIndices.push_back(v3_indices[1]);
-            if (v3_indices.size() >= 3) normalIndices.push_back(v3_indices[2]);
+            if (faceVertices.size() == 3) {
+                for (int i = 0; i < 3; ++i) {
+					auto indices = parseVertex(faceVertices[i]);
+					if (indices.size() >= 1) vertexIndices.push_back(indices[0]);
+					if (indices.size() >= 2) texCoordIndices.push_back(indices[1]);
+					if (indices.size() >= 3) normalIndices.push_back(indices[2]);
+                }
+            }
+            else if (faceVertices.size() == 4) {
+                // ì‚¬ê°í˜•ì„ ë‘ ê°œì˜ ì‚¼ê°í˜•ìœ¼ë¡œ ë¶„í• 
+                int triangleIndices[6] = { 0, 1, 2, 0, 2, 3 };
+                for (int i = 0; i < 6; ++i) {
+                    auto indices = parseVertex(faceVertices[triangleIndices[i]]);
+                    if (indices.size() >= 1) vertexIndices.push_back(indices[0]);
+                    if (indices.size() >= 2) texCoordIndices.push_back(indices[1]);
+                    if (indices.size() >= 3) normalIndices.push_back(indices[2]);
+                }
+            }
         }
     }
 
     file.close();
     
-    std::cout << "OBJ ÆÄÀÏ ÆÄ½Ì ¿Ï·á: Á¤Á¡ " << vertexCount << "°³, ¸é " << faceCount << "°³" << std::endl;
+    //std::cout << "OBJ íŒŒì¼ íŒŒì‹± ì™„ë£Œ: ì •ì  " << vertexCount << "ê°œ, ë©´ " << faceCount << "ê°œ" << std::endl;
 
-    // ÀÎµ¦½º¸¦ »ç¿ëÇØ¼­ ÃÖÁ¾ Á¤Á¡ ¹è¿­ ±¸¼º
+    // ì¸ë±ìŠ¤ë¥¼ ì‚¬ìš©í•´ì„œ ìµœì¢… ì •ì  ë°°ì—´ êµ¬ì„±
     vertices.clear();
     indices.clear();
 
     for (size_t i = 0; i < vertexIndices.size(); ++i) {
         Vertex vertex;
         
-        // À§Ä¡
+        // ìœ„ì¹˜
         if (vertexIndices[i] < temp_vertices.size()) {
             vertex.position = temp_vertices[vertexIndices[i]];
         }
         
-        // ±âº» ÆÄ¶õ»ö ÄÃ·¯ ¼³Á¤ (Tino Ä³¸¯ÅÍ »ö»ó)
+        // ê¸°ë³¸ íŒŒë€ìƒ‰ ì»¬ëŸ¬ ì„¤ì • (Tino ìºë¦­í„° ìƒ‰ìƒ)
         vertex.color = glm::vec3(0.3f, 0.7f, 1.0f);
         
-        // ÅØ½ºÃ³ ÁÂÇ¥
+        // í…ìŠ¤ì²˜ ì¢Œí‘œ
         if (i < texCoordIndices.size() && texCoordIndices[i] < temp_texCoords.size()) {
             vertex.texCoord = temp_texCoords[texCoordIndices[i]];
         } else {
             vertex.texCoord = glm::vec2(0.0f, 0.0f);
         }
         
-        // ¹ı¼±
+        // ë²•ì„ 
         if (i < normalIndices.size() && normalIndices[i] < temp_normals.size()) {
             vertex.normal = temp_normals[normalIndices[i]];
         } else {
@@ -172,10 +179,10 @@ bool Tino::LoadOBJ(const std::string& objPath)
         indices.push_back(static_cast<unsigned int>(i));
     }
 
-    std::cout << "ÃÖÁ¾ Loaded OBJ: " << vertices.size() << " vertices, " << indices.size() << " indices" << std::endl;
+    std::cout << "ìµœì¢… Loaded OBJ: " << vertices.size() << " vertices, " << indices.size() << " indices" << std::endl;
     
     if (vertices.empty()) {
-        std::cerr << "°æ°í: Á¤Á¡ µ¥ÀÌÅÍ°¡ ¾ø½À´Ï´Ù!" << std::endl;
+        std::cerr << "ê²½ê³ : ì •ì  ë°ì´í„°ê°€ ì—†ìŠµë‹ˆë‹¤!" << std::endl;
         return false;
     }
     
@@ -183,19 +190,19 @@ bool Tino::LoadOBJ(const std::string& objPath)
 }
 bool Tino::LoadTexture(const std::string& texturePath)
 {
-    // ÅØ½ºÃ³ ·ÎµùÀº ³ªÁß¿¡ ±¸Çö
+    // í…ìŠ¤ì²˜ ë¡œë”©ì€ ë‚˜ì¤‘ì— êµ¬í˜„
     // std::cout << "Texture loading not implemented yet: " << texturePath << std::endl;
-    // ÅØ½ºÃ³ ·Îµå ¹× »ı¼º
+    // í…ìŠ¤ì²˜ ë¡œë“œ ë° ìƒì„±
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_2D, textureID);
 
-    // ÅØ½ºÃ³ ¸Å°³º¯¼ö ¼³Á¤
+    // í…ìŠ¤ì²˜ ë§¤ê°œë³€ìˆ˜ ì„¤ì •
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    // ÀÌ¹ÌÁö ·Îµå (¿©±â¼­´Â ´Ü»ö ÀÌ¹ÌÁö »ç¿ë)
+    // ì´ë¯¸ì§€ ë¡œë“œ (ì—¬ê¸°ì„œëŠ” ë‹¨ìƒ‰ ì´ë¯¸ì§€ ì‚¬ìš©)
     unsigned char* data = LoadDIBitmap("assets\\Tino_base.bmp", &bmp);
     if (data == NULL) {
         std::cerr << "Failed to load texture: Tino_base" << std::endl;
@@ -208,39 +215,39 @@ bool Tino::LoadTexture(const std::string& texturePath)
 
 void Tino::SetupMesh()
 {
-    std::cout << "SetupMesh ½ÃÀÛ" << std::endl;
+    std::cout << "SetupMesh ì‹œì‘" << std::endl;
     
-    // VAO »ı¼º
+    // VAO ìƒì„±
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
 
     glBindVertexArray(VAO);
 
-    // VBO ¼³Á¤
+    // VBO ì„¤ì •
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
 
-    // EBO ¼³Á¤
+    // EBO ì„¤ì •
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
 
-    // Á¤Á¡ ¼Ó¼º ¼³Á¤
-    // À§Ä¡ (location = 0)
+    // ì •ì  ì†ì„± ì„¤ì •
+    // ìœ„ì¹˜ (location = 0)
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
 
-    // ÄÃ·¯ (location = 1)
+    // ì»¬ëŸ¬ (location = 1)
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, color));
 
-    // ÅØ½ºÃ³ ÁÂÇ¥ (location = 2)
+    // í…ìŠ¤ì²˜ ì¢Œí‘œ (location = 2)
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
 
     glBindVertexArray(0);
     
-    std::cout << "SetupMesh ¿Ï·á, VAO: " << VAO << std::endl;
+    std::cout << "SetupMesh ì™„ë£Œ, VAO: " << VAO << std::endl;
 }
 
 void Tino::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
@@ -248,46 +255,50 @@ void Tino::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     //if (scene == GameState::TITLE) return; 
 
     if (!isLoaded) {
-        std::cerr << "Tino°¡ ·ÎµåµÇÁö ¾Ê¾Æ¼­ ±×¸± ¼ö ¾ø½À´Ï´Ù" << std::endl;
+        std::cerr << "Tinoê°€ ë¡œë“œë˜ì§€ ì•Šì•„ì„œ ê·¸ë¦´ ìˆ˜ ì—†ìŠµë‹ˆë‹¤" << std::endl;
         return;
     }
 
-    // ÅØ½ºÃ³ »ç¿ë ¸ğµå ºñÈ°¼ºÈ­ (ÇöÀç´Â ÄÃ·¯¸¸ »ç¿ë)
-    //if (uUseTexture_loc >= 0) {
-    //    glUniform1i(uUseTexture_loc, 0); // false
-    //}
-
-    glUniform1i(uUseTexture_loc, 1);
+	glUniform1i(uUseTexture_loc, 1);    // í…ìŠ¤ì²˜ ì‚¬ìš© ëª¨ë“œ í™œì„±í™”
 
     glActiveTexture(GL_TEXTURE0);
-    glUniform1i(uTextureSampler_loc, 0);
+	glUniform1i(uTextureSampler_loc, 0); // í…ìŠ¤ì²˜ ìœ ë‹› 0 ì‚¬ìš©
 
     glBindVertexArray(VAO);
     glBindTexture(GL_TEXTURE_2D, textureID);
 
-    // ¸ğµ¨ ¸ÅÆ®¸¯½º °è»ê
+
     glm::mat4 model = GetModelMatrix();
-	glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::mat4 rotate = glm::mat4(1.0f);
+	glm::mat4 translate = glm::mat4(1.0f);
+    if (scene == GameState::TITLE) {
+        rotate = glm::rotate(glm::mat4(1.0f), glm::radians(-15.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		rotate = glm::rotate(rotate, glm::radians(-10.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        translate = glm::translate(glm::mat4(1.0f), glm::vec3(-8.0f, 2.0f, 3.0f));
+    }
+    else {
+        rotate = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        translate = glm::translate(glm::mat4(1.0f), glm::vec3(-7.0f, 0.0f, 0.0f));
+    }
 	model = model * rotate;
-	glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(-7.0f, 0.0f, 0.0f));
 	model = translate * model;
 
     glm::mat4 mvp = gProjection * gView * model;
 
-    // À¯´ÏÆû ¼³Á¤
+    // ìœ ë‹ˆí¼ ì„¤ì •
     glUniformMatrix4fv(uMVP_loc, 1, GL_FALSE, &mvp[0][0]);
 
-    // Ã¤¿öÁø »ï°¢ÇüÀ¸·Î ±×¸®±â
+    // ì±„ì›Œì§„ ì‚¼ê°í˜•ìœ¼ë¡œ ê·¸ë¦¬ê¸°
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
     
-    // Ãß°¡·Î ¿ÍÀÌ¾îÇÁ·¹ÀÓµµ ±×·Á¼­ ±¸Á¶¸¦ È®ÀÎÇÒ ¼ö ÀÖ°Ô ÇÔ
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    glLineWidth(1.0f);
-    glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
-    
-    // ´Ù½Ã FILL ¸ğµå·Î º¹¿ø
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    //// ì¶”ê°€ë¡œ ì™€ì´ì–´í”„ë ˆì„ë„ ê·¸ë ¤ì„œ êµ¬ì¡°ë¥¼ í™•ì¸í•  ìˆ˜ ìˆê²Œ í•¨
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    //glLineWidth(1.0f);
+    //glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
+    //
+    //// ë‹¤ì‹œ FILL ëª¨ë“œë¡œ ë³µì›
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -296,10 +307,10 @@ void Tino::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 
 void Tino::Update()
 {
-    // ÇÊ¿äÇÑ ¾÷µ¥ÀÌÆ® ·ÎÁ÷ ±¸Çö
+    // í•„ìš”í•œ ì—…ë°ì´íŠ¸ ë¡œì§ êµ¬í˜„
 }
 
-// À¯Æ¿¸®Æ¼ ÇÔ¼öµé
+// ìœ í‹¸ë¦¬í‹° í•¨ìˆ˜ë“¤
 std::vector<std::string> Split(const std::string& str, char delimiter)
 {
     std::vector<std::string> tokens;
@@ -313,6 +324,6 @@ std::vector<std::string> Split(const std::string& str, char delimiter)
 
 GLuint LoadTextureFromFile(const std::string& path)
 {
-    // ÅØ½ºÃ³ ·ÎµùÀº ³ªÁß¿¡ ±¸Çö
+    // í…ìŠ¤ì²˜ ë¡œë”©ì€ ë‚˜ì¤‘ì— êµ¬í˜„
     return 0;
 }
