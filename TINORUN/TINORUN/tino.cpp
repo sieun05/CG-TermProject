@@ -8,22 +8,22 @@
 Tino::Tino(const std::string& objPath, const std::string& texturePath)
     : VAO(0), VBO(0), EBO(0), textureID(0), bmp(nullptr), isLoaded(false)
 {
-    std::cout << "Tino 생성 시도, OBJ 경로: " << objPath << std::endl;
+    //std::cout << "Tino 생성 시도, OBJ 경로: " << objPath << std::endl;
     
     if (LoadOBJ(objPath)) {
-        std::cout << "OBJ 로딩 성공!" << std::endl;
+        //std::cout << "OBJ 로딩 성공!" << std::endl;
         // 텍스처는 나중에 구현하고 우선 컬러만 사용
         SetupMesh();
         isLoaded = true;
-        std::cout << "Tino 초기화 완료" << std::endl;
+        //std::cout << "Tino 초기화 완료" << std::endl;
     } else {
-        std::cerr << "Tino 초기화 실패: OBJ 로딩 실패" << std::endl;
+        //std::cerr << "Tino 초기화 실패: OBJ 로딩 실패" << std::endl;
     }
 	if (LoadTexture(texturePath)) {
-		std::cout << "Tino 텍스처 로딩 성공!" << std::endl;
+		//std::cout << "Tino 텍스처 로딩 성공!" << std::endl;
 	}
 	else {
-		std::cerr << "Tino 텍스처 로딩 실패!" << std::endl;
+		//std::cerr << "Tino 텍스처 로딩 실패!" << std::endl;
 	}
 }
 
@@ -37,7 +37,7 @@ Tino::~Tino()
 
 bool Tino::LoadOBJ(const std::string& objPath)
 {
-    std::cout << "OBJ 파일 로딩 시작: " << objPath << std::endl;
+    //std::cout << "OBJ 파일 로딩 시작: " << objPath << std::endl;
     
     std::ifstream file(objPath);
     if (!file.is_open()) {
@@ -179,7 +179,7 @@ bool Tino::LoadOBJ(const std::string& objPath)
         indices.push_back(static_cast<unsigned int>(i));
     }
 
-    std::cout << "최종 Loaded OBJ: " << vertices.size() << " vertices, " << indices.size() << " indices" << std::endl;
+    //std::cout << "최종 Loaded OBJ: " << vertices.size() << " vertices, " << indices.size() << " indices" << std::endl;
     
     if (vertices.empty()) {
         std::cerr << "경고: 정점 데이터가 없습니다!" << std::endl;
@@ -215,7 +215,7 @@ bool Tino::LoadTexture(const std::string& texturePath)
 
 void Tino::SetupMesh()
 {
-    std::cout << "SetupMesh 시작" << std::endl;
+    //std::cout << "SetupMesh 시작" << std::endl;
     
     // VAO 생성
     glGenVertexArrays(1, &VAO);
@@ -247,7 +247,7 @@ void Tino::SetupMesh()
 
     glBindVertexArray(0);
     
-    std::cout << "SetupMesh 완료, VAO: " << VAO << std::endl;
+    //std::cout << "SetupMesh 완료, VAO: " << VAO << std::endl;
 }
 
 void Tino::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
