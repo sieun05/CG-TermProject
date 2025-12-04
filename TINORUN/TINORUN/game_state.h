@@ -7,4 +7,4 @@ enum class GameState {
 	GAME_OVER
 };
 
-GameState scene = GameState::TITLE;
+extern GameState scene;

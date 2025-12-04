@@ -30,8 +30,6 @@ GLint uMVP_loc = -1;
 GLint uUseTexture_loc = -1;
 GLint uTextureSampler_loc = -1;
 
-extern GameState scene; // 게임 상태 전역 변수
-
 //--- 메인 함수
 void main(int argc, char** argv)
 //--- 윈도우출력하고콜백함수설정
