@@ -1,6 +1,7 @@
 #pragma once
 #include "헤더.h"
 #include "game_object.h"
+#include "game_state.h"
 
 class TempObstacle : public GameObject {
 public:
@@ -25,19 +26,20 @@ private:
     static const float SPAWN_X_POSITION;   // 생성될 x 위치
 };
 
-// 장애물 관리자 클래스
-class ObstacleManager {
+// 장애물 스포너 클래스 - GameObject를 상속받아 GameWorld에서 관리
+class ObstacleSpawner : public GameObject {
 public:
-    static ObstacleManager& GetInstance();
-    
-    void Update(float deltaTime);
-    void SpawnObstacle();
-    
+    ObstacleSpawner();
+    ~ObstacleSpawner() = default;
+
+    // GameObject의 가상 함수들을 오버라이드
+    void Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc) override;
+    void Update() override;
+
     void SetSpawnInterval(float interval) { spawnInterval = interval; }
-    
+    void SpawnObstacle();
+
 private:
-    ObstacleManager() : spawnTimer(0.0f), spawnInterval(5.0f) {}
-    
     float spawnTimer;
     float spawnInterval;
 };

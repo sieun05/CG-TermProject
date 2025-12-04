@@ -5,7 +5,7 @@
 #include "game_world.h"
 #include "ground.h"
 #include "tino.h"  // Tino 헤더 추가
-#include "temp_obstacle.h" // 장애물 헤더 추가 
+#include "temp_obstacle.h" // 장애물 헤더 추가
 #include "Button.h"	// 버튼 헤더 추가
 
 #include "Axes.h"
@@ -44,7 +44,7 @@ void main(int argc, char** argv)
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);		//GLUT_DEPTH 깊이에 따른 은면제거
 	glutInitWindowPosition(100, 0);
 	glutInitWindowSize(width, height);
-	glutCreateWindow("TinoRun");
+	glutCreateWindow("TINO RUN");
 
 	//--- GLEW 초기화하기
 	glewExperimental = GL_TRUE;
@@ -65,6 +65,10 @@ void main(int argc, char** argv)
 
 	InitBuffer();
 	InitGameObjects();		// 게임 객체 초기화
+	
+	// 게임 상태를 PLAYING으로 설정 (테스트용)
+	scene = GameState::TITLE;
+	
 	glutMainLoop();
 }
 
@@ -81,19 +85,51 @@ void InitBuffer()
 
 void InitGameObjects()
 {
-	// Ground 객체 생성 및 GameWorld에 추가
-	auto ground = std::make_unique<Ground>(1, RGBA{ 231/255., 217/255., 176/255., 1.0f });
-	g_gameWorld.AddObject(std::move(ground));
+	if (scene == GameState::LOBBY) {
+		g_gameWorld.Clear(); // 이전 게임 객체들 제거
 
-	// Tino 객체 생성 및 GameWorld에 추가
-	// 경로 수정: assets 폴더로 직접 접근
-	auto tino = std::make_unique<Tino>("assets/Tino.obj", "assets/Tino_base.png");
-	tino->position = glm::vec3(0.0f, 1.0f, 0.0f);  // Ground 위에 배치
-	tino->scale = glm::vec3(0.7f, 0.7f, 0.7f);     // 크기 조정 (우선 기본 크기로)
-	g_gameWorld.AddObject(std::move(tino));
+		auto start_button = std::move(std::make_unique<Button>(0.5f, -1.0f, 0.8f, 0.5f));
+		g_gameWorld.AddObject(std::move(start_button));
 
-	auto start_button = std::move(std::make_unique<Button>(0.5f, -1.0f, 0.8f, 0.5f));
-	g_gameWorld.AddObject(std::move(start_button));
+		// Tino 객체 생성 및 GameWorld에 추가
+		// 경로 수정: assets 폴더로 직접 접근
+		auto tino = std::make_unique<Tino>("assets/Tino.obj", "assets/Tino_base.png");
+		tino->position = glm::vec3(0.0f, 1.0f, 0.0f);  // Ground 위에 배치
+		tino->scale = glm::vec3(0.7f, 0.7f, 0.7f);     // 크기 조정 (우선 기본 크기로)
+		g_gameWorld.AddObject(std::move(tino));
+	}
+	else if (scene == GameState::TITLE) {
+		g_gameWorld.Clear(); // 이전 게임 객체들 제거
+		auto start_button = std::move(std::make_unique<Button>(0.5f, -1.0f, 0.8f, 0.5f));
+		g_gameWorld.AddObject(std::move(start_button));
+
+		// Tino 객체 생성 및 GameWorld에 추가
+		// 경로 수정: assets 폴더로 직접 접근
+		auto tino = std::make_unique<Tino>("assets/Tino.obj", "assets/Tino_base.png");
+		tino->position = glm::vec3(0.0f, 1.0f, 0.0f);  // Ground 위에 배치
+		tino->scale = glm::vec3(0.7f, 0.7f, 0.7f);     // 크기 조정 (우선 기본 크기로)
+		g_gameWorld.AddObject(std::move(tino));
+	}
+
+	// PLAYING 상태에서만 ObstacleSpawner 추가
+	else if (scene == GameState::PLAYING) {
+
+		g_gameWorld.Clear(); // 이전 게임 객체들 제거
+		// Ground 객체 생성 및 GameWorld에 추가
+		auto ground = std::make_unique<Ground>(1, RGBA{ 231 / 255., 217 / 255., 176 / 255., 1.0f });
+		g_gameWorld.AddObject(std::move(ground));
+
+		// Tino 객체 생성 및 GameWorld에 추가
+		// 경로 수정: assets 폴더로 직접 접근
+		auto tino = std::make_unique<Tino>("assets/Tino.obj", "assets/Tino_base.png");
+		tino->position = glm::vec3(0.0f, 1.0f, 0.0f);  // Ground 위에 배치
+		tino->scale = glm::vec3(0.7f, 0.7f, 0.7f);     // 크기 조정 (우선 기본 크기로)
+		g_gameWorld.AddObject(std::move(tino));
+
+		std::cout << "PLAYING 모드 시작 - ObstacleSpawner 추가" << std::endl;
+		auto spawner = std::make_unique<ObstacleSpawner>();
+		g_gameWorld.AddObject(std::move(spawner));
+	}
 }
 
 //--- 출력 콜백함수
@@ -118,6 +154,20 @@ GLvoid drawScene()
 
 	// GameWorld를 통해 모든 객체 렌더링
 	g_gameWorld.DrawAll(gProjection, gView, uMVP_loc);
+
+	// 게임 상태 표시 (콘솔)
+	static int frameCount = 0;
+	frameCount++;
+	if (frameCount % 300 == 0) { // 5초마다 출력
+		std::cout << "현재 게임 상태: ";
+		switch (scene) {
+		case GameState::TITLE: std::cout << "TITLE"; break;
+		case GameState::LOBBY: std::cout << "LOBBY"; break;
+		case GameState::PLAYING: std::cout << "PLAYING"; break;
+		case GameState::GAME_OVER: std::cout << "GAME_OVER"; break;
+		}
+		std::cout << ", 활성 객체 수: " << g_gameWorld.GetActiveObjectCount() << std::endl;
+	}
 
 	glutSwapBuffers();
 }
@@ -145,29 +195,20 @@ GLvoid Reshape(int w, int h)
 
 GLvoid Timer(int value)
 {
-	const float deltaTime = 0.016f; // 약 60FPS 기준
-	
-	// ObstacleManager 업데이트 (5초마다 장애물 생성)
-	ObstacleManager::GetInstance().Update(deltaTime);
-	
-	// GameWorld를 통해 모든 객체 업데이트
+	const float deltaTime = 0.016f;
+
+	// GameWorld를 통해 모든 객체 업데이트 (ObstacleSpawner 포함)
 	g_gameWorld.UpdateAll();
-	
+
 	glutPostRedisplay();
 	glutTimerFunc(16, Timer, 1); // 약 60FPS로 타이머 시작
 }
-
 
 GLvoid Keyboard(unsigned char key, int x, int y)
 {
 	const float deltaTime = 0.016f; // 약 60FPS 기준
 
 	switch (key) {
-	case 's': // 수동으로 장애물 생성 (테스트용)
-	case 'S':
-		ObstacleManager::GetInstance().SpawnObstacle();
-		break;
-
 	case 'q':
 	case 'Q':
 		exit(0);
@@ -183,6 +224,8 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 			scene = GameState::PLAYING;
 			std::cout << "게임 시작" << std::endl;
 		}
+		InitGameObjects();		// 게임 객체 초기화
+		break;
 
 	default: break;
 	}
