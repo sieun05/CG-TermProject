@@ -35,11 +35,15 @@ private:
 	GLuint textureID;
 	BITMAPINFO* bmp;
 
+
 	float moveSpeed;        // 이동 속도 (x축으로 이동)
 	static const float REMOVAL_X_POSITION; // 제거될 x 위치
 	static const float SPAWN_X_POSITION;   // 생성될 x 위치
+	static const float GROUND_Y_POSITION;  // 지면 y 위치
+	static const float AIR_Y_POSITION;     // 공중 y 위치
 
 	bool isLoaded;
+	bool isAirObstacle;	// 공중 장애물인지
 	void SetupMesh();
 };
 

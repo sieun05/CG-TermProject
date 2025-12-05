@@ -4,10 +4,13 @@
 #include "LoadBitmap.h"
 #include <fstream>
 #include <sstream>
+#include <random>
 
 // 정적 상수 정의
 const float Obstacle::REMOVAL_X_POSITION = -20.0f;
 const float Obstacle::SPAWN_X_POSITION = 40.0f;
+const float Obstacle::GROUND_Y_POSITION = 0.0f;
+const float Obstacle::AIR_Y_POSITION = 5.0f;
 
 // 장애물용 전역 변수 정의
 GLuint VAO_obstacle = 0;
@@ -15,11 +18,21 @@ GLuint VBO_obstacle[2] = { 0, };
 GLuint EBO_obstacle = 0;
 
 Obstacle::Obstacle(const std::string& objPath, const std::string& texturePath)
-    : VAO(0), VBO(0), EBO(0), textureID(0), moveSpeed(-5.0f), bmp(nullptr), isLoaded(false)
+    : VAO(0), VBO(0), EBO(0), textureID(0), moveSpeed(-5.0f), bmp(nullptr), isLoaded(false), isAirObstacle(false)
 {
-    position = glm::vec3(SPAWN_X_POSITION, 0.0f, 0.0f);
-    scale = glm::vec3(0.25f, 0.25f, 0.25f);
+    int obstacle_type = rand() % 100 + 1;
+    std::cout << "지면 장애물: " << !isAirObstacle << std::endl;
+    if (obstacle_type <= 20) {
+		isAirObstacle = true;
+        position = glm::vec3(SPAWN_X_POSITION, AIR_Y_POSITION, 0.0f);
 
+    }
+    else {
+		isAirObstacle = false;
+        position = glm::vec3(SPAWN_X_POSITION, GROUND_Y_POSITION, 0.0f);
+    }
+    scale = glm::vec3(0.25f, 0.25f, 0.25f);
+    
     std::cout << "장애물 생성 시도, OBJ 경로: " << objPath << std::endl;
 
     if (LoadOBJ(objPath)) {
@@ -286,12 +299,6 @@ void Obstacle::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 
 
     glm::mat4 model = GetModelMatrix();    
-    /*glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    model = model * rotate;
-    glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(-7.0f, 0.0f, 0.0f));*/
-    //model = translate * model;
-    
-
     glm::mat4 mvp = gProjection * gView * model;
 
     // 유니폼 설정
