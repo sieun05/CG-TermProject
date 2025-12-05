@@ -320,32 +320,44 @@ void Obstacle::Update()
     }
 }
 
-ObstacleManager& ObstacleManager::GetInstance()
+// ObstacleSpawner 클래스 구현
+ObstacleSpawner::ObstacleSpawner()
+    : spawnTimer(0.0f), spawnInterval(5.0f)
 {
-    static ObstacleManager instance;
-    return instance;
+    // 스포너는 렌더링되지 않는 객체이므로 위치는 상관없음
+    std::cout << "ObstacleSpawner 생성됨" << std::endl;
 }
 
-void ObstacleManager::Update(float deltaTime)
+void ObstacleSpawner::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 {
+    // 스포너는 렌더링되지 않음
+}
+
+void ObstacleSpawner::Update()
+{
+    // PLAYING 상태일 때만 장애물 생성
+    if (scene != GameState::PLAYING) {
+        spawnTimer = 0.0f; // 다른 상태에서는 타이머 초기화
+        return;
+    }
+
+    const float deltaTime = 0.016f; // 약 60FPS 기준
     spawnTimer += deltaTime;
 
     if (spawnTimer >= spawnInterval) {
+        // 직접 GameWorld에 추가하지 않고 대기열에 추가
         SpawnObstacle();
         spawnTimer = 0.0f;
     }
-
-    // GameWorld에서 제거되어야 할 장애물들 확인 및 제거
-    // 이는 GameWorld에서 처리하도록 할 예정
 }
 
-void ObstacleManager::SpawnObstacle()
+void ObstacleSpawner::SpawnObstacle()
 {
-    std::cout << "새로운 장애물 생성!" << std::endl;
+    std::cout << "ObstacleSpawner: 새로운 장애물 생성 대기열에 추가!" << std::endl;
 
     // 새로운 장애물 생성
     auto obstacle = std::make_unique<Obstacle>("assets/obstacle1.obj", "assets/obstacle1_base.bmp");
 
-    // GameWorld에 추가
-    g_gameWorld.AddObject(std::move(obstacle));
+    // GameWorld의 대기열에 추가 (직접 추가하지 않음)
+    g_gameWorld.AddPendingObject(std::move(obstacle));
 }

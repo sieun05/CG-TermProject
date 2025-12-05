@@ -5,7 +5,6 @@
 #include "game_world.h"
 #include "ground.h"
 #include "tino.h"  // Tino 헤더 추가
-#include "temp_obstacle.h" // 장애물 헤더 추가
 #include "obstacle.h" // 장애물 헤더 추가 
 #include "Button.h"	// 버튼 헤더 추가
 
@@ -81,12 +80,11 @@ void InitBuffer()
 	//RectInit();<< 따로 초기화 함수 만들어서 호출만 하기 
 	GroundInit();
 	InitAxesBuffer();
-	InitObstacleBuffer(); // 장애물 버퍼 초기화 추가 (주석 해제)
 }
 
 void InitGameObjects()
 {
-	if (scene == GameState::LOBBY) {
+	if (scene == GameState::TITLE) {
 		g_gameWorld.Clear(); // 이전 게임 객체들 제거
 
 		auto start_button = std::move(std::make_unique<Button>(0.5f, -1.0f, 0.8f, 0.5f));
@@ -99,7 +97,7 @@ void InitGameObjects()
 		tino->scale = glm::vec3(0.7f, 0.7f, 0.7f);     // 크기 조정 (우선 기본 크기로)
 		g_gameWorld.AddObject(std::move(tino));
 	}
-	else if (scene == GameState::TITLE) {
+	else if (scene == GameState::LOBBY) {
 		g_gameWorld.Clear(); // 이전 게임 객체들 제거
 		auto start_button = std::move(std::make_unique<Button>(0.5f, -1.0f, 0.8f, 0.5f));
 		g_gameWorld.AddObject(std::move(start_button));

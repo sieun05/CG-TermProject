@@ -44,9 +44,9 @@ bool Tino::LoadOBJ(const std::string& objPath)
         std::cerr << "Failed to open OBJ file: " << objPath << std::endl;
         
         // 다른 경로들도 시도해보기
-        std::string altPath1 = "assets/Tino.obj";
-        std::string altPath2 = "../assets/Tino.obj";
-        std::string altPath3 = "./TINORUN/assets/Tino.obj";
+        std::string altPath1 = objPath;
+        std::string altPath2 = ".." + objPath;
+        std::string altPath3 = "./TINORUN/" + objPath;
         
         std::cout << "대체 경로 시도: " << altPath1 << std::endl;
         file.open(altPath1);
