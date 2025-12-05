@@ -381,9 +381,6 @@ void Tree::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glBindTexture(GL_TEXTURE_2D, textureID);
 
     glm::mat4 model = GetModelMatrix();
-    // 기본 회전 + 가시 회전
-    glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(-35.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    model = model * rotate;
 
     glm::mat4 mvp = gProjection * gView * model;
     glUniformMatrix4fv(uMVP_loc, 1, GL_FALSE, &mvp[0][0]);
@@ -438,7 +435,6 @@ void Mushroom::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glBindTexture(GL_TEXTURE_2D, textureID);
 
     glm::mat4 model = GetModelMatrix();
-    model = model;
 
     glm::mat4 mvp = gProjection * gView * model;
     glUniformMatrix4fv(uMVP_loc, 1, GL_FALSE, &mvp[0][0]);
@@ -495,9 +491,6 @@ void Bird::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glBindTexture(GL_TEXTURE_2D, textureID);
 
     glm::mat4 model = GetModelMatrix();
-    // 기본 회전 + 연속 회전
-    //glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(-35.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    model = model;
 
     glm::mat4 mvp = gProjection * gView * model;
     glUniformMatrix4fv(uMVP_loc, 1, GL_FALSE, &mvp[0][0]);
