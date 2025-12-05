@@ -16,20 +16,22 @@ const float Obstacle::AIR_Y_POSITION = 3.0f;
 GLuint VAO_obstacle = 0;
 GLuint VBO_obstacle[2] = { 0, };
 GLuint EBO_obstacle = 0;
-
-int obstacle_type;
+int obstacle_type = 0; // 0: 선인장, 1: 나무, 2: 버섯, 3: 새
 
 Obstacle::Obstacle(const std::string& objPath, const std::string& texturePath)
     : VAO(0), VBO(0), EBO(0), textureID(0), moveSpeed(-5.0f), bmp(nullptr), isLoaded(false), isAirObstacle(false)
 {
-    obstacle_type = rand() % 20 + 1;
+    int randtype = rand() % 100 + 1;
 
-    if (obstacle_type <= 20) {
+    if (randtype <= 20) {
+        obstacle_type = 3;  // 공중 장애물
 		isAirObstacle = true;
         position = glm::vec3(SPAWN_X_POSITION, AIR_Y_POSITION, 0.0f);
         scale = glm::vec3(0.5f, 0.5f, 0.5f);
     }
     else {
+		// type 랜덤 설정 (0: 선인장, 1: 나무, 2: 버섯)
+		obstacle_type = rand() % 3;
 		isAirObstacle = false;
         position = glm::vec3(SPAWN_X_POSITION, GROUND_Y_POSITION, 0.0f);
         scale = glm::vec3(0.25f, 0.25f, 0.25f);
@@ -370,13 +372,21 @@ void ObstacleSpawner::SpawnObstacle()
     std::cout << "ObstacleSpawner: 새로운 장애물 생성 대기열에 추가!" << std::endl;
 	auto obstacle = std::make_unique<Obstacle>("assets/obstacle1.obj", "assets/obstacle1_base.bmp");
     // 새로운 장애물 생성
-	if (obstacle_type <= 20) {
-		std::cout << "공중 장애물 생성!" << std::endl;
-        obstacle = std::make_unique<Obstacle>("assets/bird.obj", "assets/bird_base.bmp");
+    if (obstacle_type == 0) {
+		std::cout << "선인장 생성" << std::endl;
+        obstacle = std::make_unique<Obstacle>("assets/obstacle1.obj", "assets/obstacle1_base.bmp");
+    }
+    else if (obstacle_type == 1) {
+		std::cout << "나무 생성" << std::endl;
+		obstacle = std::make_unique<Obstacle>("assets/obstacle2.obj", "assets/obstacle2_base.bmp");
+    }
+	else if (obstacle_type == 2) {
+		std::cout << "버섯 생성" << std::endl;
+		obstacle = std::make_unique<Obstacle>("assets/obstacle3.obj", "assets/obstacle3_base.bmp");
 	}
 	else {
-		std::cout << "지면 장애물 생성!" << std::endl;
-        obstacle = std::make_unique<Obstacle>("assets/obstacle1.obj", "assets/obstacle1_base.bmp");
+		std::cout << "공중 장애물 생성!" << std::endl;
+        obstacle = std::make_unique<Obstacle>("assets/bird.obj", "assets/bird_base.bmp");
 	}
 
     // GameWorld의 대기열에 추가 (직접 추가하지 않음)

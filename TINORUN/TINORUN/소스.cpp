@@ -208,10 +208,20 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 	const float deltaTime = 0.016f; // 약 60FPS 기준
 
 	switch (key) {
+	case 's':
+	case 'S':		// 임시: 장애물 변경 (선인장, 나무, 버섯, 새)
+		obstacle_type = (obstacle_type + 1) % 4;
+		break;
+
 	case 'q':
 	case 'Q':
 		exit(0);
 		break;
+
+	case ' ':	// 점프 (추후 구현)
+		std::cout << "Jump!" << std::endl;
+		break;
+
 
 	case '\r': 
 	case '\n':		// 엔터 누르면 시작

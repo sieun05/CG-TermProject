@@ -71,3 +71,4 @@ private:
 extern GLuint VAO_obstacle;
 extern GLuint VBO_obstacle[2];
 extern GLuint EBO_obstacle;
+extern int obstacle_type;
