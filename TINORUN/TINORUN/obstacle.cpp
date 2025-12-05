@@ -330,7 +330,7 @@ void Obstacle::Update()
     static int frameCount = 0;
     frameCount++;
     if (frameCount % 60 == 0) { // 1초마다 출력
-        std::cout << "장애물 위치: x = " << position.x << std::endl;
+        std::cout << "장애물 위치: x = " << position.x << ", y = " << position.y << std::endl;
     }
 }
 

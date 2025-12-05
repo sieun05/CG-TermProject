@@ -87,7 +87,7 @@ void InitGameObjects()
 	if (scene == GameState::TITLE) {
 		g_gameWorld.Clear(); // 이전 게임 객체들 제거
 
-		auto start_button = std::move(std::make_unique<Button>(0.5f, -1.0f, 0.8f, 0.5f));
+		auto start_button = std::move(std::make_unique<Button>(0.5f, -1.0f, 0.8f, 0.3f, "assets/Press_Enter.bmp"));
 		g_gameWorld.AddObject(std::move(start_button));
 
 		// Tino 객체 생성 및 GameWorld에 추가
@@ -99,7 +99,7 @@ void InitGameObjects()
 	}
 	else if (scene == GameState::LOBBY) {
 		g_gameWorld.Clear(); // 이전 게임 객체들 제거
-		auto start_button = std::move(std::make_unique<Button>(0.5f, -1.0f, 0.8f, 0.5f));
+		auto start_button = std::move(std::make_unique<Button>(0.5f, -1.0f, 0.8f, 0.3f, "assets/Press_Enter.bmp"));
 		g_gameWorld.AddObject(std::move(start_button));
 
 		// Tino 객체 생성 및 GameWorld에 추가

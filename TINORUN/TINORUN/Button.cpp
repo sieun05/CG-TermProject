@@ -2,11 +2,11 @@
 #include "game_state.h"
 #include "LoadBitmap.h"
 
-Button::Button(float x, float y, float w, float h)
+Button::Button(float x, float y, float w, float h, const std::string& texturePath)
 	: x(x), y(y), w(w), h(h)
 {
 	InitBuffer();
-	InitTexture();
+	LoadTexture(texturePath);
 
 	position = glm::vec3(x, y, 0.0f);
 	scale = glm::vec3(w, h, 1.0f);
@@ -48,9 +48,8 @@ void Button::InitBuffer()
 	glBindVertexArray(0);
 }
 
-void Button::InitTexture()
+bool Button::LoadTexture(const std::string& texturePath)
 {
-	// 텍스처 로드 및 생성
 	glGenTextures(1, &textureID);
 	glBindTexture(GL_TEXTURE_2D, textureID);
 
@@ -61,20 +60,18 @@ void Button::InitTexture()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	// 이미지 로드 (여기서는 단색 이미지 사용)
-	unsigned char* data = LoadDIBitmap("assets\\start_button.bmp", &bmp);
+	unsigned char* data = LoadDIBitmap(texturePath.c_str(), &bmp);
 	if (data == NULL) {
-		std::cerr << "Failed to load texture: 시작 버튼" << std::endl;
-		return;
+		std::cerr << "Failed to load texture: " << texturePath << std::endl;
+		return false;
 	}
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, bmp->bmiHeader.biWidth, bmp->bmiHeader.biHeight, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
 	glGenerateMipmap(GL_TEXTURE_2D);
+	return true;
 }
 
 void Button::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
-{
-	// 시작 화면이 아니라면 그리지 않음
-	if (scene != GameState::TITLE) return;
-	
+{	
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::scale(model, scale);
 	model = glm::translate(model, position);
@@ -97,4 +94,6 @@ void Button::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 
 void Button::Update()
 {
+	// 버튼은 특별한 업데이트가 필요 없음
+	return;
 }
