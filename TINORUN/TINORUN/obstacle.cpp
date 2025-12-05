@@ -19,22 +19,23 @@ GLuint EBO_obstacle = 0;
 Obstacle::Obstacle(const std::string& objPath, const std::string& texturePath)
     : VAO(0), VBO(0), EBO(0), textureID(0), moveSpeed(-5.0f), bmp(nullptr), isLoaded(false)
 {
-    position = glm::vec3(SPAWN_X_POSITION, 0.0f, 0.0f);
+    position = glm::vec3(SPAWN_X_POSITION, 0.5f, 0.0f);
     scale = glm::vec3(0.25f, 0.25f, 0.25f);
+	rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 
-    std::cout << "장애물 생성 시도, OBJ 경로: " << objPath << std::endl;
+    //std::cout << "장애물 생성 시도, OBJ 경로: " << objPath << std::endl;
 
     if (LoadOBJ(objPath)) {
-        std::cout << "OBJ 로딩 성공!" << std::endl;
+        //std::cout << "OBJ 로딩 성공!" << std::endl;
         SetupMesh();
         isLoaded = true;
-        std::cout << "장애물 초기화 완료" << std::endl;
+        //std::cout << "장애물 초기화 완료" << std::endl;
     }
     else {
         std::cerr << "장애물 초기화 실패: OBJ 로딩 실패" << std::endl;
     }
     if (LoadTexture(texturePath)) {
-        std::cout << "장애물 텍스처 로딩 성공!" << std::endl;
+        //std::cout << "장애물 텍스처 로딩 성공!" << std::endl;
     }
     else {
         std::cerr << "장애물 텍스처 로딩 실패!" << std::endl;
@@ -51,7 +52,7 @@ Obstacle::~Obstacle()
 
 bool Obstacle::LoadOBJ(const std::string& objPath)
 {
-    std::cout << "OBJ 파일 로딩 시작: " << objPath << std::endl;
+    //std::cout << "OBJ 파일 로딩 시작: " << objPath << std::endl;
 
     std::ifstream file(objPath);
     if (!file.is_open()) {
@@ -159,7 +160,7 @@ bool Obstacle::LoadOBJ(const std::string& objPath)
 
     file.close();
 
-    std::cout << "OBJ 파일 파싱 완료: 정점 " << vertexCount << "개, 면 " << faceCount << "개" << std::endl;
+    //std::cout << "OBJ 파일 파싱 완료: 정점 " << vertexCount << "개, 면 " << faceCount << "개" << std::endl;
 
     // 인덱스를 사용해서 최종 정점 배열 구성
     vertices.clear();
@@ -196,7 +197,7 @@ bool Obstacle::LoadOBJ(const std::string& objPath)
         indices.push_back(static_cast<unsigned int>(i));
     }
 
-    std::cout << "최종 Loaded OBJ: " << vertices.size() << " vertices, " << indices.size() << " indices" << std::endl;
+    //std::cout << "최종 Loaded OBJ: " << vertices.size() << " vertices, " << indices.size() << " indices" << std::endl;
 
     if (vertices.empty()) {
         std::cerr << "경고: 정점 데이터가 없습니다!" << std::endl;
@@ -272,39 +273,6 @@ bool Obstacle::ShouldBeRemoved() const
 
 void Obstacle::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 {
-    if (!isLoaded) {
-        std::cerr << "장애물이 로드되지 않아서 그릴 수 없습니다" << std::endl;
-        return;
-    }
-
-    glUniform1i(uUseTexture_loc, 1);    // 텍스처 사용 모드 활성화
-
-    glActiveTexture(GL_TEXTURE0);
-    glUniform1i(uTextureSampler_loc, 0); // 텍스처 유닛 0 사용
-
-    glBindVertexArray(VAO);
-    glBindTexture(GL_TEXTURE_2D, textureID);
-
-
-    glm::mat4 model = GetModelMatrix();    
-    glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(-35.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    model = model * rotate;
-    //glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(-7.0f, 0.0f, 0.0f));
-    //model = translate * model;
-    
-
-    glm::mat4 mvp = gProjection * gView * model;
-
-    // 유니폼 설정
-    glUniformMatrix4fv(uMVP_loc, 1, GL_FALSE, &mvp[0][0]);
-
-    // 채워진 삼각형으로 그리기
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
-
-    glBindVertexArray(0);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glUniform1i(uUseTexture_loc, 0);
 }
 
 void Obstacle::Update()
@@ -317,21 +285,27 @@ void Obstacle::Update()
     static int frameCount = 0;
     frameCount++;
     if (frameCount % 60 == 0) { // 1초마다 출력
-        std::cout << "장애물 위치: x = " << position.x << std::endl;
+        //std::cout << "장애물 위치: x = " << position.x << ", y = " << position.y << std::endl;
     }
 }
 
-// SpikeObstacle 구현
-SpikeObstacle::SpikeObstacle() : Obstacle(), spikeRotation(0.0f)
+
+
+
+
+
+
+// Cactus 구현
+Cactus::Cactus() : Obstacle()
 {
     moveSpeed = -6.0f;
 }
 
-SpikeObstacle::SpikeObstacle(const std::string& objPath, const std::string& texturePath) 
-    : Obstacle(objPath, texturePath), spikeRotation(0.0f)
+Cactus::Cactus(const std::string& objPath, const std::string& texturePath)
+    : Obstacle(objPath, texturePath)
 {
     moveSpeed = -6.0f;
-    
+
     // 정점 색상을 빨간색으로 변경
     for (auto& vertex : vertices) {
         vertex.color = glm::vec3(1.0f, 0.2f, 0.2f); // 빨간색
@@ -341,7 +315,7 @@ SpikeObstacle::SpikeObstacle(const std::string& objPath, const std::string& text
     }
 }
 
-void SpikeObstacle::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
+void Cactus::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 {
     if (!isLoaded) return;
 
@@ -353,8 +327,7 @@ void SpikeObstacle::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc
     glBindTexture(GL_TEXTURE_2D, textureID);
 
     glm::mat4 model = GetModelMatrix();
-    // 기본 회전 + 가시 회전
-    glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(-35.0f + spikeRotation), glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(-35.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     model = model * rotate;
 
     glm::mat4 mvp = gProjection * gView * model;
@@ -368,76 +341,35 @@ void SpikeObstacle::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc
     glUniform1i(uUseTexture_loc, 0);
 }
 
-void SpikeObstacle::Update()
+void Cactus::Update()
 {
     Obstacle::Update(); // 기본 이동
-    
-    // 가시 회전
+
     const float deltaTime = 0.016f;
-    spikeRotation += 90.0f * deltaTime; // 초당 90도 회전
-    if (spikeRotation >= 360.0f) {
-        spikeRotation -= 360.0f;
-    }
 }
 
-// MovingObstacle 구현
-MovingObstacle::MovingObstacle() : Obstacle(), verticalSpeed(2.0f), moveRange(3.0f), movingUp(true)
+
+// Tree 구현
+Tree::Tree() : Obstacle()
 {
-    originalY = position.y;
+    moveSpeed = -6.0f;
 }
 
-MovingObstacle::MovingObstacle(const std::string& objPath, const std::string& texturePath)
-    : Obstacle(objPath, texturePath), verticalSpeed(2.0f), moveRange(3.0f), movingUp(true)
+Tree::Tree(const std::string& objPath, const std::string& texturePath) 
+    : Obstacle(objPath, texturePath)
 {
-    originalY = position.y;
+    moveSpeed = -6.0f;
     
-    // 정점 색상을 초록색으로 변경
+    // 정점 색상을 빨간색으로 변경
     for (auto& vertex : vertices) {
-        vertex.color = glm::vec3(0.2f, 1.0f, 0.2f); // 초록색
+        vertex.color = glm::vec3(1.0f, 0.2f, 0.2f); // 빨간색
     }
     if (isLoaded) {
-        SetupMesh();
+        SetupMesh(); // 색상 변경 후 메시 재설정
     }
 }
 
-void MovingObstacle::Update()
-{
-    Obstacle::Update(); // 기본 이동
-    
-    const float deltaTime = 0.016f;
-    
-    // 수직 이동
-    if (movingUp) {
-        position.y += verticalSpeed * deltaTime;
-        if (position.y >= originalY + moveRange) {
-            movingUp = false;
-        }
-    } else {
-        position.y -= verticalSpeed * deltaTime;
-        if (position.y <= originalY - moveRange) {
-            movingUp = true;
-        }
-    }
-}
-
-// RotatingObstacle 구현
-RotatingObstacle::RotatingObstacle() : Obstacle(), rotationSpeed(45.0f), currentRotation(0.0f)
-{
-}
-
-RotatingObstacle::RotatingObstacle(const std::string& objPath, const std::string& texturePath)
-    : Obstacle(objPath, texturePath), rotationSpeed(45.0f), currentRotation(0.0f)
-{
-    // 정점 색상을 보라색으로 변경
-    for (auto& vertex : vertices) {
-        vertex.color = glm::vec3(0.8f, 0.2f, 1.0f); // 보라색
-    }
-    if (isLoaded) {
-        SetupMesh();
-    }
-}
-
-void RotatingObstacle::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
+void Tree::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 {
     if (!isLoaded) return;
 
@@ -449,10 +381,9 @@ void RotatingObstacle::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_
     glBindTexture(GL_TEXTURE_2D, textureID);
 
     glm::mat4 model = GetModelMatrix();
-    // 기본 회전 + 연속 회전
+    // 기본 회전 + 가시 회전
     glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(-35.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    glm::mat4 continuousRotate = glm::rotate(glm::mat4(1.0f), glm::radians(currentRotation), glm::vec3(1.0f, 0.0f, 0.0f));
-    model = model * rotate * continuousRotate;
+    model = model * rotate;
 
     glm::mat4 mvp = gProjection * gView * model;
     glUniformMatrix4fv(uMVP_loc, 1, GL_FALSE, &mvp[0][0]);
@@ -465,20 +396,138 @@ void RotatingObstacle::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_
     glUniform1i(uUseTexture_loc, 0);
 }
 
-void RotatingObstacle::Update()
+void Tree::Update()
+{
+    Obstacle::Update(); // 기본 이동
+    
+    // 가시 회전
+    const float deltaTime = 0.016f;
+}
+
+// Mushroom 구현
+Mushroom::Mushroom() : Obstacle()
+{
+    moveSpeed = -6.0f;
+}
+
+Mushroom::Mushroom(const std::string& objPath, const std::string& texturePath)
+    : Obstacle(objPath, texturePath)
+{
+    
+    moveSpeed = -6.0f;
+	scale = glm::vec3(1.0f, 1.0f, 1.0f);
+
+    // 정점 색상을 초록색으로 변경
+    for (auto& vertex : vertices) {
+        vertex.color = glm::vec3(0.2f, 1.0f, 0.2f); // 초록색
+    }
+    if (isLoaded) {
+        SetupMesh();
+    }
+}
+
+void Mushroom::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
+{
+    if (!isLoaded) return;
+
+    glUniform1i(uUseTexture_loc, 1);
+    glActiveTexture(GL_TEXTURE0);
+    glUniform1i(uTextureSampler_loc, 0);
+
+    glBindVertexArray(VAO);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+
+    glm::mat4 model = GetModelMatrix();
+    model = model;
+
+    glm::mat4 mvp = gProjection * gView * model;
+    glUniformMatrix4fv(uMVP_loc, 1, GL_FALSE, &mvp[0][0]);
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
+
+    glBindVertexArray(0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glUniform1i(uUseTexture_loc, 0);
+}
+
+void Mushroom::Update()
 {
     Obstacle::Update(); // 기본 이동
     
     const float deltaTime = 0.016f;
-    currentRotation += rotationSpeed * deltaTime;
-    if (currentRotation >= 360.0f) {
-        currentRotation -= 360.0f;
+    
+}
+
+// Bird 구현
+Bird::Bird() : Obstacle()
+{
+    moveSpeed = -6.0f;
+}
+
+Bird::Bird(const std::string& objPath, const std::string& texturePath)
+    : Obstacle(objPath, texturePath)
+{
+
+    moveSpeed = -6.0f;
+    position = glm::vec3(SPAWN_X_POSITION, 4.0f, 0.0f);
+	scale = glm::vec3(0.7f, 0.7f, 0.7f);
+	rotation = glm::vec3(0.0f, -180.0f, 0.0f);
+
+    // 정점 색상을 보라색으로 변경
+    for (auto& vertex : vertices) {
+        vertex.color = glm::vec3(0.8f, 0.2f, 1.0f); // 보라색
+    }
+    if (isLoaded) {
+        SetupMesh();
     }
 }
 
+void Bird::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
+{
+    if (!isLoaded) return;
+
+    glUniform1i(uUseTexture_loc, 1);
+    glActiveTexture(GL_TEXTURE0);
+    glUniform1i(uTextureSampler_loc, 0);
+
+    glBindVertexArray(VAO);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+
+    glm::mat4 model = GetModelMatrix();
+    // 기본 회전 + 연속 회전
+    //glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(-35.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    model = model;
+
+    glm::mat4 mvp = gProjection * gView * model;
+    glUniformMatrix4fv(uMVP_loc, 1, GL_FALSE, &mvp[0][0]);
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
+
+    glBindVertexArray(0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glUniform1i(uUseTexture_loc, 0);
+}
+
+void Bird::Update()
+{
+    Obstacle::Update(); // 기본 이동
+    
+    const float deltaTime = 0.016f;
+}
+
+
+
+
+
+
+
+
+
 // ObstacleSpawner 클래스 구현
 ObstacleSpawner::ObstacleSpawner()
-    : spawnTimer(0.0f), spawnInterval(5.0f)
+    : spawnTimer(0.0f), spawnInterval(2.0f)
 {
     // 스포너는 렌더링되지 않는 객체이므로 위치는 상관없음
     std::cout << "ObstacleSpawner 생성됨" << std::endl;
@@ -528,18 +577,18 @@ std::unique_ptr<Obstacle> ObstacleSpawner::CreateRandomObstacle()
 
     switch (obstacleType) {
         case 0:
-            std::cout << "기본 장애물 생성" << std::endl;
-            return std::make_unique<Obstacle>("assets/obstacle_basic.obj", "assets/obstacle_basic.bmp");
+            std::cout << "선인장 생성" << std::endl;
+            return std::make_unique<Cactus>("assets/obstacle1.obj", "assets/obstacle1_base.bmp");
         case 1:
-            std::cout << "가시 장애물 생성" << std::endl;
-            return std::make_unique<SpikeObstacle>("assets/obstacle_spike.obj", "assets/obstacle_spike.bmp");
+            std::cout << "나무 생성" << std::endl;
+            return std::make_unique<Tree>("assets/obstacle2.obj", "assets/obstacle2_base.bmp");
         case 2:
-            std::cout << "움직이는 장애물 생성" << std::endl;
-            return std::make_unique<MovingObstacle>("assets/obstacle_moving.obj", "assets/obstacle_moving.bmp");
+            std::cout << "버섯 생성" << std::endl;
+            return std::make_unique<Mushroom>("assets/obstacle3.obj", "assets/obstacle3_base.bmp");
         case 3:
-            std::cout << "회전하는 장애물 생성" << std::endl;
-            return std::make_unique<RotatingObstacle>("assets/obstacle_rotating.obj", "assets/obstacle_rotating.bmp");
+            std::cout << "새 생성" << std::endl;
+            return std::make_unique<Bird>("assets/bird.obj", "assets/bird_base.bmp");
         default:
-            return std::make_unique<Obstacle>("assets/obstacle_basic.obj", "assets/obstacle_basic.bmp");
+            return std::make_unique<Obstacle>("assets/obstacle1.obj", "assets/obstacle1_base.bmp");
     }
 }

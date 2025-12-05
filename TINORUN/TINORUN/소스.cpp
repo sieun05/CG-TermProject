@@ -87,7 +87,7 @@ void InitGameObjects()
 	if (scene == GameState::TITLE) {
 		g_gameWorld.Clear(); // 이전 게임 객체들 제거
 
-		auto start_button = std::move(std::make_unique<Button>(0.5f, -1.0f, 0.8f, 0.5f));
+		auto start_button = std::move(std::make_unique<Button>(0.5f, -1.0f, 0.8f, 0.3f, "assets/Press_Enter.bmp"));
 		g_gameWorld.AddObject(std::move(start_button));
 
 		// Tino 객체 생성 및 GameWorld에 추가
@@ -99,7 +99,7 @@ void InitGameObjects()
 	}
 	else if (scene == GameState::LOBBY) {
 		g_gameWorld.Clear(); // 이전 게임 객체들 제거
-		auto start_button = std::move(std::make_unique<Button>(0.5f, -1.0f, 0.8f, 0.5f));
+		auto start_button = std::move(std::make_unique<Button>(0.5f, -1.0f, 0.8f, 0.3f, "assets/Press_Enter.bmp"));
 		g_gameWorld.AddObject(std::move(start_button));
 
 		// Tino 객체 생성 및 GameWorld에 추가
@@ -142,9 +142,15 @@ GLvoid drawScene()
 	glUseProgram(shaderProgramID);
 
 	gView = glm::mat4(1.0f);
+	//gView = glm::lookAt(		//카메라 외부파라미터
+	//	glm::vec3(-10.0f, 6.0f, 7.0f),  // 카메라 위치 (x, y, z축이 모두 보이는 위치)	EYE
+	//	glm::vec3(0.0f, 2.0f, -3.0f),  // 바라보는 지점 (원점) 							AT
+	//	glm::vec3(0.0f, 1.0f, 0.0f)   // 위쪽 방향 벡터 					 			UP
+	//);
+
 	gView = glm::lookAt(		//카메라 외부파라미터
-		glm::vec3(-10.0f, 6.0f, 7.0f),  // 카메라 위치 (x, y, z축이 모두 보이는 위치)	EYE
-		glm::vec3(0.0f, 0.0f, -3.0f),  // 바라보는 지점 (원점) 							AT
+		glm::vec3(0.0f, 0.0f, 7.0f),  // 카메라 위치 (x, y, z축이 모두 보이는 위치)	EYE
+		glm::vec3(0.0f, 0.0f, 0.0f),  // 바라보는 지점 (원점) 							AT
 		glm::vec3(0.0f, 1.0f, 0.0f)   // 위쪽 방향 벡터 					 			UP
 	);
 
@@ -208,10 +214,18 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 	const float deltaTime = 0.016f; // 약 60FPS 기준
 
 	switch (key) {
+	case 's':
+		
+		break;
 	case 'q':
 	case 'Q':
 		exit(0);
 		break;
+
+	case ' ':	// 점프 (추후 구현)
+		std::cout << "Jump!" << std::endl;
+		break;
+
 
 	case '\r': 
 	case '\n':		// 엔터 누르면 시작
