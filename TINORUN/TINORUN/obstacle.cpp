@@ -10,28 +10,30 @@
 const float Obstacle::REMOVAL_X_POSITION = -20.0f;
 const float Obstacle::SPAWN_X_POSITION = 40.0f;
 const float Obstacle::GROUND_Y_POSITION = 0.0f;
-const float Obstacle::AIR_Y_POSITION = 5.0f;
+const float Obstacle::AIR_Y_POSITION = 3.0f;
 
 // 장애물용 전역 변수 정의
 GLuint VAO_obstacle = 0;
 GLuint VBO_obstacle[2] = { 0, };
 GLuint EBO_obstacle = 0;
 
+int obstacle_type;
+
 Obstacle::Obstacle(const std::string& objPath, const std::string& texturePath)
     : VAO(0), VBO(0), EBO(0), textureID(0), moveSpeed(-5.0f), bmp(nullptr), isLoaded(false), isAirObstacle(false)
 {
-    int obstacle_type = rand() % 100 + 1;
-    std::cout << "지면 장애물: " << !isAirObstacle << std::endl;
+    obstacle_type = rand() % 20 + 1;
+
     if (obstacle_type <= 20) {
 		isAirObstacle = true;
         position = glm::vec3(SPAWN_X_POSITION, AIR_Y_POSITION, 0.0f);
-
+        scale = glm::vec3(0.5f, 0.5f, 0.5f);
     }
     else {
 		isAirObstacle = false;
         position = glm::vec3(SPAWN_X_POSITION, GROUND_Y_POSITION, 0.0f);
+        scale = glm::vec3(0.25f, 0.25f, 0.25f);
     }
-    scale = glm::vec3(0.25f, 0.25f, 0.25f);
     
     std::cout << "장애물 생성 시도, OBJ 경로: " << objPath << std::endl;
 
@@ -298,7 +300,12 @@ void Obstacle::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glBindTexture(GL_TEXTURE_2D, textureID);
 
 
-    glm::mat4 model = GetModelMatrix();    
+    glm::mat4 model = GetModelMatrix();   
+    if (isAirObstacle) {
+        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); 
+		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));  // 새 방향 조정
+        model = glm::translate(model, position);
+    }
     glm::mat4 mvp = gProjection * gView * model;
 
     // 유니폼 설정
@@ -361,9 +368,16 @@ void ObstacleSpawner::Update()
 void ObstacleSpawner::SpawnObstacle()
 {
     std::cout << "ObstacleSpawner: 새로운 장애물 생성 대기열에 추가!" << std::endl;
-
+	auto obstacle = std::make_unique<Obstacle>("assets/obstacle1.obj", "assets/obstacle1_base.bmp");
     // 새로운 장애물 생성
-    auto obstacle = std::make_unique<Obstacle>("assets/obstacle1.obj", "assets/obstacle1_base.bmp");
+	if (obstacle_type <= 20) {
+		std::cout << "공중 장애물 생성!" << std::endl;
+        obstacle = std::make_unique<Obstacle>("assets/bird.obj", "assets/bird_base.bmp");
+	}
+	else {
+		std::cout << "지면 장애물 생성!" << std::endl;
+        obstacle = std::make_unique<Obstacle>("assets/obstacle1.obj", "assets/obstacle1_base.bmp");
+	}
 
     // GameWorld의 대기열에 추가 (직접 추가하지 않음)
     g_gameWorld.AddPendingObject(std::move(obstacle));
