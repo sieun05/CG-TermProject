@@ -16,8 +16,6 @@
 
 #include "Axes.h"
 
-//.
-
 void InitBuffer();
 void InitGameObjects();
 
