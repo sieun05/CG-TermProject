@@ -16,6 +16,7 @@ void InitGameObjects();
 GLvoid drawScene();
 GLvoid Reshape(int w, int h);
 GLvoid Keyboard(unsigned char key, int x, int y);
+GLvoid Mouse(int button, int state, int x, int y);
 GLvoid Timer(int value);
 //GLvoid SpecialKeyDown(int key, int x, int y);
 //GLvoid SpecialKeyUp(int key, int x, int y);
@@ -32,7 +33,6 @@ GLint uUseTexture_loc = -1;
 GLint uTextureSampler_loc = -1;
 
 Tino* tino = nullptr;
-
 
 //--- 메인 함수
 void main(int argc, char** argv)
@@ -62,6 +62,7 @@ void main(int argc, char** argv)
 	glutReshapeFunc(Reshape);
 	glutDisplayFunc(drawScene);
 	glutKeyboardFunc(Keyboard);
+	glutMouseFunc(Mouse);
 	//glutSpecialFunc(SpecialKeyDown);    // 화살표 등 특수키 눌림 처리
 	//glutSpecialUpFunc(SpecialKeyUp);
 	glutTimerFunc(16, Timer, 1); // 약 60FPS로 타이머 시작
@@ -251,4 +252,14 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 	}
 
 	glutPostRedisplay();
+}
+
+GLvoid Mouse(int button, int state, int x, int y)
+{
+	if (button == GLUT_LEFT && state == GLUT_DOWN) {
+		if (scene == GameState::PLAYING) {
+			tino->StateChange(State::SLIDING);
+		}
+		glutPostRedisplay();
+	}
 }

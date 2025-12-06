@@ -19,33 +19,38 @@ public:
     Tino(const Tino& other) = delete;
     Tino& operator=(const Tino& other) = delete;
 
-    // GameObjectÀÇ °¡»ó ÇÔ¼öµéÀ» ¿À¹ö¶óÀÌµå
+    // GameObjectï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ìµï¿½
     void Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc) override;
     void Update() override;
     
     void StateChange(State newState) { state = newState; }
 
-    // ¸ðµ¨ ·Îµù
-    bool LoadOBJ(const std::string& objPath);
+    // ï¿½ï¿½ ï¿½Îµï¿½
+    bool LoadOBJ(const std::string& objPath, State targetState);
     bool LoadTexture(const std::string& texturePath);
 
 private:
-    std::vector<Vertex> vertices;
-    std::vector<unsigned int> indices;
-    
-    GLuint VAO;
-    GLuint VBO;
-    GLuint EBO;
+    struct MeshData {
+        std::vector<Vertex> vertices;
+        std::vector<unsigned int> indices;
+        GLuint VAO;
+        GLuint VBO;
+        GLuint EBO;
+        bool isLoaded;
+
+        MeshData() : VAO(0), VBO(0), EBO(0), isLoaded(false) {}
+    };
+
+    MeshData meshes[3];
+
     GLuint textureID;
     BITMAPINFO* bmp;
 
     State state;
-    
-    bool isLoaded;
-    
-    void SetupMesh();
+
+    void SetupMesh(State targetState);
 };
 
-// À¯Æ¿¸®Æ¼ ÇÔ¼öµé
+// ï¿½ï¿½Æ¿ï¿½ï¿½Æ¼ ï¿½Ô¼ï¿½ï¿½ï¿½
 // GLuint LoadTextureFromFile(const std::string& path);
 

@@ -7,19 +7,12 @@
 // STB 이미지 라이브러리 대신 임시로 텍스처 없이 구현
 Tino::Tino(const std::string& objPath, const std::string& jumpPath,
     const std::string& downPath, const std::string& texturePath)
-	: VAO(0), VBO(0), EBO(0), textureID(0), bmp(nullptr), isLoaded(false)
+	: textureID(0), bmp(nullptr), state(RUNNING)
 {
-    //std::cout << "Tino 생성 시도, OBJ 경로: " << objPath << std::endl;
-    
-    if (LoadOBJ(objPath) && LoadOBJ(jumpPath) && LoadOBJ(downPath)) {
-        //std::cout << "OBJ 로딩 성공!" << std::endl;
-        // 텍스처는 나중에 구현하고 우선 컬러만 사용
-        SetupMesh();
-        isLoaded = true;
-        //std::cout << "Tino 초기화 완료" << std::endl;
-    } else {
-        //std::cerr << "Tino 초기화 실패: OBJ 로딩 실패" << std::endl;
-    }
+    LoadOBJ(objPath, RUNNING);
+    LoadOBJ(jumpPath, JUMPING);
+    LoadOBJ(downPath, SLIDING);
+
 	if (LoadTexture(texturePath)) {
 		//std::cout << "Tino 텍스처 로딩 성공!" << std::endl;
 	}
@@ -30,13 +23,15 @@ Tino::Tino(const std::string& objPath, const std::string& jumpPath,
 
 Tino::~Tino()
 {
-    if (VAO != 0) glDeleteVertexArrays(1, &VAO);
-    if (VBO != 0) glDeleteBuffers(1, &VBO);
-    if (EBO != 0) glDeleteBuffers(1, &EBO);
+    for (int i = 0; i < 3; i++) {
+        if (meshes[i].VAO != 0) glDeleteVertexArrays(1, &meshes[i].VAO);
+        if (meshes[i].VBO != 0) glDeleteBuffers(1, &meshes[i].VBO);
+        if (meshes[i].EBO != 0) glDeleteBuffers(1, &meshes[i].EBO);
+    }
     if (textureID != 0) glDeleteTextures(1, &textureID);
 }
 
-bool Tino::LoadOBJ(const std::string& objPath)
+bool Tino::LoadOBJ(const std::string& objPath, State targetState)
 {
     //std::cout << "OBJ 파일 로딩 시작: " << objPath << std::endl;
     
@@ -144,31 +139,31 @@ bool Tino::LoadOBJ(const std::string& objPath)
     }
 
     file.close();
-    
+
     //std::cout << "OBJ 파일 파싱 완료: 정점 " << vertexCount << "개, 면 " << faceCount << "개" << std::endl;
 
     // 인덱스를 사용해서 최종 정점 배열 구성
-    vertices.clear();
-    indices.clear();
+    meshes[targetState].vertices.clear();
+    meshes[targetState].indices.clear();
 
     for (size_t i = 0; i < vertexIndices.size(); ++i) {
         Vertex vertex;
-        
+
         // 위치
         if (vertexIndices[i] < temp_vertices.size()) {
             vertex.position = temp_vertices[vertexIndices[i]];
         }
-        
+
         // 기본 파란색 컬러 설정 (Tino 캐릭터 색상)
         vertex.color = glm::vec3(0.3f, 0.7f, 1.0f);
-        
+
         // 텍스처 좌표
         if (i < texCoordIndices.size() && texCoordIndices[i] < temp_texCoords.size()) {
             vertex.texCoord = temp_texCoords[texCoordIndices[i]];
         } else {
             vertex.texCoord = glm::vec2(0.0f, 0.0f);
         }
-        
+
         // 법선
         if (i < normalIndices.size() && normalIndices[i] < temp_normals.size()) {
             vertex.normal = temp_normals[normalIndices[i]];
@@ -176,17 +171,20 @@ bool Tino::LoadOBJ(const std::string& objPath)
             vertex.normal = glm::vec3(0.0f, 0.0f, 1.0f);
         }
 
-        vertices.push_back(vertex);
-        indices.push_back(static_cast<unsigned int>(i));
+        meshes[targetState].vertices.push_back(vertex);
+        meshes[targetState].indices.push_back(static_cast<unsigned int>(i));
     }
 
-    //std::cout << "최종 Loaded OBJ: " << vertices.size() << " vertices, " << indices.size() << " indices" << std::endl;
-    
-    if (vertices.empty()) {
+    //std::cout << "최종 Loaded OBJ: " << meshes[targetState].vertices.size() << " vertices, " << meshes[targetState].indices.size() << " indices" << std::endl;
+
+    if (meshes[targetState].vertices.empty()) {
         std::cerr << "경고: 정점 데이터가 없습니다!" << std::endl;
         return false;
     }
-    
+
+    SetupMesh(targetState);
+    meshes[targetState].isLoaded = true;
+
     return true;
 }
 bool Tino::LoadTexture(const std::string& texturePath)
@@ -214,58 +212,49 @@ bool Tino::LoadTexture(const std::string& texturePath)
     return true;
 }
 
-void Tino::SetupMesh()
+void Tino::SetupMesh(State targetState)
 {
-    //std::cout << "SetupMesh 시작" << std::endl;
-    
-    // VAO 생성
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
+    auto& mesh = meshes[targetState];
 
-    glBindVertexArray(VAO);
+    glGenVertexArrays(1, &mesh.VAO);
+    glGenBuffers(1, &mesh.VBO);
+    glGenBuffers(1, &mesh.EBO);
 
-    // VBO 설정
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
+    glBindVertexArray(mesh.VAO);
 
-    // EBO 설정
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, mesh.VBO);
+    glBufferData(GL_ARRAY_BUFFER, mesh.vertices.size() * sizeof(Vertex), &mesh.vertices[0], GL_STATIC_DRAW);
 
-    // 정점 속성 설정
-    // 위치 (location = 0)
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.indices.size() * sizeof(unsigned int), &mesh.indices[0], GL_STATIC_DRAW);
+
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
 
-    // 컬러 (location = 1)
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, color));
 
-    // 텍스처 좌표 (location = 2)
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
 
     glBindVertexArray(0);
-    
-    //std::cout << "SetupMesh 완료, VAO: " << VAO << std::endl;
 }
 
 void Tino::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 {
-    //if (scene == GameState::TITLE) return; 
-
-    if (!isLoaded) {
+    if (!meshes[state].isLoaded) {
         std::cerr << "Tino가 로드되지 않아서 그릴 수 없습니다" << std::endl;
         return;
     }
 
-	glUniform1i(uUseTexture_loc, 1);    // 텍스처 사용 모드 활성화
+    auto& currentMesh = meshes[state];
+
+	glUniform1i(uUseTexture_loc, 1);
 
     glActiveTexture(GL_TEXTURE0);
-	glUniform1i(uTextureSampler_loc, 0); // 텍스처 유닛 0 사용
+	glUniform1i(uTextureSampler_loc, 0);
 
-    glBindVertexArray(VAO);
+    glBindVertexArray(currentMesh.VAO);
     glBindTexture(GL_TEXTURE_2D, textureID);
 
 
@@ -291,7 +280,7 @@ void Tino::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 
     // 채워진 삼각형으로 그리기
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(currentMesh.indices.size()), GL_UNSIGNED_INT, 0);
     
     //// 추가로 와이어프레임도 그려서 구조를 확인할 수 있게 함
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
