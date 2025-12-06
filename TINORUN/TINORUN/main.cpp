@@ -270,11 +270,19 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 		}
 		
 		break;
-	case 'q':
-	case 'Q':
-		exit(0);
+	case 27:		
+		if (scene == GameState::PLAYING || scene == GameState::GAME_OVER) {
+			// ESC 누르면 타이틀로
+			scene = GameState::TITLE;
+			std::cout << "타이틀 화면으로 이동" << std::endl;
+		}
+		else if (scene == GameState::TITLE) {
+			// 타이틀에서 누르면 게임종료
+			std::cout << "게임 종료" << std::endl;
+			exit(0);
+		}
+		InitGameObjects();
 		break;
-
 	default: break;
 	}
 
