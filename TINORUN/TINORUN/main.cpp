@@ -171,8 +171,14 @@ void InitGameObjects()
 		// Ground 객체 생성 및 GameWorld에 추가
 		auto ground = std::make_unique<Ground>(1, RGBA{ 231 / 255., 217 / 255., 176 / 255., 1.0f }, "assets/sand_texture4.png");
 		ground->scale = glm::vec3(100.0f, 0.3f, 1.3f); // 땅을 더 넓게 스케일링
-
 		g_gameWorld.AddObject(std::move(ground));
+
+		// Ground 객체 생성 및 GameWorld에 추가
+		auto back_ground = std::make_unique<Ground>(1, RGBA{ 231 / 255., 217 / 255., 176 / 255., 1.0f }, "assets/sand_texture4.png");
+		back_ground->scale = glm::vec3(100.0f, 0.3f, 1.3f); // 땅을 더 넓게 스케일링
+		back_ground->position.z = -10.0f; // 뒤쪽에 배치
+		g_gameWorld.AddObject(std::move(back_ground));
+
 
 		// Ground 객체 생성 및 GameWorld에 추가
 		auto ground2 = std::make_unique<Ground>(1, RGBA{ 175 / 255., 145 / 255., 100 / 255., 1.0f } , "assets/ground_texture2.png");
