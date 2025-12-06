@@ -4,13 +4,13 @@
 
 extern "C" void stbi_set_flip_vertically_on_load(int flag_true_if_should_flip);
 
-Images::Images(float x, float y, float w, float h, const std::string& texturePath)
-	: x(x), y(y), w(w), h(h)
+Images::Images(float x, float y, float z, float w, float h, const std::string& texturePath)
+	: x(x), y(y), z(z), w(w), h(h)
 {
 	InitBuffer();
 	LoadTexture(texturePath);
 
-	position = glm::vec3(x, y, 0.0f);
+	position = glm::vec3(x, y, z);
 	scale = glm::vec3(w, h, 1.0f);
 }
 
@@ -85,9 +85,9 @@ bool Images::LoadTexture(const std::string& texturePath)
 void Images::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 {	
 	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::scale(model, scale);
 	model = glm::translate(model, position);
-	glm::mat4 mvp = glm::mat4(1.0f) * model;
+	model = glm::scale(model, scale);
+	glm::mat4 mvp = model;
 
 	glUniformMatrix4fv(uMVP_loc, 1, GL_FALSE, &mvp[0][0]);
 	glUniform1i(uUseTexture_loc, 1); // 텍스처 사용
@@ -97,6 +97,20 @@ void Images::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);	// 투명 배경 사용
+
+	if (z < 0.0f) {
+		glDisable(GL_DEPTH_TEST);
+
+		float vertices[] = {
+			// 위치                // 컬러              // 텍스처 좌표
+			-0.5f, -0.5f, 0.0f,   1.0f, 1.0f, 1.0f,   0.0f + OffsetX, 0.0f, // 왼쪽 아래
+			 0.5f, -0.5f, 0.0f,   1.0f, 1.0f, 1.0f,   1.0f + OffsetX, 0.0f, // 오른쪽 아래
+			 0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 1.0f,   1.0f + OffsetX, 1.0f, // 오른쪽 위
+			-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 1.0f,   0.0f + OffsetX, 1.0f  // 왼쪽 위
+		};
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+	}
 	
 	glBindVertexArray(VAO);
 	glBindTexture(GL_TEXTURE_2D, textureID);
@@ -104,6 +118,9 @@ void Images::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
+	if (z < 0.0f) {
+		glEnable(GL_DEPTH_TEST);
+	}
 	glDisable(GL_BLEND);	// 블렌딩 비활성화
 	glUniform1i(uUseTexture_loc, 0); // 텍스처 사용 안함
 }
@@ -111,5 +128,10 @@ void Images::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 void Images::Update()
 {
 	// 버튼은 특별한 업데이트가 필요 없음
+	if (z < 0.0f) {
+		OffsetX += moveSpeed;
+		if(OffsetX >= 1.0f)
+			OffsetX -= 1.0f;
+	}
 	return;
 }

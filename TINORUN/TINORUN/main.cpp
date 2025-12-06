@@ -45,6 +45,9 @@ ma_engine engine;
 ma_result result;
 ma_sound sounds[2];
 
+float sky_x = 0.0f;
+bool timer = true;
+
 //--- 메인 함수
 void main(int argc, char** argv)
 //--- 윈도우출력하고콜백함수설정
@@ -118,7 +121,7 @@ void InitGameObjects()
 		/*auto press_enter = std::move(std::make_unique<Images>(0.5f, -1.0f, 0.8f, 0.3f, "assets/Press_Enter.png"));
 		g_gameWorld.AddObject(std::move(press_enter));*/
 
-		auto start_tex = std::move(std::make_unique<Images>(0.0f, 0.0f, 2.0f, 2.0f, "assets/start_texture.png"));
+		auto start_tex = std::move(std::make_unique<Images>(0.0f, 0.0f, 0.0f, 2.0f, 2.0f, "assets/start_texture.png"));
 		g_gameWorld.AddObject(std::move(start_tex));
 
 		// Ground 객체 생성 및 GameWorld에 추가
@@ -143,11 +146,18 @@ void InitGameObjects()
 			glm::vec3(0.0f, 0.0f, 0.0f),  // 							AT
 			glm::vec3(0.0f, 1.0f, 0.0f)   //				 			UP
 		);
+
+		if (!timer) timer = true;
 	}
 	// PLAYING 상태에서만 ObstacleSpawner 추가
 	else if (scene == GameState::PLAYING) {
 
 		g_gameWorld.Clear(); // 이전 게임 객체들 제거
+
+		// 하늘 배경
+		auto sky = std::move(std::make_unique<Images>(0.0f, 0.7f, -1.0f, 2.0f, 0.6f, "assets/sky_2.png"));
+		g_gameWorld.AddObject(std::move(sky));
+
 		// Ground 객체 생성 및 GameWorld에 추가
 		auto ground = std::make_unique<Ground>(1, RGBA{ 231 / 255., 217 / 255., 176 / 255., 1.0f });
 		ground->scale = glm::vec3(100.0f, 0.3f, 1.3f); // 땅을 더 넓게 스케일링
@@ -155,11 +165,12 @@ void InitGameObjects()
 		g_gameWorld.AddObject(std::move(ground));
 
 		// Ground 객체 생성 및 GameWorld에 추가
-		auto ground2 = std::make_unique<Ground>(1, RGBA{ 175 / 255., 145 / 255., 100 / 255., 1.0f });
+		auto ground2 = std::make_unique<Ground>(1, RGBA{ 175 / 255., 145 / 255., 100 / 255., 1.0f } , "assets/ground_texture2.png");
 		ground2->position.y = -4.0f; // 땅을 약간 아래로 이동
 		ground2->scale = glm::vec3(100.0f, 0.3f, 100.0f); // 땅을 더 넓게 스케일링
 		g_gameWorld.AddObject(std::move(ground2));
 		
+
 		// Tino 객체 생성 및 GameWorld에 추가
 		// 경로 수정: assets 폴더로 직접 접근
 		auto tino_ptr = std::make_unique<Tino>("assets/Tino.obj", "assets/Tino_jump.obj", 
@@ -194,15 +205,21 @@ void InitGameObjects()
 
 		// 배경음악 재생
 		ma_engine_play_sound(&engine, "assets/background.mp3", NULL);
+		if (!timer) timer = true;
 	}
 	else if (scene == GameState::GAME_OVER) {
 		g_gameWorld.Clear(); // 이전 게임 객체들 제거
 
+		timer = false;
+
+		auto gameover = std::move(std::make_unique<Images>(0.0f, 0.0f, 0.0f, 2.0f, 2.0f, "assets/gameover.png"));
+		g_gameWorld.AddObject(std::move(gameover));
+
 		auto score = std::make_unique<ScoreDisplay>(
-			-0.12f,
-			0.5f,
-			0.05f,
+			-0.2f,
+			0.0f,
 			0.1f,
+			0.2f,
 			"assets/score_text.png"
 		);
 		scoreDisplay = score.get();
@@ -217,11 +234,43 @@ void InitGameObjects()
 		//tino->rotation = glm::vec3(0.0f, 90.0f, 0.0f); // 눕힌 상태로 회전
 		tino->StateChange(State::JUMPING);
 
+		// 선인장 - 왼쪽
+		auto cactus = std::make_unique<Cactus>("assets/obstacle1.obj", "assets/obstacle1_base.bmp");
+		cactus->position = glm::vec3(-3.0f, -3.0f, 0.0f);
+		cactus->scale = glm::vec3(0.2f, 0.2f, 0.2f);
+		cactus->rotation = glm::vec3(0.0f, 30.0f, 20.0f);
+		cactus->SetSpeed(0.0f);  // 움직이지 않게
+		g_gameWorld.AddObject(std::move(cactus));
+
+		// 나무 - 오른쪽
+		auto tree = std::make_unique<Tree>("assets/obstacle2.obj", "assets/obstacle2_base.bmp");
+		tree->position = glm::vec3(8.0f, 2.0f, -2.0f);
+		tree->scale = glm::vec3(0.3f, 0.3f, 0.3f);
+		tree->rotation = glm::vec3(20.0f, -45.0f, 45.0f);
+		tree->SetSpeed(0.0f);
+		g_gameWorld.AddObject(std::move(tree));
+
+		// 버섯 - 중앙 뒤쪽
+		auto mushroom = std::make_unique<Mushroom>("assets/obstacle3.obj", "assets/obstacle3_base.bmp");
+		mushroom->position = glm::vec3(-8.0f, 2.0f, -5.0f);
+		mushroom->scale = glm::vec3(1.2f, 1.2f, 1.2f);
+		mushroom->rotation = glm::vec3(10.0f, 0.0f, -10.0f);
+		mushroom->SetSpeed(0.0f);
+		g_gameWorld.AddObject(std::move(mushroom));
+
+		// 새 - 공중
+		auto bird = std::make_unique<Bird>("assets/bird.obj", "assets/bird_base.bmp");
+		bird->position = glm::vec3(5.0f, -2.0f, 0.0f);
+		bird->scale = glm::vec3(0.8f, 0.8f, 0.8f);
+		bird->rotation = glm::vec3(0.0f, -180.0f, 0.0f);
+		bird->SetSpeed(0.0f);
+		g_gameWorld.AddObject(std::move(bird));
+
 		gView = glm::mat4(1.0f);
-		gView = glm::lookAt(		//카메라 외부파라미터
-			glm::vec3(-10.0f, 6.0f, 7.0f),  // 카메라 위치 (x, y, z축이 모두 보이는 위치)	EYE
-			glm::vec3(0.0f, 2.0f, -3.0f),  // 바라보는 지점 (원점) 							AT
-			glm::vec3(0.0f, 1.0f, 0.0f)   // 위쪽 방향 벡터 					 			UP
+		gView = glm::lookAt(		//
+			glm::vec3(0.0f, 0.0f, 10.0f),  //	EYE
+			glm::vec3(0.0f, 0.0f, 0.0f),  // 							AT
+			glm::vec3(0.0f, 1.0f, 0.0f)   //				 			UP
 		);
 
 		ma_sound_start(&sounds[1]);	// 게임오버 사운드
@@ -282,6 +331,8 @@ GLvoid Reshape(int w, int h)
 
 GLvoid Timer(int value)
 {
+	if (!timer) return;
+
 	const float deltaTime = 0.016f;
 
 	if (scene == GameState::PLAYING) {	// 게임 스코어 증가
@@ -290,12 +341,14 @@ GLvoid Timer(int value)
 			scoreDisplay->SetScore(gameScore);
 		}
 	}
+	sky_x -= 0.0005f;
 
 	// GameWorld를 통해 모든 객체 업데이트 (ObstacleSpawner 포함)
 	g_gameWorld.UpdateAll();
 
 	glutPostRedisplay();
 	glutTimerFunc(16, Timer, 1); // 약 60FPS로 타이머 시작
+
 }
 
 GLvoid Keyboard(unsigned char key, int x, int y)
