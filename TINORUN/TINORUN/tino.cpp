@@ -306,6 +306,8 @@ void Tino::Update()
 				position += glm::vec3(0.0f, 0.1f, 0.0f); // 점프 시 위로 이동
 			else
 				position -= glm::vec3(0.0f, 0.1f, 0.0f); // 점프 후 내려오기
+			if (position.y < 0.0f)
+				position.y = 0.0f;
         }
         if (stateTimer <= 0.0f) {
             StateChange(RUNNING);
@@ -316,6 +318,9 @@ void Tino::Update()
 
 void Tino::StateChange(State newState)
 {
+	if (state == JUMPING || state == SLIDING)
+		return; // 점프 또는 슬라이드 중에는 상태 변경 불가
+
     state = newState;
 
     if (newState == JUMPING) 

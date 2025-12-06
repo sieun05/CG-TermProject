@@ -60,11 +60,19 @@ bool Button::LoadTexture(const std::string& texturePath)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	// 이미지 로드 (여기서는 단색 이미지 사용)
+	/*int width, height, channels;
+	unsigned char* data = stbi_load(texturePath.c_str(), &width, &height, &channels, 0);*/
 	unsigned char* data = LoadDIBitmap(texturePath.c_str(), &bmp);
 	if (data == NULL) {
 		std::cerr << "Failed to load texture: " << texturePath << std::endl;
 		return false;
 	}
+
+	/*GLenum format = (channels == 4) ? GL_RGBA : GL_RGB;
+	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+
+	stbi_image_free(data);*/
+
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, bmp->bmiHeader.biWidth, bmp->bmiHeader.biHeight, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	return true;

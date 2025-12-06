@@ -4,6 +4,11 @@
 #include <stdio.h>
 #include <windows.h>
 
+extern "C" {
+	unsigned char* stbi_load(char const* filename, int* x, int* y, int* channels_in_file, int desired_channels);
+	void stbi_image_free(void* retval_from_stbi_load);
+}
+
 
 inline GLubyte* LoadDIBitmap(const char* filename, BITMAPINFO** info)
 {
@@ -51,4 +56,18 @@ inline GLubyte* LoadDIBitmap(const char* filename, BITMAPINFO** info)
     }
     fclose(fp);
     return bits;
+}
+
+inline GLubyte* LoadPNGTexture(const char* file, int* width, int* height, int* chaanels) {
+    unsigned char* data = stbi_load(file, width, height, chaanels, 0);
+    if (data == NULL) {
+        printf("Failed to load PNG file: %s\n", file);
+        return NULL;
+    }
+    return data;
+}
+
+inline void FreePNGTexture(GLubyte* data) {
+    if(data)
+	    stbi_image_free(data);
 }
