@@ -17,7 +17,7 @@ GLuint EBO_obstacle = 0;
 
 // 기본 Obstacle 클래스 구현
 Obstacle::Obstacle(const std::string& objPath, const std::string& texturePath)
-    : VAO(0), VBO(0), EBO(0), textureID(0), moveSpeed(-5.0f), bmp(nullptr), isLoaded(false)
+    : VAO(0), VBO(0), EBO(0), textureID(0), moveSpeed(-6.0f), bmp(nullptr), isLoaded(false)
 {
     position = glm::vec3(SPAWN_X_POSITION, 0.5f, 0.0f);
     scale = glm::vec3(0.25f, 0.25f, 0.25f);
@@ -509,13 +509,6 @@ void Bird::Update()
     
     const float deltaTime = 0.016f;
 }
-
-
-
-
-
-
-
 
 
 // ObstacleSpawner 클래스 구현
