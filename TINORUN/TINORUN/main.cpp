@@ -94,50 +94,67 @@ void InitGameObjects()
 		auto start_button = std::move(std::make_unique<Button>(0.5f, -1.0f, 0.8f, 0.3f, "assets/Press_Enter.bmp"));
 		g_gameWorld.AddObject(std::move(start_button));
 
-		// Tino 객체 생성 및 GameWorld에 추가
-		// 경로 수정: assets 폴더로 직접 접근
-		auto tino_ptr = std::make_unique<Tino>("assets/Tino.obj", "assets/Tino_jump.obj",
-			"assets/Tino_down.obj", "assets/Tino_base.png");
-		tino = tino_ptr.get(); // 전역 포인터에 할당
-		tino->position = glm::vec3(0.0f, 1.0f, 0.0f);  // Ground 위에 배치
-		tino->scale = glm::vec3(0.7f, 0.7f, 0.7f);     // 크기 조정 (우선 기본 크기로)
-		g_gameWorld.AddObject(std::move(tino_ptr));
-	}
-	else if (scene == GameState::LOBBY) {
-		g_gameWorld.Clear(); // 이전 게임 객체들 제거
-		auto start_button = std::move(std::make_unique<Button>(0.5f, -1.0f, 0.8f, 0.3f, "assets/Press_Enter.bmp"));
-		g_gameWorld.AddObject(std::move(start_button));
+		// Ground 객체 생성 및 GameWorld에 추가
+		auto ground = std::make_unique<Ground>(1, RGBA{ 231 / 255., 217 / 255., 176 / 255., 1.0f });
+		ground->position.y = -4.0f; // 땅을 약간 아래로 이동
+		ground->scale = glm::vec3(100.0f, 0.3f, 100.0f); // 땅을 더 넓게 스케일링
+		g_gameWorld.AddObject(std::move(ground));
+
+		
+		
 
 		// Tino 객체 생성 및 GameWorld에 추가
 		// 경로 수정: assets 폴더로 직접 접근
 		auto tino_ptr = std::make_unique<Tino>("assets/Tino.obj", "assets/Tino_jump.obj",
 			"assets/Tino_down.obj", "assets/Tino_base.png");
 		tino = tino_ptr.get(); // 전역 포인터에 할당
-		tino->position = glm::vec3(0.0f, 1.0f, 0.0f);  // Ground 위에 배치
-		tino->scale = glm::vec3(0.7f, 0.7f, 0.7f);     // 크기 조정 (우선 기본 크기로)
+		tino->position = glm::vec3(-3.0f, -3.0f, 0.0f);  // Ground 위에 배치
+		tino->scale = glm::vec3(1.3f, 1.3f, 1.3f);     // 크기 조정 (우선 기본 크기로)
 		g_gameWorld.AddObject(std::move(tino_ptr));
-	}
 
+		gView = glm::mat4(1.0f);
+		gView = glm::lookAt(		//카메라 외부파라미터
+			glm::vec3(0.0f, 0.0f, 10.0f),  // 카메라 위치 (x, y, z축이 모두 보이는 위치)	EYE
+			glm::vec3(0.0f, 0.0f, 0.0f),  // 바라보는 지점 (원점) 							AT
+			glm::vec3(0.0f, 1.0f, 0.0f)   // 위쪽 방향 벡터 					 			UP
+		);
+	}
 	// PLAYING 상태에서만 ObstacleSpawner 추가
 	else if (scene == GameState::PLAYING) {
 
 		g_gameWorld.Clear(); // 이전 게임 객체들 제거
 		// Ground 객체 생성 및 GameWorld에 추가
 		auto ground = std::make_unique<Ground>(1, RGBA{ 231 / 255., 217 / 255., 176 / 255., 1.0f });
+		ground->scale = glm::vec3(100.0f, 0.3f, 1.3f); // 땅을 더 넓게 스케일링
+
 		g_gameWorld.AddObject(std::move(ground));
 
+		// Ground 객체 생성 및 GameWorld에 추가
+		auto ground2 = std::make_unique<Ground>(1, RGBA{ 175 / 255., 145 / 255., 100 / 255., 1.0f });
+		ground2->position.y = -4.0f; // 땅을 약간 아래로 이동
+		ground2->scale = glm::vec3(100.0f, 0.3f, 100.0f); // 땅을 더 넓게 스케일링
+		g_gameWorld.AddObject(std::move(ground2));
+		
 		// Tino 객체 생성 및 GameWorld에 추가
 		// 경로 수정: assets 폴더로 직접 접근
 		auto tino_ptr = std::make_unique<Tino>("assets/Tino.obj", "assets/Tino_jump.obj", 
 			"assets/Tino_down.obj", "assets/Tino_base.png");
 		tino = tino_ptr.get(); // 전역 포인터에 할당
-		tino->position = glm::vec3(0.0f, 1.0f, 0.0f);  // Ground 위에 배치
+		tino->position = glm::vec3(0.0f, 0.0f, 0.0f);  // Ground 위에 배치
 		tino->scale = glm::vec3(0.7f, 0.7f, 0.7f);     // 크기 조정 (우선 기본 크기로)
+
 		g_gameWorld.AddObject(std::move(tino_ptr));
 
 		std::cout << "PLAYING 모드 시작 - ObstacleSpawner 추가" << std::endl;
 		auto spawner = std::make_unique<ObstacleSpawner>();
 		g_gameWorld.AddObject(std::move(spawner));
+
+		gView = glm::mat4(1.0f);
+		gView = glm::lookAt(		//카메라 외부파라미터
+			glm::vec3(-10.0f, 6.0f, 7.0f),  // 카메라 위치 (x, y, z축이 모두 보이는 위치)	EYE
+			glm::vec3(0.0f, 2.0f, -3.0f),  // 바라보는 지점 (원점) 							AT
+			glm::vec3(0.0f, 1.0f, 0.0f)   // 위쪽 방향 벡터 					 			UP
+		);
 	}
 }
 
@@ -151,16 +168,10 @@ GLvoid drawScene()
 	//--- 렌더링 파이프라인에 세이더 불러우기
 	glUseProgram(shaderProgramID);
 
-	gView = glm::mat4(1.0f);
-	gView = glm::lookAt(		//카메라 외부파라미터
-		glm::vec3(-10.0f, 6.0f, 7.0f),  // 카메라 위치 (x, y, z축이 모두 보이는 위치)	EYE
-		glm::vec3(0.0f, 2.0f, -3.0f),  // 바라보는 지점 (원점) 							AT
-		glm::vec3(0.0f, 1.0f, 0.0f)   // 위쪽 방향 벡터 					 			UP
-	);
-
+	//gView = glm::mat4(1.0f);
 	//gView = glm::lookAt(		//카메라 외부파라미터
-	//	glm::vec3(0.0f, 0.0f, 7.0f),  // 카메라 위치 (x, y, z축이 모두 보이는 위치)	EYE
-	//	glm::vec3(0.0f, 0.0f, 0.0f),  // 바라보는 지점 (원점) 							AT
+	//	glm::vec3(-10.0f, 6.0f, 7.0f),  // 카메라 위치 (x, y, z축이 모두 보이는 위치)	EYE
+	//	glm::vec3(0.0f, 2.0f, -3.0f),  // 바라보는 지점 (원점) 							AT
 	//	glm::vec3(0.0f, 1.0f, 0.0f)   // 위쪽 방향 벡터 					 			UP
 	//);
 
@@ -230,10 +241,6 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 	case '\r': 
 	case '\n':		// 엔터 누르면 시작
 		if (scene == GameState::TITLE) {
-			scene = GameState::LOBBY;
-			std::cout << "로비 화면" << std::endl;
-		}
-		else if (scene == GameState::LOBBY) {
 			scene = GameState::PLAYING;
 			std::cout << "게임 시작" << std::endl;
 		}

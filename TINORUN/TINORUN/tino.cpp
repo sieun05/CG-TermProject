@@ -262,9 +262,7 @@ void Tino::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 	glm::mat4 rotate = glm::mat4(1.0f);
 	glm::mat4 translate = glm::mat4(1.0f);
     if (scene == GameState::TITLE) {
-        rotate = glm::rotate(glm::mat4(1.0f), glm::radians(-15.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		rotate = glm::rotate(rotate, glm::radians(-10.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-        translate = glm::translate(glm::mat4(1.0f), glm::vec3(-8.0f, 2.0f, 3.0f));
+        rotate = glm::rotate(glm::mat4(1.0f), glm::radians(30.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     }
     else {
         rotate = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -281,14 +279,6 @@ void Tino::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     // 채워진 삼각형으로 그리기
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(currentMesh.indices.size()), GL_UNSIGNED_INT, 0);
-    
-    //// 추가로 와이어프레임도 그려서 구조를 확인할 수 있게 함
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    //glLineWidth(1.0f);
-    //glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
-    //
-    //// 다시 FILL 모드로 복원
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -297,6 +287,10 @@ void Tino::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 
 void Tino::Update()
 {
+    if (scene == GameState::TITLE) {
+        rotation.y += 0.5f;
+    }
+
     // 필요한 업데이트 로직 구현
     if (stateTimer > 0.0f) {
         stateTimer -= 0.016f; // 약 60FPS 가정

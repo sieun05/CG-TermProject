@@ -185,18 +185,12 @@ void ChangeGroundColor(RGBA newColor)
 
 void Ground::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 {
-    if (scene == GameState::TITLE) return;
-
 	ChangeGroundColor(this->color);
 
     glBindVertexArray(VAO_ground);
     
     // 부모 클래스의 GetModelMatrix() 사용
     glm::mat4 model = GetModelMatrix();
-    
-    // x방향으로 100배, y방향으로 0.5배, z방향으로 1.5배 스케일링 적용
-    glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(100.0f, 0.3f, 1.3f));
-    model = model * scaleMatrix;
 
     glm::mat4 mvp = gProjection * gView * model;
     glUniformMatrix4fv(uMVP_loc, 1, GL_FALSE, &mvp[0][0]);
