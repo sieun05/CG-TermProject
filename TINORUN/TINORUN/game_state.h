@@ -7,3 +7,5 @@ enum class GameState {
 };
 
 extern GameState scene;
+
+extern bool gameover_flag222;
