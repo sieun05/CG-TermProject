@@ -19,6 +19,15 @@ using namespace std;
 // 색상 구조체 및 타입 정의
 struct RGBA { float r, g, b, a; };
 
+struct Boundary {
+	glm::vec3 r1;
+	glm::vec3 r2;
+	glm::vec3 r3;
+	glm::vec3 r4;
+	glm::vec3 r5;
+	glm::vec3 r6;
+};
+
 // 전역 변수 선언 (shaderProgramID는 shader_func.h에서 정의됨)
 extern glm::mat4 gProjection;
 extern glm::mat4 gView;

@@ -145,7 +145,7 @@ void InitGameObjects()
 			"assets/Tino_down.obj", "assets/Tino_base.png");
 		tino = tino_ptr.get(); // 전역 포인터에 할당
 		tino->position = glm::vec3(0.0f, 0.0f, 0.0f);  // Ground 위에 배치
-		tino->scale = glm::vec3(0.8f, 0.8f, 0.8f);     // 크기 조정 (우선 기본 크기로)
+		tino->scale = glm::vec3(1.0f, 1.0f, 1.0f);     // 크기 조정 (우선 기본 크기로)
 
 		g_gameWorld.AddObject(std::move(tino_ptr));
 
