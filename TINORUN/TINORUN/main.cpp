@@ -47,6 +47,8 @@ ma_engine engine;
 ma_result result;
 ma_sound sounds[2];
 
+float sky_x = 0.0f;
+
 //--- 메인 함수
 void main(int argc, char** argv)
 //--- 윈도우출력하고콜백함수설정
@@ -121,7 +123,7 @@ void InitGameObjects()
 		/*auto press_enter = std::move(std::make_unique<Images>(0.5f, -1.0f, 0.8f, 0.3f, "assets/Press_Enter.png"));
 		g_gameWorld.AddObject(std::move(press_enter));*/
 
-		auto start_tex = std::move(std::make_unique<Images>(0.0f, 0.0f, 2.0f, 2.0f, "assets/start_texture.png"));
+		auto start_tex = std::move(std::make_unique<Images>(0.0f, 0.0f, 0.0f, 2.0f, 2.0f, "assets/start_texture.png"));
 		g_gameWorld.AddObject(std::move(start_tex));
 
 		// Ground 객체 생성 및 GameWorld에 추가
@@ -151,6 +153,11 @@ void InitGameObjects()
 	else if (scene == GameState::PLAYING) {
 
 		g_gameWorld.Clear(); // 이전 게임 객체들 제거
+
+		// 하늘 배경
+		auto sky = std::move(std::make_unique<Images>(0.0f, 0.7f, -1.0f, 2.0f, 0.6f, "assets/sky_2.png"));
+		g_gameWorld.AddObject(std::move(sky));
+
 		// Ground 객체 생성 및 GameWorld에 추가
 		auto ground = std::make_unique<Ground>(1, RGBA{ 231 / 255., 217 / 255., 176 / 255., 1.0f });
 		ground->scale = glm::vec3(100.0f, 0.3f, 1.3f); // 땅을 더 넓게 스케일링
@@ -158,11 +165,12 @@ void InitGameObjects()
 		g_gameWorld.AddObject(std::move(ground));
 
 		// Ground 객체 생성 및 GameWorld에 추가
-		auto ground2 = std::make_unique<Ground>(1, RGBA{ 175 / 255., 145 / 255., 100 / 255., 1.0f });
+		auto ground2 = std::make_unique<Ground>(1, RGBA{ 175 / 255., 145 / 255., 100 / 255., 1.0f } , "assets/ground_texture2.png");
 		ground2->position.y = -4.0f; // 땅을 약간 아래로 이동
 		ground2->scale = glm::vec3(100.0f, 0.3f, 100.0f); // 땅을 더 넓게 스케일링
 		g_gameWorld.AddObject(std::move(ground2));
 		
+
 		// Tino 객체 생성 및 GameWorld에 추가
 		// 경로 수정: assets 폴더로 직접 접근
 		auto tino_ptr = std::make_unique<Tino>("assets/Tino.obj", "assets/Tino_jump.obj", 
@@ -302,6 +310,8 @@ GLvoid Timer(int value)
 			scoreDisplay->SetScore(gameScore);
 		}
 	}
+
+	sky_x -= 0.0005f;
 
 	// GameWorld를 통해 모든 객체 업데이트 (ObstacleSpawner 포함)
 	g_gameWorld.UpdateAll();
