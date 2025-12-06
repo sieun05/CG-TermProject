@@ -320,10 +320,40 @@ void Tino::Update()
 				position -= glm::vec3(0.0f, 0.1f, 0.0f); // 점프 후 내려오기
 			if (position.y < 0.0f)
 				position.y = 0.0f;
+
+            boundary.r1 = glm::vec3(-0.8f, 0.2f, -0.8f); // 왼쪽 아래 뒤
+            boundary.r2 = glm::vec3(0.8f, 0.2f, -0.8f);  // 오른쪽 아래 뒤
+            boundary.r3 = glm::vec3(0.8f, 3.8f, -0.8f);   // 오른쪽 위 뒤
+            boundary.r4 = glm::vec3(-0.8f, 3.8f, -0.8f);  // 왼쪽 위 뒤
+            boundary.r5 = glm::vec3(-0.8f, 0.2f, 0.8f);  // 왼쪽 아래 앞
+            boundary.r6 = glm::vec3(0.8f, 3.8f, 0.8f);    // 오른쪽 위 앞
+
+            SetupBoundaryMesh();
         }
         if (stateTimer <= 0.0f) {
             state = RUNNING;
             stateTimer = 0.0f;
+
+            boundary.r1 = glm::vec3(-0.8f, 0.2f, -0.8f); // 왼쪽 아래 뒤
+            boundary.r2 = glm::vec3(0.8f, 0.2f, -0.8f);  // 오른쪽 아래 뒤
+            boundary.r3 = glm::vec3(0.8f, 3.8f, -0.8f);   // 오른쪽 위 뒤
+            boundary.r4 = glm::vec3(-0.8f, 3.8f, -0.8f);  // 왼쪽 위 뒤
+            boundary.r5 = glm::vec3(-0.8f, 0.2f, 0.8f);  // 왼쪽 아래 앞
+            boundary.r6 = glm::vec3(0.8f, 3.8f, 0.8f);    // 오른쪽 위 앞
+
+            SetupBoundaryMesh();
+        }
+
+        if (state == SLIDING) {
+            // 슬라이딩 중일 때 경계 박스 조정
+            boundary.r1 = glm::vec3(-0.8f, 0.2f, -0.8f); // 왼쪽 아래 뒤
+            boundary.r2 = glm::vec3(0.8f, 0.2f,  -0.8f);  // 오른쪽 아래 뒤
+            boundary.r3 = glm::vec3(0.8f, 2.5f,  -0.8f);   // 오른쪽 위 뒤
+            boundary.r4 = glm::vec3(-0.8f, 2.5f, -0.8f);  // 왼쪽 위 뒤
+            boundary.r5 = glm::vec3(-0.8f, 0.2f, 2.4f);  // 왼쪽 아래 앞
+            boundary.r6 = glm::vec3(0.8f, 2.5f,  2.4f);    // 오른쪽 위 앞
+
+            SetupBoundaryMesh();
         }
     }
 }

@@ -23,6 +23,14 @@ Obstacle::Obstacle(const std::string& objPath, const std::string& texturePath)
     scale = glm::vec3(0.25f, 0.25f, 0.25f);
 	rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 
+    // 충돌 영역 설정 (장애물의 기본 크기 기준)
+    boundary.r1 = glm::vec3(-0.5f, -0.5f, -0.5f); // 왼쪽 아래 뒤
+    boundary.r2 = glm::vec3(0.5f, -0.5f, -0.5f);  // 오른쪽 아래 뒤
+    boundary.r3 = glm::vec3(0.5f, 0.5f, -0.5f);   // 오른쪽 위 뒤
+    boundary.r4 = glm::vec3(-0.5f, 0.5f, -0.5f);  // 왼쪽 위 뒤
+    boundary.r5 = glm::vec3(-0.5f, -0.5f, 0.5f);  // 왼쪽 아래 앞
+    boundary.r6 = glm::vec3(0.5f, 0.5f, 0.5f);    // 오른쪽 위 앞
+
     //std::cout << "장애물 생성 시도, OBJ 경로: " << objPath << std::endl;
 
     if (LoadOBJ(objPath)) {
@@ -34,6 +42,10 @@ Obstacle::Obstacle(const std::string& objPath, const std::string& texturePath)
     else {
         std::cerr << "장애물 초기화 실패: OBJ 로딩 실패" << std::endl;
     }
+    
+    // 경계 박스 메시 설정
+    SetupBoundaryMesh();
+    
     if (LoadTexture(texturePath)) {
         //std::cout << "장애물 텍스처 로딩 성공!" << std::endl;
     }
@@ -48,6 +60,10 @@ Obstacle::~Obstacle()
 	if (VBO != 0) glDeleteBuffers(1, &VBO);
 	if (EBO != 0) glDeleteBuffers(1, &EBO);
 	if (textureID != 0) glDeleteTextures(1, &textureID);
+	
+	// 경계 박스 버퍼 정리
+	if (boundaryVAO != 0) glDeleteVertexArrays(1, &boundaryVAO);
+	if (boundaryVBO != 0) glDeleteBuffers(1, &boundaryVBO);
 }
 
 bool Obstacle::LoadOBJ(const std::string& objPath)
@@ -206,7 +222,6 @@ bool Obstacle::LoadOBJ(const std::string& objPath)
 
     return true;
 }
-
 bool Obstacle::LoadTexture(const std::string& texturePath)
 {
     glGenTextures(1, &textureID);
@@ -228,7 +243,6 @@ bool Obstacle::LoadTexture(const std::string& texturePath)
     glGenerateMipmap(GL_TEXTURE_2D);
     return true;
 }
-
 void Obstacle::SetupMesh()
 {
     std::cout << "obstacle SetupMesh 시작" << std::endl;
@@ -289,30 +303,120 @@ void Obstacle::Update()
     }
 }
 
+inline void Obstacle::OnCollision(GameObject* other) {
+}
 
 
+void Obstacle::SetupBoundaryMesh()
+{
+    // 박스의 8개 정점 정의 (boundary의 r1~r6를 이용해서 전체 8개 정점 구성)
+    float boundaryVertices[] = {
+        // 뒷면 4개 정점 (z = -0.5)
+        boundary.r1.x, boundary.r1.y, boundary.r1.z, 0.0f, 1.0f, 0.0f,  // 0: 왼쪽 아래 뒤 (초록색)
+        boundary.r2.x, boundary.r2.y, boundary.r2.z, 0.0f, 1.0f, 0.0f,  // 1: 오른쪽 아래 뒤
+        boundary.r3.x, boundary.r3.y, boundary.r3.z, 0.0f, 1.0f, 0.0f,  // 2: 오른쪽 위 뒤
+        boundary.r4.x, boundary.r4.y, boundary.r4.z, 0.0f, 1.0f, 0.0f,  // 3: 왼쪽 위 뒤
+        
+        // 앞면 4개 정점 (z = +0.5)
+        boundary.r5.x, boundary.r5.y, boundary.r5.z, 0.0f, 1.0f, 0.0f,  // 4: 왼쪽 아래 앞
+        boundary.r6.x, boundary.r5.y, boundary.r5.z, 0.0f, 1.0f, 0.0f,  // 5: 오른쪽 아래 앞
+        boundary.r6.x, boundary.r6.y, boundary.r6.z, 0.0f, 1.0f, 0.0f,  // 6: 오른쪽 위 앞
+        boundary.r5.x, boundary.r6.y, boundary.r6.z, 0.0f, 1.0f, 0.0f   // 7: 왼쪽 위 앞
+    };
 
+    glGenVertexArrays(1, &boundaryVAO);
+    glGenBuffers(1, &boundaryVBO);
 
+    glBindVertexArray(boundaryVAO);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, boundaryVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(boundaryVertices), boundaryVertices, GL_STATIC_DRAW);
+
+    // 위치 속성
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    // 색상 속성
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+}
+
+void Obstacle::DrawBoundary(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
+{
+    if (boundaryVAO == 0) return;
+
+    // 텍스처 사용 안함
+    glUniform1i(uUseTexture_loc, 0);
+
+    glBindVertexArray(boundaryVAO);
+
+    // 현재 장애물의 변환 행렬 적용
+    glm::mat4 model = GetModelMatrix();
+    
+    // 장애물 타입에 따른 추가 변환 적용
+    if (GetType() == ObstacleType::CACTUS) {
+        glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(-35.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = model * rotate;
+    }
+
+    glm::mat4 mvp = gProjection * gView * model;
+    glUniformMatrix4fv(uMVP_loc, 1, GL_FALSE, &mvp[0][0]);
+
+    // 선 두께 설정
+    glLineWidth(2.0f);
+    
+    // 박스의 12개 모서리를 선으로 그리기
+    unsigned int boundaryIndices[] = {
+        // 뒷면의 4개 모서리
+        0, 1,  1, 2,  2, 3,  3, 0,
+        // 앞면의 4개 모서리  
+        4, 5,  5, 6,  6, 7,  7, 4,
+        // 앞뒤를 연결하는 4개 모서리
+        0, 4,  1, 5,  2, 6,  3, 7
+    };
+
+    // 인덱스를 이용해 선 그리기
+    glDrawElements(GL_LINES, 24, GL_UNSIGNED_INT, boundaryIndices);
+    
+    // 선 두께 복원
+    glLineWidth(1.0f);
+    
+    glBindVertexArray(0);
+}
 
 
 // Cactus 구현
 Cactus::Cactus() : Obstacle()
 {
-    moveSpeed = -6.0f;
+    // Cactus 전용 boundary 설정 (더 크고 높게)
+    boundary.r1 = glm::vec3(-2.0f, 0.0f, -2.0f); // 왼쪽 아래 뒤
+    boundary.r2 = glm::vec3(2.0f, 0.0f, -2.0f);  // 오른쪽 아래 뒤
+    boundary.r3 = glm::vec3(2.0f, 15.0f, -2.0f);   // 오른쪽 위 뒤
+    boundary.r4 = glm::vec3(-2.0f, 15.0f, -2.0f);  // 왼쪽 위 뒤
+    boundary.r5 = glm::vec3(-2.0f, 0.0f, 2.0f);  // 왼쪽 아래 앞
+    boundary.r6 = glm::vec3(2.0f, 15.0f, 2.0f);    // 오른쪽 위 앞
+    
+    // boundary 변경 후 boundary 메시 다시 설정
+    SetupBoundaryMesh();
 }
 
 Cactus::Cactus(const std::string& objPath, const std::string& texturePath)
     : Obstacle(objPath, texturePath)
 {
-    moveSpeed = -6.0f;
 
-    // 정점 색상을 빨간색으로 변경
-    for (auto& vertex : vertices) {
-        vertex.color = glm::vec3(1.0f, 0.2f, 0.2f); // 빨간색
-    }
-    if (isLoaded) {
-        SetupMesh(); // 색상 변경 후 메시 재설정
-    }
+    // Cactus 전용 boundary 설정 (더 크고 높게)
+    boundary.r1 = glm::vec3(-2.0f, 0.0f, -2.0f); // 왼쪽 아래 뒤
+    boundary.r2 = glm::vec3(2.0f, 0.0f, -2.0f);  // 오른쪽 아래 뒤
+    boundary.r3 = glm::vec3(2.0f, 15.0f, -2.0f);   // 오른쪽 위 뒤
+    boundary.r4 = glm::vec3(-2.0f, 15.0f, -2.0f);  // 왼쪽 위 뒤
+    boundary.r5 = glm::vec3(-2.0f, 0.0f, 2.0f);  // 왼쪽 아래 앞
+    boundary.r6 = glm::vec3(2.0f, 15.0f, 2.0f);    // 오른쪽 위 앞
+
+    // boundary 변경 후 boundary 메시 다시 설정
+    SetupBoundaryMesh();
 }
 
 void Cactus::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
@@ -339,6 +443,9 @@ void Cactus::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
     glUniform1i(uUseTexture_loc, 0);
+    
+    // 경계 박스를 와이어프레임으로 그리기
+    DrawBoundary(gProjection, gView, uMVP_loc);
 }
 
 void Cactus::Update()
@@ -352,7 +459,17 @@ void Cactus::Update()
 // Tree 구현
 Tree::Tree() : Obstacle()
 {
-    moveSpeed = -6.0f;
+    
+    // Tree 전용 boundary 설정 (나무 모양에 맞게)
+    boundary.r1 = glm::vec3(-3.0f, 8.0f, -3.0f); // 왼쪽 아래 뒤
+    boundary.r2 = glm::vec3(3.0f, 8.0f, -3.0f);  // 오른쪽 아래 뒤
+    boundary.r3 = glm::vec3(3.0f, 16.0f, -3.0f);   // 오른쪽 위 뒤 (더 높게)
+    boundary.r4 = glm::vec3(-3.0f, 16.0f, -3.0f);  // 왼쪽 위 뒤
+    boundary.r5 = glm::vec3(-3.0f, 8.0f, 3.0f);  // 왼쪽 아래 앞
+    boundary.r6 = glm::vec3(3.0f, 16.0f, 3.0f);    // 오른쪽 위 앞
+    
+    // boundary 변경 후 boundary 메시 다시 설정
+    SetupBoundaryMesh();
 }
 
 Tree::Tree(const std::string& objPath, const std::string& texturePath) 
@@ -367,6 +484,17 @@ Tree::Tree(const std::string& objPath, const std::string& texturePath)
     if (isLoaded) {
         SetupMesh(); // 색상 변경 후 메시 재설정
     }
+    
+    // Tree 전용 boundary 설정 (나무 모양에 맞게)
+    boundary.r1 = glm::vec3(-3.0f, 8.0f, -3.0f); // 왼쪽 아래 뒤
+    boundary.r2 = glm::vec3(3.0f, 8.0f, -3.0f);  // 오른쪽 아래 뒤
+    boundary.r3 = glm::vec3(3.0f, 16.0f, -3.0f);   // 오른쪽 위 뒤 (더 높게)
+    boundary.r4 = glm::vec3(-3.0f, 16.0f, -3.0f);  // 왼쪽 위 뒤
+    boundary.r5 = glm::vec3(-3.0f, 8.0f, 3.0f);  // 왼쪽 아래 앞
+    boundary.r6 = glm::vec3(3.0f, 16.0f, 3.0f);    // 오른쪽 위 앞
+    
+    // boundary 변경 후 boundary 메시 다시 설정
+    SetupBoundaryMesh();
 }
 
 void Tree::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
@@ -391,6 +519,9 @@ void Tree::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
     glUniform1i(uUseTexture_loc, 0);
+    
+    // 경계 박스를 와이어프레임으로 그리기
+    DrawBoundary(gProjection, gView, uMVP_loc);
 }
 
 void Tree::Update()
@@ -404,23 +535,33 @@ void Tree::Update()
 // Mushroom 구현
 Mushroom::Mushroom() : Obstacle()
 {
-    moveSpeed = -6.0f;
+    // Mushroom 전용 boundary 설정 (버섯 모양에 맞게 - 작고 낮음)
+    boundary.r1 = glm::vec3(-0.8f, 0.0f, -0.8f); // 왼쪽 아래 뒤
+    boundary.r2 = glm::vec3(0.8f, 0.0f, -0.8f);  // 오른쪽 아래 뒤
+    boundary.r3 = glm::vec3(0.8f, 2.0f, -0.8f);   // 오른쪽 위 뒤 (낮게)
+    boundary.r4 = glm::vec3(-0.8f, 2.0f, -0.8f);  // 왼쪽 위 뒤
+    boundary.r5 = glm::vec3(-0.8f, 0.0f, 0.8f);  // 왼쪽 아래 앞
+    boundary.r6 = glm::vec3(0.8f, 2.0f, 0.8f);    // 오른쪽 위 앞
+    
+    // boundary 변경 후 boundary 메시 다시 설정
+    SetupBoundaryMesh();
 }
 
 Mushroom::Mushroom(const std::string& objPath, const std::string& texturePath)
     : Obstacle(objPath, texturePath)
 {
-    
-    moveSpeed = -6.0f;
 	scale = glm::vec3(1.0f, 1.0f, 1.0f);
-
-    // 정점 색상을 초록색으로 변경
-    for (auto& vertex : vertices) {
-        vertex.color = glm::vec3(0.2f, 1.0f, 0.2f); // 초록색
-    }
-    if (isLoaded) {
-        SetupMesh();
-    }
+    
+    // Mushroom 전용 boundary 설정 (버섯 모양에 맞게 - 작고 낮음)
+    boundary.r1 = glm::vec3(-0.8f, 0.0f, -0.8f); // 왼쪽 아래 뒤
+    boundary.r2 = glm::vec3(0.8f, 0.0f, -0.8f);  // 오른쪽 아래 뒤
+    boundary.r3 = glm::vec3(0.8f, 2.0f, -0.8f);   // 오른쪽 위 뒤 (낮게)
+    boundary.r4 = glm::vec3(-0.8f, 2.0f, -0.8f);  // 왼쪽 위 뒤
+    boundary.r5 = glm::vec3(-0.8f, 0.0f, 0.8f);  // 왼쪽 아래 앞
+    boundary.r6 = glm::vec3(0.8f, 2.0f, 0.8f);    // 오른쪽 위 앞
+    
+    // boundary 변경 후 boundary 메시 다시 설정
+    SetupBoundaryMesh();
 }
 
 void Mushroom::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
@@ -445,6 +586,9 @@ void Mushroom::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
     glUniform1i(uUseTexture_loc, 0);
+    
+    // 경계 박스를 와이어프레임으로 그리기
+    DrawBoundary(gProjection, gView, uMVP_loc);
 }
 
 void Mushroom::Update()
@@ -459,24 +603,36 @@ void Mushroom::Update()
 Bird::Bird() : Obstacle()
 {
     moveSpeed = -6.0f;
+    
+    // Bird 전용 boundary 설정 (새 모양에 맞게 - 날개 포함)
+    boundary.r1 = glm::vec3(-1.2f, -0.2f, -0.8f); // 왼쪽 아래 뒤 (날개 폭 고려)
+    boundary.r2 = glm::vec3(1.2f, -0.2f, -0.8f);  // 오른쪽 아래 뒤
+    boundary.r3 = glm::vec3(1.2f, 1.4f, -0.8f);   // 오른쪽 위 뒤 (새 높이)
+    boundary.r4 = glm::vec3(-1.2f, 1.4f, -0.8f);  // 왼쪽 위 뒤
+    boundary.r5 = glm::vec3(-1.2f, -0.2f, 0.8f);  // 왼쪽 아래 앞
+    boundary.r6 = glm::vec3(1.2f, 1.4f, 0.8f);    // 오른쪽 위 앞
+    
+    // boundary 변경 후 boundary 메시 다시 설정
+    SetupBoundaryMesh();
 }
 
 Bird::Bird(const std::string& objPath, const std::string& texturePath)
     : Obstacle(objPath, texturePath)
 {
-
-    moveSpeed = -6.0f;
     position = glm::vec3(SPAWN_X_POSITION, 4.0f, 0.0f);
 	scale = glm::vec3(0.7f, 0.7f, 0.7f);
 	rotation = glm::vec3(0.0f, -180.0f, 0.0f);
-
-    // 정점 색상을 보라색으로 변경
-    for (auto& vertex : vertices) {
-        vertex.color = glm::vec3(0.8f, 0.2f, 1.0f); // 보라색
-    }
-    if (isLoaded) {
-        SetupMesh();
-    }
+    
+    // Bird 전용 boundary 설정 (새 모양에 맞게 - 날개 포함)
+    boundary.r1 = glm::vec3(-1.2f, -0.2f, -0.8f); // 왼쪽 아래 뒤 (날개 폭 고려)
+    boundary.r2 = glm::vec3(1.2f, -0.2f, -0.8f);  // 오른쪽 아래 뒤
+    boundary.r3 = glm::vec3(1.2f, 1.4f, -0.8f);   // 오른쪽 위 뒤 (새 높이)
+    boundary.r4 = glm::vec3(-1.2f, 1.4f, -0.8f);  // 왼쪽 위 뒤
+    boundary.r5 = glm::vec3(-1.2f, -0.2f, 0.8f);  // 왼쪽 아래 앞
+    boundary.r6 = glm::vec3(1.2f, 1.4f, 0.8f);    // 오른쪽 위 앞
+    
+    // boundary 변경 후 boundary 메시 다시 설정
+    SetupBoundaryMesh();
 }
 
 void Bird::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
@@ -501,6 +657,9 @@ void Bird::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
     glUniform1i(uUseTexture_loc, 0);
+    
+    // 경계 박스를 와이어프레임으로 그리기
+    DrawBoundary(gProjection, gView, uMVP_loc);
 }
 
 void Bird::Update()
@@ -511,7 +670,6 @@ void Bird::Update()
 }
 
 
-// ObstacleSpawner 클래스 구현
 ObstacleSpawner::ObstacleSpawner()
     : spawnTimer(0.0f), spawnInterval(2.0f)
 {

@@ -16,6 +16,10 @@ public:
 	// GameObject의 가상 함수들을 오버라이드
 	virtual void Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc) override;
 	virtual void Update() override;
+	virtual void OnCollision(GameObject* other) override;
+
+	// 경계 박스를 와이어프레임으로 렌더링
+	void DrawBoundary(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc);
 
 	// 모델 로딩
 	bool LoadOBJ(const std::string& objPath);
@@ -53,6 +57,11 @@ protected:
 
 	bool isLoaded;
 	virtual void SetupMesh();
+	
+	// 경계 박스 렌더링용 VAO/VBO
+	GLuint boundaryVAO = 0;
+	GLuint boundaryVBO = 0;
+	void SetupBoundaryMesh();
 };
 
 
