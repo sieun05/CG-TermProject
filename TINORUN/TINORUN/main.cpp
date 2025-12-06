@@ -105,22 +105,7 @@ void InitGameObjects()
 		ground->position.y = -4.0f; // 땅을 약간 아래로 이동
 		ground->scale = glm::vec3(100.0f, 0.3f, 100.0f); // 땅을 더 넓게 스케일링
 		g_gameWorld.AddObject(std::move(ground));
-		// Tino 객체 생성 및 GameWorld에 추가
-		// 경로 수정: assets 폴더로 직접 접근
-		auto tino_ptr = std::make_unique<Tino>("assets/Tino.obj", "assets/Tino_jump.obj",
-			"assets/Tino_down.obj", "assets/Tino_base.png");
-		tino = tino_ptr.get(); // 전역 포인터에 할당
-		tino->position = glm::vec3(0.0f, 1.0f, 0.0f);  // Ground 위에 배치
-		tino->scale = glm::vec3(0.7f, 0.7f, 0.7f);     // 크기 조정 (우선 기본 크기로)
-		g_gameWorld.AddObject(std::move(tino_ptr));
-	}
-	else if (scene == GameState::LOBBY) {
-		g_gameWorld.Clear(); // 이전 게임 객체들 제거
-		auto press_enter = std::move(std::make_unique<Images>(0.5f, -1.0f, 0.8f, 0.3f, "assets/Press_Enter.png"));
-		g_gameWorld.AddObject(std::move(press_enter));
 
-		
-		
 
 		// Tino 객체 생성 및 GameWorld에 추가
 		// 경로 수정: assets 폴더로 직접 접근
@@ -131,23 +116,11 @@ void InitGameObjects()
 		tino->scale = glm::vec3(1.3f, 1.3f, 1.3f);     // 크기 조정 (우선 기본 크기로)
 		g_gameWorld.AddObject(std::move(tino_ptr));
 
-		auto score = std::make_unique<ScoreDisplay>(
-			-0.95f,
-			0.95f,
-			0.05f,
-			0.1f,
-			"assets/score_text.png"
-		);
-		scoreDisplay = score.get();
-		scoreDisplay->SetScore(23170);
-		g_gameWorld.AddObject(std::move(score));
-	}
-
 		gView = glm::mat4(1.0f);
-		gView = glm::lookAt(		//카메라 외부파라미터
-			glm::vec3(0.0f, 0.0f, 10.0f),  // 카메라 위치 (x, y, z축이 모두 보이는 위치)	EYE
-			glm::vec3(0.0f, 0.0f, 0.0f),  // 바라보는 지점 (원점) 							AT
-			glm::vec3(0.0f, 1.0f, 0.0f)   // 위쪽 방향 벡터 					 			UP
+		gView = glm::lookAt(		//
+			glm::vec3(0.0f, 0.0f, 10.0f),  //	EYE
+			glm::vec3(0.0f, 0.0f, 0.0f),  // 							AT
+			glm::vec3(0.0f, 1.0f, 0.0f)   //				 			UP
 		);
 	}
 	// PLAYING 상태에서만 ObstacleSpawner 추가
@@ -172,7 +145,7 @@ void InitGameObjects()
 			"assets/Tino_down.obj", "assets/Tino_base.png");
 		tino = tino_ptr.get(); // 전역 포인터에 할당
 		tino->position = glm::vec3(0.0f, 0.0f, 0.0f);  // Ground 위에 배치
-		tino->scale = glm::vec3(0.7f, 0.7f, 0.7f);     // 크기 조정 (우선 기본 크기로)
+		tino->scale = glm::vec3(0.8f, 0.8f, 0.8f);     // 크기 조정 (우선 기본 크기로)
 
 		g_gameWorld.AddObject(std::move(tino_ptr));
 
@@ -285,15 +258,17 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 
 	switch (key) {
 	case ' ':	// 점프 (추후 구현)
-		tino->StateChange(State::JUMPING);
+		if (scene == GameState::PLAYING)
+			tino->StateChange(State::JUMPING);
 		break;
 	case '\r': 
 	case '\n':		// 엔터 누르면 시작
 		if (scene == GameState::TITLE) {
 			scene = GameState::PLAYING;
 			std::cout << "게임 시작" << std::endl;
+			InitGameObjects();		// 게임 객체 초기화
 		}
-		InitGameObjects();		// 게임 객체 초기화
+		
 		break;
 	case 'q':
 	case 'Q':
