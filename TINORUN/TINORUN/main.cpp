@@ -36,6 +36,9 @@ GLint uMVP_loc = -1;
 GLint uUseTexture_loc = -1;
 GLint uTextureSampler_loc = -1;
 
+// 게임 상태 관련 변수 정의 (scene은 game_world.cpp에서 정의됨)
+bool gameover_flag222 = false;
+
 Tino* tino = nullptr;
 ScoreDisplay* scoreDisplay = nullptr;
 int gameScore = 0;
@@ -341,6 +344,10 @@ GLvoid Timer(int value)
 			scoreDisplay->SetScore(gameScore);
 		}
 	}
+	if (scene == GameState::PLAYING and gameover_flag222) {
+		scene = GameState::GAME_OVER;
+		InitGameObjects();
+	}
 	sky_x -= 0.0005f;
 
 	// GameWorld를 통해 모든 객체 업데이트 (ObstacleSpawner 포함)
@@ -366,19 +373,19 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 		break;
 	case '\r': 
 	case '\n':		// 엔터 누르면 시작
-		if (scene == GameState::TITLE) {
+		if (scene == GameState::TITLE || scene == GameState::GAME_OVER) {
 			scene = GameState::PLAYING;
 			std::cout << "게임 시작" << std::endl;
 			InitGameObjects();		// 게임 객체 초기화
 		}
 		break;
 	case 27:		
-		if (scene == GameState::PLAYING || scene == GameState::GAME_OVER) {
+		if (scene == GameState::PLAYING) {
 			// ESC 누르면 타이틀로
 			scene = GameState::TITLE;
 			std::cout << "타이틀 화면으로 이동" << std::endl;
 		}
-		else if (scene == GameState::TITLE) {
+		else if (scene == GameState::TITLE || scene == GameState::GAME_OVER) {
 			// 타이틀에서 누르면 게임종료
 			std::cout << "게임 종료" << std::endl;
 			ma_engine_uninit(&engine); // 이전에 재생 중이던 사운드 정리
