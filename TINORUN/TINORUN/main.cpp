@@ -46,9 +46,8 @@ int gameScore = 0;
 // 사운드 전역 변수
 ma_engine engine;
 ma_result result;
-ma_sound sounds[2];
+ma_sound sounds[3];
 
-float sky_x = 0.0f;
 bool timer = true;
 
 //--- 메인 함수
@@ -83,7 +82,7 @@ void main(int argc, char** argv)
 	//glutSpecialFunc(SpecialKeyDown);    // 화살표 등 특수키 눌림 처리
 	//glutSpecialUpFunc(SpecialKeyUp);
 	glutTimerFunc(16, Timer, 1); // 약 60FPS로 타이머 시작
-
+	
 	InitBuffer();
 	InitGameObjects();		// 게임 객체 초기화
 	
@@ -99,7 +98,9 @@ void main(int argc, char** argv)
 	// 사운드 초기화
 	ma_sound_init_from_file(&engine, "assets/jump_sound.mp3", 0, NULL, NULL, &sounds[0]);
 	ma_sound_init_from_file(&engine, "assets/gameover_sound.mp3", 0, NULL, NULL, &sounds[1]);
-	
+	ma_sound_init_from_file(&engine, "assets/background.mp3", 0, NULL, NULL, &sounds[2]);
+	ma_sound_set_looping(&sounds[2], MA_TRUE);  // 배경음악 루프 설정
+
 	glutMainLoop();
 }
 
@@ -150,7 +151,11 @@ void InitGameObjects()
 			glm::vec3(0.0f, 1.0f, 0.0f)   //				 			UP
 		);
 
-		if (!timer) timer = true;
+		if (!timer) {
+			timer = true;
+			glutTimerFunc(16, Timer, 1);
+		}
+		ma_sound_stop(&sounds[2]); // 배경음악 정지
 	}
 	// PLAYING 상태에서만 ObstacleSpawner 추가
 	else if (scene == GameState::PLAYING) {
@@ -206,14 +211,20 @@ void InitGameObjects()
 			glm::vec3(0.0f, 1.0f, 0.0f)   // 위쪽 방향 벡터 					 			UP
 		);
 
-		// 배경음악 재생
-		ma_engine_play_sound(&engine, "assets/background.mp3", NULL);
-		if (!timer) timer = true;
+		// 배경음악 재생 (처음부터 시작)
+		ma_sound_stop(&sounds[2]);  // 혹시 재생 중이면 정지
+		ma_sound_seek_to_pcm_frame(&sounds[2], 0);  // 처음으로
+		ma_sound_start(&sounds[2]);  // 재생 시작
+
+		if (!timer) {
+			timer = true;
+			glutTimerFunc(16, Timer, 1);
+		}
 	}
 	else if (scene == GameState::GAME_OVER) {
 		g_gameWorld.Clear(); // 이전 게임 객체들 제거
 
-		timer = false;
+		if(timer) timer = false;
 
 		auto gameover = std::move(std::make_unique<Images>(0.0f, 0.0f, 0.0f, 2.0f, 2.0f, "assets/gameover.png"));
 		g_gameWorld.AddObject(std::move(gameover));
@@ -276,7 +287,11 @@ void InitGameObjects()
 			glm::vec3(0.0f, 1.0f, 0.0f)   //				 			UP
 		);
 
-		ma_sound_start(&sounds[1]);	// 게임오버 사운드
+		// 배경음악 정지
+		ma_sound_stop(&sounds[2]);
+
+		// 게임오버 사운드 재생
+		ma_sound_start(&sounds[1]);
 		ma_sound_seek_to_pcm_frame(&sounds[1], 0);
 	}
 }
@@ -348,7 +363,6 @@ GLvoid Timer(int value)
 		scene = GameState::GAME_OVER;
 		InitGameObjects();
 	}
-	sky_x -= 0.0005f;
 
 	// GameWorld를 통해 모든 객체 업데이트 (ObstacleSpawner 포함)
 	g_gameWorld.UpdateAll();
