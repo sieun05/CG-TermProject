@@ -8,6 +8,9 @@
 #include "obstacle.h" // 장애물 헤더 추가 
 #include "Button.h"	// 버튼 헤더 추가
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "../stb_image.h"
+
 #include "Axes.h"
 
 void InitBuffer();
@@ -91,7 +94,7 @@ void InitGameObjects()
 	if (scene == GameState::TITLE) {
 		g_gameWorld.Clear(); // 이전 게임 객체들 제거
 
-		auto start_button = std::move(std::make_unique<Button>(0.5f, -1.0f, 0.8f, 0.3f, "assets/Press_Enter.bmp"));
+		auto start_button = std::move(std::make_unique<Button>(0.5f, -1.0f, 0.8f, 0.3f, "assets/Press_Enter.png"));
 		g_gameWorld.AddObject(std::move(start_button));
 
 		// Tino 객체 생성 및 GameWorld에 추가
@@ -105,7 +108,7 @@ void InitGameObjects()
 	}
 	else if (scene == GameState::LOBBY) {
 		g_gameWorld.Clear(); // 이전 게임 객체들 제거
-		auto start_button = std::move(std::make_unique<Button>(0.5f, -1.0f, 0.8f, 0.3f, "assets/Press_Enter.bmp"));
+		auto start_button = std::move(std::make_unique<Button>(0.5f, -1.0f, 0.8f, 0.3f, "assets/Press_Enter.png"));
 		g_gameWorld.AddObject(std::move(start_button));
 
 		// Tino 객체 생성 및 GameWorld에 추가

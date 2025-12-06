@@ -310,7 +310,7 @@ void Tino::Update()
 				position.y = 0.0f;
         }
         if (stateTimer <= 0.0f) {
-            StateChange(RUNNING);
+            state = RUNNING;
             stateTimer = 0.0f;
         }
     }
@@ -318,6 +318,8 @@ void Tino::Update()
 
 void Tino::StateChange(State newState)
 {
+    if (state != RUNNING) return; 
+
     state = newState;
 
     if (newState == JUMPING) 

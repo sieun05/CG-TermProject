@@ -2,6 +2,8 @@
 #include "game_state.h"
 #include "LoadBitmap.h"
 
+extern "C" void stbi_set_flip_vertically_on_load(int flag_true_if_should_flip);
+
 Button::Button(float x, float y, float w, float h, const std::string& texturePath)
 	: x(x), y(y), w(w), h(h)
 {
@@ -60,21 +62,23 @@ bool Button::LoadTexture(const std::string& texturePath)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	// 이미지 로드 (여기서는 단색 이미지 사용)
-	/*int width, height, channels;
-	unsigned char* data = stbi_load(texturePath.c_str(), &width, &height, &channels, 0);*/
-	unsigned char* data = LoadDIBitmap(texturePath.c_str(), &bmp);
+	stbi_set_flip_vertically_on_load(true);	// 이미지 뒤집기
+
+	int width, height, channels;
+	unsigned char* data = stbi_load(texturePath.c_str(), &width, &height, &channels, 0);
+	//unsigned char* data = LoadDIBitmap(texturePath.c_str(), &bmp);
 	if (data == NULL) {
 		std::cerr << "Failed to load texture: " << texturePath << std::endl;
 		return false;
 	}
 
-	/*GLenum format = (channels == 4) ? GL_RGBA : GL_RGB;
+	GLenum format = (channels == 4) ? GL_RGBA : GL_RGB;
 	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 
-	stbi_image_free(data);*/
+	stbi_image_free(data);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, bmp->bmiHeader.biWidth, bmp->bmiHeader.biHeight, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
-	glGenerateMipmap(GL_TEXTURE_2D);
+	/*glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, bmp->bmiHeader.biWidth, bmp->bmiHeader.biHeight, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
+	glGenerateMipmap(GL_TEXTURE_2D);*/
 	return true;
 }
 
@@ -90,6 +94,9 @@ void Button::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 
 	glActiveTexture(GL_TEXTURE0);
 	glUniform1i(uTextureSampler_loc, 0); // 텍스처 유닛 0 사용
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);	// 투명 배경 사용
 	
 	glBindVertexArray(VAO);
 	glBindTexture(GL_TEXTURE_2D, textureID);
@@ -97,6 +104,7 @@ void Button::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
+	glDisable(GL_BLEND);	// 블렌딩 비활성화
 	glUniform1i(uUseTexture_loc, 0); // 텍스처 사용 안함
 }
 
