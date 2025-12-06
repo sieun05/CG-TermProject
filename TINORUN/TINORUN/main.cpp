@@ -14,8 +14,6 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "../stb_image.h"	// png 사용
 
-#include "Axes.h"
-
 void InitBuffer();
 void InitGameObjects();
 
@@ -106,7 +104,6 @@ void InitBuffer()
 
 	//RectInit();<< 따로 초기화 함수 만들어서 호출만 하기 
 	GroundInit();
-	InitAxesBuffer();
 }
 
 void InitGameObjects()
@@ -242,15 +239,6 @@ GLvoid drawScene()
 	//--- 렌더링 파이프라인에 세이더 불러우기
 	glUseProgram(shaderProgramID);
 
-	//gView = glm::mat4(1.0f);
-	//gView = glm::lookAt(		//카메라 외부파라미터
-	//	glm::vec3(-10.0f, 6.0f, 7.0f),  // 카메라 위치 (x, y, z축이 모두 보이는 위치)	EYE
-	//	glm::vec3(0.0f, 2.0f, -3.0f),  // 바라보는 지점 (원점) 							AT
-	//	glm::vec3(0.0f, 1.0f, 0.0f)   // 위쪽 방향 벡터 					 			UP
-	//);
-
-	// 좌표축 그리기 (변환 행렬 적용)
-	DrawAxes(gProjection, gView, uMVP_loc);
 
 	// GameWorld를 통해 모든 객체 렌더링
 	g_gameWorld.DrawAll(gProjection, gView, uMVP_loc);

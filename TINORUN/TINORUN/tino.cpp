@@ -376,12 +376,6 @@ void Tino::StateChange(State newState)
 
 void Tino::OnCollision(GameObject* other)
 {
-    // 충돌 ??처리??로직 구현
-    // ?? ?�애물과 충돌 ??게임 ?�버 처리
-    std::cout << "Tino collision detected!" << std::endl;
-    
-    // ?�요???�라 게임 ?�태 변경이???�른 처리 로직 추�? 가??
-    // ?? scene = GameState::GAME_OVER;
 }
 
 void Tino::SetupBoundaryMesh()
