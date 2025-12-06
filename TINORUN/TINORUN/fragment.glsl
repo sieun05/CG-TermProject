@@ -16,6 +16,11 @@ void main()
     if (useTexture) {
         // 텍스처를 사용하는 경우
         vec4 texColor = texture(textureSampler, out_TexCoord);
+
+        // 투명도 처리
+        if(texColor.a < 0.1)
+            discard;
+
         FragColor = texColor;
     } else {
         // 기본 컬러를 사용하는 경우

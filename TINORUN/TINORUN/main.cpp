@@ -268,7 +268,6 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 			std::cout << "게임 시작" << std::endl;
 			InitGameObjects();		// 게임 객체 초기화
 		}
-		
 		break;
 	case 27:		
 		if (scene == GameState::PLAYING || scene == GameState::GAME_OVER) {
