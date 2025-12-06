@@ -116,15 +116,15 @@ float ScoreDisplay::DrawDigit(int digit, float x, float y, glm::mat4 gProjection
 	// 숫자 배열 순서: 1,2,3,4,5,6,7,8,9,0
 	DigitCoord coords[10] = {
 		{0.90f, 1.00f, 1.0f},  // 0 - 맨 오른쪽
-		{0.02f, 0.03f, 0.2f},  // 1 - 맨 왼쪽, 매우 좁음
-		{0.05f, 0.15f, 1.0f},  // 2
-		{0.15f, 0.25f, 1.0f},  // 3
-		{0.25f, 0.35f, 1.0f},  // 4
-		{0.36f, 0.46f, 1.0f},  // 5
-		{0.46f, 0.56f, 1.0f},  // 6
-		{0.58f, 0.68f, 1.0f},  // 7
-		{0.68f, 0.78f, 1.0f},  // 8
-		{0.78f, 0.88f, 1.0f}   // 9
+		{0.00f, 0.10f, 1.0f},  // 1 - 맨 왼쪽, 매우 좁음
+		{0.10f, 0.20f, 1.0f},  // 2
+		{0.20f, 0.30f, 1.0f},  // 3
+		{0.30f, 0.40f, 1.0f},  // 4
+		{0.40f, 0.50f, 1.0f},  // 5
+		{0.50f, 0.60f, 1.0f},  // 6
+		{0.60f, 0.70f, 1.0f},  // 7
+		{0.70f, 0.80f, 1.0f},  // 8
+		{0.80f, 0.90f, 1.0f}   // 9
 	};
 
 	float texLeft = coords[digit].left;
@@ -182,21 +182,13 @@ void ScoreDisplay::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 	// 각 자리수를 그림 (왼쪽에서 오른쪽으로)
 	float startX = position.x;
 	float currentX = startX;
-	float isOne = 0.0f;
 
 
 	for (int i = 0; i < 5; i++) {
 		// 각 숫자를 그리고 실제 사용된 너비를 받아옴
 		float usedWidth = DrawDigit(digits[i], currentX, position.y, gProjection, gView, uMVP_loc);
 		// 다음 숫자 위치 = 현재 위치 + 실제 너비 + 간격
-		if (isOne != 0.0f) {
-			currentX = currentX - isOne;
-		}
-
-		isOne = (digits[i + 1] == 1) ? -0.02 : 0.0f;
-
-		currentX += usedWidth + spacing + isOne;
-
+		currentX += usedWidth + spacing;
 	}
 
 	glBindTexture(GL_TEXTURE_2D, 0);
