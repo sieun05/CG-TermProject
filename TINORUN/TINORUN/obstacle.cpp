@@ -501,15 +501,6 @@ Tree::Tree() : Obstacle()
 Tree::Tree(const std::string& objPath, const std::string& texturePath) 
     : Obstacle(objPath, texturePath)
 {
-    moveSpeed = -6.0f;
-    
-    // 정점 색상을 빨간색으로 변경
-    for (auto& vertex : vertices) {
-        vertex.color = glm::vec3(1.0f, 0.2f, 0.2f); // 빨간색
-    }
-    if (isLoaded) {
-        SetupMesh(); // 색상 변경 후 메시 재설정
-    }
     
     // Tree 전용 boundary 설정 (나무 모양에 맞게)
     boundary.r1 = glm::vec3(-3.0f, 8.0f, -3.0f); // 왼쪽 아래 뒤
@@ -623,8 +614,6 @@ void Mushroom::Update()
 // Bird 구현
 Bird::Bird() : Obstacle()
 {
-    moveSpeed = -6.0f;
-    
     // Bird 전용 boundary 설정 (새 모양에 맞게 - 날개 포함)
     boundary.r1 = glm::vec3(-1.2f, -0.2f, -0.8f); // 왼쪽 아래 뒤 (날개 폭 고려)
     boundary.r2 = glm::vec3(1.2f, -0.2f, -0.8f);  // 오른쪽 아래 뒤
