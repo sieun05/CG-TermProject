@@ -319,8 +319,8 @@ void Tino::Update()
 				position += glm::vec3(0.0f, 0.1f, 0.0f); // ?먰봽 ???꾨줈 ?대룞
 			else
 				position -= glm::vec3(0.0f, 0.1f, 0.0f); // ?먰봽 ???대젮?ㅺ린
-			if (position.y < 0.0f)
-				position.y = 0.0f;
+			if (position.y < 0.5f)
+				position.y = 0.5f;
 
             boundary.r1 = glm::vec3(-0.8f, 0.4f, -0.8f); // ?쇱そ ?꾨옒 ??
             boundary.r2 = glm::vec3(0.8f, 0.4f, -0.8f);  // ?ㅻⅨ履??꾨옒 ??

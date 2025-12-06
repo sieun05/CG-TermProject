@@ -179,7 +179,7 @@ void InitGameObjects()
 		auto tino_ptr = std::make_unique<Tino>("assets/Tino.obj", "assets/Tino_jump.obj", 
 			"assets/Tino_down.obj", "assets/Tino_base.png");
 		tino = tino_ptr.get(); // 전역 포인터에 할당
-		tino->position = glm::vec3(0.0f, 0.0f, 0.0f);  // Ground 위에 배치
+		tino->position = glm::vec3(0.0f, 0.5f, 0.0f);  // Ground 위에 배치
 		tino->scale = glm::vec3(1.0f, 1.0f, 1.0f);     // 크기 조정 (우선 기본 크기로)
 
 		g_gameWorld.AddObject(std::move(tino_ptr));
@@ -201,7 +201,7 @@ void InitGameObjects()
 
 		gView = glm::mat4(1.0f);
 		gView = glm::lookAt(		//카메라 외부파라미터
-			glm::vec3(-13.0f, 6.0f, 12.0f),  // 카메라 위치 (x, y, z축이 모두 보이는 위치)	EYE
+			glm::vec3(-12.0f, 7.0f, 10.0f),  // 카메라 위치 (x, y, z축이 모두 보이는 위치)	EYE
 			glm::vec3(0.0f, 2.0f, -3.0f),  // 바라보는 지점 (원점) 							AT
 			glm::vec3(0.0f, 1.0f, 0.0f)   // 위쪽 방향 벡터 					 			UP
 		);
@@ -373,10 +373,16 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 		break;
 	case '\r': 
 	case '\n':		// 엔터 누르면 시작
-		if (scene == GameState::TITLE || scene == GameState::GAME_OVER) {
+		if (scene == GameState::TITLE) {
 			scene = GameState::PLAYING;
 			std::cout << "게임 시작" << std::endl;
 			InitGameObjects();		// 게임 객체 초기화
+		}
+		if(scene == GameState::GAME_OVER) {
+			scene = GameState::TITLE;
+			gameover_flag222 = false;
+			std::cout << "타이틀 화면으로 이동" << std::endl;
+			InitGameObjects();
 		}
 		break;
 	case 27:		
