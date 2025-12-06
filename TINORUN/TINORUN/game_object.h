@@ -11,11 +11,13 @@ public:
 	// 순수 가상 함수로 만들어 자식 클래스에서 반드시 구현하도록 함
 	virtual void Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc) = 0;
 	virtual void Update() = 0;
+	virtual void OnCollision(GameObject* other) {}
 
 	// 위치와 회전 등 공통 속성들
 	glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f);
+	Boundary boundary{}; // 경계 박스
 
 	// 활성화 상태
 	bool isActive = true;

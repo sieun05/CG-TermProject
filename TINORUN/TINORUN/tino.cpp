@@ -7,11 +7,23 @@
 // STB 이미지 라이브러리 대신 임시로 텍스처 없이 구현
 Tino::Tino(const std::string& objPath, const std::string& jumpPath,
     const std::string& downPath, const std::string& texturePath)
-	: textureID(0), bmp(nullptr), state(RUNNING)
+    : textureID(0), bmp(nullptr), state(RUNNING)
 {
+    // 충돌 영역 설정 (Tino의 기본 크기 기준)
+    // r1~r6는 박스의 6개 면을 나타내는 정점들
+    boundary.r1 = glm::vec3(-0.8f, 0.2f, -0.8f); // 왼쪽 아래 뒤
+    boundary.r2 = glm::vec3(0.8f, 0.2f, -0.8f);  // 오른쪽 아래 뒤
+    boundary.r3 = glm::vec3(0.8f, 3.8f, -0.8f);   // 오른쪽 위 뒤
+    boundary.r4 = glm::vec3(-0.8f, 3.8f, -0.8f);  // 왼쪽 위 뒤
+    boundary.r5 = glm::vec3(-0.8f, 0.2f, 0.8f);  // 왼쪽 아래 앞
+    boundary.r6 = glm::vec3(0.8f, 3.8f, 0.8f);    // 오른쪽 위 앞
+    
     LoadOBJ(objPath, RUNNING);
     LoadOBJ(jumpPath, JUMPING);
     LoadOBJ(downPath, SLIDING);
+
+    // 경계 박스 메시 설정
+    SetupBoundaryMesh();
 
 	if (LoadTexture(texturePath)) {
 		//std::cout << "Tino 텍스처 로딩 성공!" << std::endl;
@@ -29,6 +41,10 @@ Tino::~Tino()
         if (meshes[i].EBO != 0) glDeleteBuffers(1, &meshes[i].EBO);
     }
     if (textureID != 0) glDeleteTextures(1, &textureID);
+    
+    // 경계 박스 버퍼 정리
+    if (boundaryVAO != 0) glDeleteVertexArrays(1, &boundaryVAO);
+    if (boundaryVBO != 0) glDeleteBuffers(1, &boundaryVBO);
 }
 
 bool Tino::LoadOBJ(const std::string& objPath, State targetState)
@@ -257,7 +273,6 @@ void Tino::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glBindVertexArray(currentMesh.VAO);
     glBindTexture(GL_TEXTURE_2D, textureID);
 
-
     glm::mat4 model = GetModelMatrix();
 	glm::mat4 rotate = glm::mat4(1.0f);
 	glm::mat4 translate = glm::mat4(1.0f);
@@ -283,6 +298,9 @@ void Tino::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
     glUniform1i(uUseTexture_loc, 0);
+    
+    // 경계 박스를 와이어프레임으로 그리기 (디버그용)
+    DrawBoundary(gProjection, gView, uMVP_loc);
 }
 
 void Tino::Update()
@@ -323,4 +341,100 @@ void Tino::StateChange(State newState)
     else {
 		stateTimer = 0.0f;
     }
+}
+
+void Tino::OnCollision(GameObject* other)
+{
+    // 충돌 시 처리할 로직 구현
+    // 예: 장애물과 충돌 시 게임 오버 처리
+    std::cout << "Tino가 다른 객체와 충돌했습니다!" << std::endl;
+    
+    // 필요에 따라 게임 상태 변경이나 다른 처리 로직 추가 가능
+    // 예: scene = GameState::GAME_OVER;
+}
+
+void Tino::SetupBoundaryMesh()
+{
+    // 박스의 8개 정점 정의 (boundary의 r1~r6를 이용해서 전체 8개 정점 구성)
+    float boundaryVertices[] = {
+        // 뒷면 4개 정점 (z = -0.5)
+        boundary.r1.x, boundary.r1.y, boundary.r1.z, 1.0f, 0.0f, 0.0f,  // 0: 왼쪽 아래 뒤
+        boundary.r2.x, boundary.r2.y, boundary.r2.z, 1.0f, 0.0f, 0.0f,  // 1: 오른쪽 아래 뒤
+        boundary.r3.x, boundary.r3.y, boundary.r3.z, 1.0f, 0.0f, 0.0f,  // 2: 오른쪽 위 뒤
+        boundary.r4.x, boundary.r4.y, boundary.r4.z, 1.0f, 0.0f, 0.0f,  // 3: 왼쪽 위 뒤
+        
+        // 앞면 4개 정점 (z = +0.5)
+        boundary.r5.x, boundary.r5.y, boundary.r5.z, 1.0f, 0.0f, 0.0f,  // 4: 왼쪽 아래 앞
+        boundary.r6.x, boundary.r5.y, boundary.r5.z, 1.0f, 0.0f, 0.0f,  // 5: 오른쪽 아래 앞
+        boundary.r6.x, boundary.r6.y, boundary.r6.z, 1.0f, 0.0f, 0.0f,  // 6: 오른쪽 위 앞
+        boundary.r5.x, boundary.r6.y, boundary.r6.z, 1.0f, 0.0f, 0.0f   // 7: 왼쪽 위 앞
+    };
+
+    glGenVertexArrays(1, &boundaryVAO);
+    glGenBuffers(1, &boundaryVBO);
+
+    glBindVertexArray(boundaryVAO);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, boundaryVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(boundaryVertices), boundaryVertices, GL_STATIC_DRAW);
+
+    // 위치 속성
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    // 색상 속성
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+}
+
+void Tino::DrawBoundary(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
+{
+    if (boundaryVAO == 0) return;
+
+    // 텍스처 사용 안함
+    glUniform1i(uUseTexture_loc, 0);
+
+    glBindVertexArray(boundaryVAO);
+
+    // 현재 Tino의 변환 행렬 적용
+    glm::mat4 model = GetModelMatrix();
+    glm::mat4 rotate = glm::mat4(1.0f);
+    glm::mat4 translate = glm::mat4(1.0f);
+    
+    if (scene == GameState::TITLE) {
+        rotate = glm::rotate(glm::mat4(1.0f), glm::radians(30.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    }
+    else {
+        rotate = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        translate = glm::translate(glm::mat4(1.0f), glm::vec3(-7.0f, 0.0f, 0.0f));
+    }
+    model = model * rotate;
+    model = translate * model;
+
+    glm::mat4 mvp = gProjection * gView * model;
+    glUniformMatrix4fv(uMVP_loc, 1, GL_FALSE, &mvp[0][0]);
+
+    // 선 두께 설정
+    glLineWidth(2.0f);
+    
+    // 박스의 12개 모서리를 선으로 그리기
+    unsigned int boundaryIndices[] = {
+        // 뒷면의 4개 모서리
+        0, 1,  1, 2,  2, 3,  3, 0,
+        // 앞면의 4개 모서리  
+        4, 5,  5, 6,  6, 7,  7, 4,
+        // 앞뒤를 연결하는 4개 모서리
+        0, 4,  1, 5,  2, 6,  3, 7
+    };
+
+    // 인덱스 없이 직접 그리기
+    glDrawElements(GL_LINES, 24, GL_UNSIGNED_INT, boundaryIndices);
+    
+    // 선 두께 복원
+    glLineWidth(1.0f);
+    
+    glBindVertexArray(0);
 }
