@@ -300,6 +300,13 @@ void Tino::Update()
     // 필요한 업데이트 로직 구현
     if (stateTimer > 0.0f) {
         stateTimer -= 0.016f; // 약 60FPS 가정
+        if (state == JUMPING) {
+			float top = JUMP_DURATION / 2.0f;
+			if (stateTimer > top)
+				position += glm::vec3(0.0f, 0.1f, 0.0f); // 점프 시 위로 이동
+			else
+				position -= glm::vec3(0.0f, 0.1f, 0.0f); // 점프 후 내려오기
+        }
         if (stateTimer <= 0.0f) {
             StateChange(RUNNING);
             stateTimer = 0.0f;
