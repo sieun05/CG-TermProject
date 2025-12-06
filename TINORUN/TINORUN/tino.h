@@ -1,13 +1,20 @@
 #pragma once
-#include "헤더.h"
+#include "Header.h"
 #include "game_object.h"
 #include "common.h"
 #include <string>
 
+enum State {
+	RUNNING,
+	JUMPING,
+	SLIDING
+};
+
 class Tino : public GameObject {
 public:
     Tino() = default;
-    Tino(const std::string& objPath, const std::string& texturePath);
+    Tino(const std::string& objPath, const std::string& jumpPath,
+        const std::string& downPath, const std::string& texturePath);
     ~Tino();
     Tino(const Tino& other) = delete;
     Tino& operator=(const Tino& other) = delete;
@@ -15,6 +22,8 @@ public:
     // GameObject의 가상 함수들을 오버라이드
     void Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc) override;
     void Update() override;
+    
+    void StateChange(State newState) { state = newState; }
 
     // 모델 로딩
     bool LoadOBJ(const std::string& objPath);
@@ -29,6 +38,8 @@ private:
     GLuint EBO;
     GLuint textureID;
     BITMAPINFO* bmp;
+
+    State state;
     
     bool isLoaded;
     

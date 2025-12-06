@@ -1,5 +1,5 @@
 #pragma once
-#include "헤더.h"
+#include "Header.h"
 
 // Vec2 구조체 정의 (RGBA는 CommonHeaders.h에 있음)
 struct Vec2 { float x, y; };

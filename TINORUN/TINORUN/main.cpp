@@ -1,4 +1,4 @@
-#include "헤더.h"
+#include "Header.h"
 #include "WindowToNDC.h"
 #include "shader_func.h"
 #include "game_state.h"
@@ -30,6 +30,9 @@ GLint uMVP_loc = -1;
 // 텍스처 관련 uniform 변수 정의
 GLint uUseTexture_loc = -1;
 GLint uTextureSampler_loc = -1;
+
+Tino* tino = nullptr;
+
 
 //--- 메인 함수
 void main(int argc, char** argv)
@@ -92,10 +95,12 @@ void InitGameObjects()
 
 		// Tino 객체 생성 및 GameWorld에 추가
 		// 경로 수정: assets 폴더로 직접 접근
-		auto tino = std::make_unique<Tino>("assets/Tino.obj", "assets/Tino_base.png");
+		auto tino_ptr = std::make_unique<Tino>("assets/Tino.obj", "assets/Tino_jump.obj",
+			"assets/Tino_down.obj", "assets/Tino_base.png");
+		tino = tino_ptr.get(); // 전역 포인터에 할당
 		tino->position = glm::vec3(0.0f, 1.0f, 0.0f);  // Ground 위에 배치
 		tino->scale = glm::vec3(0.7f, 0.7f, 0.7f);     // 크기 조정 (우선 기본 크기로)
-		g_gameWorld.AddObject(std::move(tino));
+		g_gameWorld.AddObject(std::move(tino_ptr));
 	}
 	else if (scene == GameState::LOBBY) {
 		g_gameWorld.Clear(); // 이전 게임 객체들 제거
@@ -104,10 +109,12 @@ void InitGameObjects()
 
 		// Tino 객체 생성 및 GameWorld에 추가
 		// 경로 수정: assets 폴더로 직접 접근
-		auto tino = std::make_unique<Tino>("assets/Tino.obj", "assets/Tino_base.png");
+		auto tino_ptr = std::make_unique<Tino>("assets/Tino.obj", "assets/Tino_jump.obj",
+			"assets/Tino_down.obj", "assets/Tino_base.png");
+		tino = tino_ptr.get(); // 전역 포인터에 할당
 		tino->position = glm::vec3(0.0f, 1.0f, 0.0f);  // Ground 위에 배치
 		tino->scale = glm::vec3(0.7f, 0.7f, 0.7f);     // 크기 조정 (우선 기본 크기로)
-		g_gameWorld.AddObject(std::move(tino));
+		g_gameWorld.AddObject(std::move(tino_ptr));
 	}
 
 	// PLAYING 상태에서만 ObstacleSpawner 추가
@@ -120,10 +127,12 @@ void InitGameObjects()
 
 		// Tino 객체 생성 및 GameWorld에 추가
 		// 경로 수정: assets 폴더로 직접 접근
-		auto tino = std::make_unique<Tino>("assets/Tino.obj", "assets/Tino_base.png");
+		auto tino_ptr = std::make_unique<Tino>("assets/Tino.obj", "assets/Tino_jump.obj", 
+			"assets/Tino_down.obj", "assets/Tino_base.png");
+		tino = tino_ptr.get(); // 전역 포인터에 할당
 		tino->position = glm::vec3(0.0f, 1.0f, 0.0f);  // Ground 위에 배치
 		tino->scale = glm::vec3(0.7f, 0.7f, 0.7f);     // 크기 조정 (우선 기본 크기로)
-		g_gameWorld.AddObject(std::move(tino));
+		g_gameWorld.AddObject(std::move(tino_ptr));
 
 		std::cout << "PLAYING 모드 시작 - ObstacleSpawner 추가" << std::endl;
 		auto spawner = std::make_unique<ObstacleSpawner>();
@@ -214,19 +223,13 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 	const float deltaTime = 0.016f; // 약 60FPS 기준
 
 	switch (key) {
-	case 's':
-		
-		break;
-	case 'q':
-	case 'Q':
-		exit(0);
-		break;
-
 	case ' ':	// 점프 (추후 구현)
-		std::cout << "Jump!" << std::endl;
+		tino->StateChange(State::JUMPING);
 		break;
-
-
+	case 'd':
+	case 'D':	// 슬라이딩 (추후 구현)
+		tino->StateChange(State::SLIDING);
+		break;
 	case '\r': 
 	case '\n':		// 엔터 누르면 시작
 		if (scene == GameState::TITLE) {
@@ -238,6 +241,10 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 			std::cout << "게임 시작" << std::endl;
 		}
 		InitGameObjects();		// 게임 객체 초기화
+		break;
+	case 'q':
+	case 'Q':
+		exit(0);
 		break;
 
 	default: break;

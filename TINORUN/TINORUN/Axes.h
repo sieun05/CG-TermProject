@@ -1,5 +1,5 @@
 #pragma once
-#include "헤더.h"
+#include "Header.h"
 
 // 좌표축 관련 전역 변수
 extern GLuint VAO_axes;

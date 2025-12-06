@@ -5,12 +5,13 @@
 #include <sstream>
 
 // STB 이미지 라이브러리 대신 임시로 텍스처 없이 구현
-Tino::Tino(const std::string& objPath, const std::string& texturePath)
-    : VAO(0), VBO(0), EBO(0), textureID(0), bmp(nullptr), isLoaded(false)
+Tino::Tino(const std::string& objPath, const std::string& jumpPath,
+    const std::string& downPath, const std::string& texturePath)
+	: VAO(0), VBO(0), EBO(0), textureID(0), bmp(nullptr), isLoaded(false)
 {
     //std::cout << "Tino 생성 시도, OBJ 경로: " << objPath << std::endl;
     
-    if (LoadOBJ(objPath)) {
+    if (LoadOBJ(objPath) && LoadOBJ(jumpPath) && LoadOBJ(downPath)) {
         //std::cout << "OBJ 로딩 성공!" << std::endl;
         // 텍스처는 나중에 구현하고 우선 컬러만 사용
         SetupMesh();
