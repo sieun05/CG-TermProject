@@ -318,9 +318,6 @@ void Tino::Update()
 
 void Tino::StateChange(State newState)
 {
-	if (state == JUMPING || state == SLIDING)
-		return; // 점프 또는 슬라이드 중에는 상태 변경 불가
-
     state = newState;
 
     if (newState == JUMPING) 
