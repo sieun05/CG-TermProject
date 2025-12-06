@@ -125,23 +125,25 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Axes.cpp" />
-    <ClCompile Include="button.cpp" />
+    <ClCompile Include="Images.cpp" />
     <ClCompile Include="game_world.cpp" />
     <ClCompile Include="ground.cpp" />
     <ClCompile Include="obstacle.cpp" />
+    <ClCompile Include="ScoreDisplay.cpp" />
     <ClCompile Include="tino.cpp" />
     <ClCompile Include="TINORUN\game_state.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Axes.h" />
-    <ClInclude Include="Button.h" />
+    <ClInclude Include="Images.h" />
     <ClInclude Include="game_object.h" />
     <ClInclude Include="game_state.h" />
     <ClInclude Include="game_world.h" />
     <ClInclude Include="ground.h" />
     <ClInclude Include="LoadBitmap.h" />
     <ClInclude Include="obstacle.h" />
+    <ClInclude Include="ScoreDisplay.h" />
     <ClInclude Include="shader_func.h" />
     <ClInclude Include="tino.h" />
     <ClInclude Include="common.h" />

@@ -1,11 +1,11 @@
 #pragma once
 #include "game_object.h"
 
-class Button : public GameObject {
+class Images : public GameObject {
 public:
-	Button() = default;
-	Button(float x, float y, float w, float h, const std::string& texturePath);
-	~Button() = default;
+	Images() = default;
+	Images(float x, float y, float w, float h, const std::string& texturePath);
+	~Images() = default;
 
 	// 버퍼 초기화 및 텍스처 로드
 	void InitBuffer();

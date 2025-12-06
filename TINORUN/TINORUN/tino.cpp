@@ -304,7 +304,7 @@ void Tino::Update()
 				position.y = 0.0f;
         }
         if (stateTimer <= 0.0f) {
-            StateChange(RUNNING);
+            state = RUNNING;
             stateTimer = 0.0f;
         }
     }
@@ -312,6 +312,8 @@ void Tino::Update()
 
 void Tino::StateChange(State newState)
 {
+	if (state != RUNNING) return; // 현재 RUNNING 상태에서만 상태 변경 허용
+
     state = newState;
 
     if (newState == JUMPING) 
