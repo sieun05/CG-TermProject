@@ -33,9 +33,6 @@
     <ClCompile Include="ground.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="game_world.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Axes.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -48,10 +45,10 @@
     <ClCompile Include="obstacle.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="TINORUN\game_state.cpp">
+    <ClCompile Include="ScoreDisplay.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="ScoreDisplay.cpp">
+    <ClCompile Include="game_world.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -97,6 +94,9 @@
     </ClInclude>
     <ClInclude Include="ScoreDisplay.h">
       <Filter>헤더 파일\object</Filter>
+    </ClInclude>
+    <ClInclude Include="miniaudio.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

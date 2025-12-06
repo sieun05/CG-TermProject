@@ -9,8 +9,10 @@
 #include "Images.h"	// 버튼 헤더 추가
 #include "ScoreDisplay.h"	// 점수 헤더 추가
 
+#define MINIAUDIO_IMPLEMENTATION
+#include "miniaudio.h"	// 사운드 헤더 추가
 #define STB_IMAGE_IMPLEMENTATION
-#include "../stb_image.h"
+#include "../stb_image.h"	// png 사용
 
 #include "Axes.h"
 
@@ -39,6 +41,11 @@ GLint uTextureSampler_loc = -1;
 Tino* tino = nullptr;
 ScoreDisplay* scoreDisplay = nullptr;
 int gameScore = 0;
+
+// 사운드 전역 변수
+ma_engine engine;
+ma_result result;
+ma_sound sounds[2];
 
 //--- 메인 함수
 void main(int argc, char** argv)
@@ -78,6 +85,16 @@ void main(int argc, char** argv)
 	
 	// 게임 상태를 PLAYING으로 설정 (테스트용)
 	scene = GameState::TITLE;
+
+	// 사운드 초기화
+	result = ma_engine_init(NULL, &engine);
+	if (result != MA_SUCCESS) {
+		std::cout << "Failed to initialize audio engine." << std::endl;
+		return;
+	}
+	// 사운드 초기화
+	ma_sound_init_from_file(&engine, "assets/jump_sound.mp3", 0, NULL, NULL, &sounds[0]);
+	ma_sound_init_from_file(&engine, "assets/gameover_sound.mp3", 0, NULL, NULL, &sounds[1]);
 	
 	glutMainLoop();
 }
@@ -122,6 +139,8 @@ void InitGameObjects()
 			glm::vec3(0.0f, 0.0f, 0.0f),  // 							AT
 			glm::vec3(0.0f, 1.0f, 0.0f)   //				 			UP
 		);
+
+		ma_engine_uninit(&engine); // 이전에 재생 중이던 사운드 정리
 	}
 	// PLAYING 상태에서만 ObstacleSpawner 추가
 	else if (scene == GameState::PLAYING) {
@@ -170,6 +189,32 @@ void InitGameObjects()
 			glm::vec3(0.0f, 2.0f, -3.0f),  // 바라보는 지점 (원점) 							AT
 			glm::vec3(0.0f, 1.0f, 0.0f)   // 위쪽 방향 벡터 					 			UP
 		);
+
+		// 배경음악 재생
+		ma_engine_play_sound(&engine, "assets/background.mp3", NULL);
+	}
+	else if (scene == GameState::GAME_OVER) {
+		g_gameWorld.Clear(); // 이전 게임 객체들 제거
+
+		auto score = std::make_unique<ScoreDisplay>(
+			-0.12f,
+			0.5f,
+			0.05f,
+			0.1f,
+			"assets/score_text.png"
+		);
+		scoreDisplay = score.get();
+		scoreDisplay->SetScore(gameScore);
+		g_gameWorld.AddObject(std::move(score));
+
+		gView = glm::mat4(1.0f);
+		gView = glm::lookAt(		//
+			glm::vec3(0.0f, 0.0f, 10.0f),  //	EYE
+			glm::vec3(0.0f, 0.0f, 0.0f),  // 							AT
+			glm::vec3(0.0f, 1.0f, 0.0f)   //				 			UP
+		);
+
+		ma_engine_uninit(&engine); // 이전에 재생 중이던 사운드 정리
 	}
 }
 
@@ -203,7 +248,6 @@ GLvoid drawScene()
 		std::cout << "현재 게임 상태: ";
 		switch (scene) {
 		case GameState::TITLE: std::cout << "TITLE"; break;
-		case GameState::LOBBY: std::cout << "LOBBY"; break;
 		case GameState::PLAYING: std::cout << "PLAYING"; break;
 		case GameState::GAME_OVER: std::cout << "GAME_OVER"; break;
 		}
@@ -258,8 +302,12 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 
 	switch (key) {
 	case ' ':	// 점프 (추후 구현)
-		if (scene == GameState::PLAYING)
+		if (scene == GameState::PLAYING) {
 			tino->StateChange(State::JUMPING);
+			
+			ma_sound_start(&sounds[0]);	// 점프 사운드
+			ma_sound_seek_to_pcm_frame(&sounds[0], 0);
+		}
 		break;
 	case '\r': 
 	case '\n':		// 엔터 누르면 시작
@@ -280,6 +328,10 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 			std::cout << "게임 종료" << std::endl;
 			exit(0);
 		}
+		InitGameObjects();
+		break;
+	case 'g':	// 확인용
+		scene = GameState::GAME_OVER;
 		InitGameObjects();
 		break;
 	default: break;
