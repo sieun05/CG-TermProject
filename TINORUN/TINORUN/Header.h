@@ -37,4 +37,3 @@ extern GLint uMVP_loc;
 // 텍스처 관련 uniform 변수들
 extern GLint uUseTexture_loc;
 extern GLint uTextureSampler_loc;
-
