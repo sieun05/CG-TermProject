@@ -30,6 +30,7 @@ public:
     void DrawBoundary(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc);
     
     void StateChange(State newState);
+	State GetState() const { return state; }
 
     // 로드
     bool LoadOBJ(const std::string& objPath, State targetState);
@@ -65,7 +66,4 @@ private:
     GLuint boundaryVBO = 0;
     void SetupBoundaryMesh();
 };
-
-// ��ƿ��Ƽ �Լ���
-// GLuint LoadTextureFromFile(const std::string& path);
 
