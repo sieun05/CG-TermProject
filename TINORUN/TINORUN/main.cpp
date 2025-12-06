@@ -114,6 +114,10 @@ void InitGameObjects()
 	if (scene == GameState::TITLE) {
 		g_gameWorld.Clear(); // 이전 게임 객체들 제거
 
+		// 포인터 초기화
+		scoreDisplay = nullptr;
+		tino = nullptr;
+
 		auto press_enter = std::move(std::make_unique<Images>(0.5f, -1.0f, 0.8f, 0.3f, "assets/Press_Enter.png"));
 		g_gameWorld.AddObject(std::move(press_enter));
 
@@ -139,8 +143,6 @@ void InitGameObjects()
 			glm::vec3(0.0f, 0.0f, 0.0f),  // 							AT
 			glm::vec3(0.0f, 1.0f, 0.0f)   //				 			UP
 		);
-
-		ma_engine_uninit(&engine); // 이전에 재생 중이던 사운드 정리
 	}
 	// PLAYING 상태에서만 ObstacleSpawner 추가
 	else if (scene == GameState::PLAYING) {
@@ -207,14 +209,23 @@ void InitGameObjects()
 		scoreDisplay->SetScore(gameScore);
 		g_gameWorld.AddObject(std::move(score));
 
+		auto tino_ptr = std::make_unique<Tino>("assets/Tino.obj", "assets/Tino_jump.obj",
+			"assets/Tino_down.obj", "assets/Tino_base.png");
+		tino = tino_ptr.get(); // 전역 포인터에 할당
+		tino->position = glm::vec3(-0.1f, 0.0f, 0.0f);  // Ground 위에 배치
+		tino->scale = glm::vec3(1.0f, 1.0f, 1.0f);     // 크기 조정 (우선 기본 크기로)
+		//tino->rotation = glm::vec3(0.0f, 90.0f, 0.0f); // 눕힌 상태로 회전
+		tino->StateChange(State::JUMPING);
+
 		gView = glm::mat4(1.0f);
-		gView = glm::lookAt(		//
-			glm::vec3(0.0f, 0.0f, 10.0f),  //	EYE
-			glm::vec3(0.0f, 0.0f, 0.0f),  // 							AT
-			glm::vec3(0.0f, 1.0f, 0.0f)   //				 			UP
+		gView = glm::lookAt(		//카메라 외부파라미터
+			glm::vec3(-10.0f, 6.0f, 7.0f),  // 카메라 위치 (x, y, z축이 모두 보이는 위치)	EYE
+			glm::vec3(0.0f, 2.0f, -3.0f),  // 바라보는 지점 (원점) 							AT
+			glm::vec3(0.0f, 1.0f, 0.0f)   // 위쪽 방향 벡터 					 			UP
 		);
 
-		ma_engine_uninit(&engine); // 이전에 재생 중이던 사운드 정리
+		ma_sound_start(&sounds[1]);	// 게임오버 사운드
+		ma_sound_seek_to_pcm_frame(&sounds[1], 0);
 	}
 }
 
@@ -326,6 +337,7 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 		else if (scene == GameState::TITLE) {
 			// 타이틀에서 누르면 게임종료
 			std::cout << "게임 종료" << std::endl;
+			ma_engine_uninit(&engine); // 이전에 재생 중이던 사운드 정리
 			exit(0);
 		}
 		InitGameObjects();
