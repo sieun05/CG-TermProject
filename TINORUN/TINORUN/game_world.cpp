@@ -75,12 +75,12 @@ void GameWorld::CheckCollisions() {
         if (obstacle) {
             if (CheckCollision(tino, obstacle)) {
                 // 충돌 발생!
-                std::cout << "충돌 감지: Tino와 " << 
+               /* std::cout << "충돌 감지: Tino와 " << 
                     (obstacle->GetType() == Obstacle::ObstacleType::CACTUS ? "선인장" :
                      obstacle->GetType() == Obstacle::ObstacleType::TREE ? "나무" :
                      obstacle->GetType() == Obstacle::ObstacleType::MUSHROOM ? "버섯" :
                      obstacle->GetType() == Obstacle::ObstacleType::BIRD ? "새" : "장애물")
-                    << " 충돌!" << std::endl;
+                    << " 충돌!" << std::endl;*/
                 
                 // 충돌 콜백 호출
                 tino->OnCollision(obstacle);

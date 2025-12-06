@@ -15,6 +15,27 @@ GLuint VAO_obstacle = 0;
 GLuint VBO_obstacle[2] = { 0, };
 GLuint EBO_obstacle = 0;
 
+// 전역 점수 변수 (main.cpp에서 정의됨)
+extern int gameScore;
+
+// 전역 속도 계산 함수
+float GetObstacleSpeed() {
+    int speedLevel = gameScore / 1000;  // 1000점마다 레벨업
+    
+    // 속도 변경 알림 (한 번만)
+    static int lastNotifiedLevel = -1;
+    if (speedLevel != lastNotifiedLevel && speedLevel > 0) {
+        std::cout << "속도 증가! 레벨 " << speedLevel << " (점수: " << gameScore << ")" << std::endl;
+        lastNotifiedLevel = speedLevel;
+    }
+    
+    // 기본 속도: -6.0f, 1000점마다 10% 증가, 최대 2.5배까지
+    float speedMultiplier = 1.0f + (speedLevel * 0.1f);
+    float speed = -6.0f * std::min(speedMultiplier, 2.5f);
+    
+    return speed;
+}
+
 // 기본 Obstacle 클래스 구현
 Obstacle::Obstacle(const std::string& objPath, const std::string& texturePath)
     : VAO(0), VBO(0), EBO(0), textureID(0), moveSpeed(-6.0f), bmp(nullptr), isLoaded(false)
@@ -222,6 +243,7 @@ bool Obstacle::LoadOBJ(const std::string& objPath)
 
     return true;
 }
+
 bool Obstacle::LoadTexture(const std::string& texturePath)
 {
     glGenTextures(1, &textureID);
@@ -243,6 +265,7 @@ bool Obstacle::LoadTexture(const std::string& texturePath)
     glGenerateMipmap(GL_TEXTURE_2D);
     return true;
 }
+
 void Obstacle::SetupMesh()
 {
     std::cout << "obstacle SetupMesh 시작" << std::endl;
@@ -291,6 +314,9 @@ void Obstacle::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 
 void Obstacle::Update()
 {
+    // 점수에 따른 동적 속도 적용
+    moveSpeed = GetObstacleSpeed();
+    
     // x축으로 이동 (약 60FPS 기준 deltaTime = 0.016f 가정)
     const float deltaTime = 0.016f;
     position.x += moveSpeed * deltaTime;
@@ -299,7 +325,7 @@ void Obstacle::Update()
     static int frameCount = 0;
     frameCount++;
     if (frameCount % 60 == 0) { // 1초마다 출력
-        //std::cout << "장애물 위치: x = " << position.x << ", y = " << position.y << std::endl;
+        //std::cout << "장애물 위치: x = " << position.x << ", 속도: " << moveSpeed << std::endl;
     }
 }
 
@@ -353,7 +379,7 @@ void Obstacle::DrawBoundary(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_
 
     glBindVertexArray(boundaryVAO);
 
-    // 현재 장애물의 변환 행렬 적용
+    // 현재 장애물의 변환 행 matrix 적용
     glm::mat4 model = GetModelMatrix();
     
     // 장애물 타입에 따른 추가 변환 적용
@@ -527,10 +553,8 @@ void Tree::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 void Tree::Update()
 {
     Obstacle::Update(); // 기본 이동
-    
-    // 가시 회전
-    const float deltaTime = 0.016f;
 }
+
 
 // Mushroom 구현
 Mushroom::Mushroom() : Obstacle()
@@ -594,9 +618,6 @@ void Mushroom::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 void Mushroom::Update()
 {
     Obstacle::Update(); // 기본 이동
-    
-    const float deltaTime = 0.016f;
-    
 }
 
 // Bird 구현
@@ -665,13 +686,11 @@ void Bird::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 void Bird::Update()
 {
     Obstacle::Update(); // 기본 이동
-    
-    const float deltaTime = 0.016f;
 }
 
 
 ObstacleSpawner::ObstacleSpawner()
-    : spawnTimer(0.0f), spawnInterval(2.0f)
+    : spawnTimer(0.0f), spawnInterval(2.0f), gen(rd()), dis(0, 3), random_spawnInterval(4.0f, 7.0f)
 {
     // 스포너는 렌더링되지 않는 객체이므로 위치는 상관없음
     std::cout << "ObstacleSpawner 생성됨" << std::endl;
@@ -693,10 +712,15 @@ void ObstacleSpawner::Update()
     const float deltaTime = 0.016f; // 약 60FPS 기준
     spawnTimer += deltaTime;
 
+    // 랜덤한 생성 간격 설정
+    spawnInterval = random_spawnInterval(gen);
+
     if (spawnTimer >= spawnInterval) {
         // 직접 GameWorld에 추가하지 않고 대기열에 추가
         SpawnObstacle();
         spawnTimer = 0.0f;
+        // 새로운 랜덤 간격으로 설정
+        spawnInterval = random_spawnInterval(gen);
     }
 }
 
@@ -713,10 +737,6 @@ void ObstacleSpawner::SpawnObstacle()
 
 std::unique_ptr<Obstacle> ObstacleSpawner::CreateRandomObstacle()
 {
-    static std::random_device rd;
-    static std::mt19937 gen(rd());
-    static std::uniform_int_distribution<> dis(0, 3);
-
     int obstacleType = dis(gen);
 
     switch (obstacleType) {

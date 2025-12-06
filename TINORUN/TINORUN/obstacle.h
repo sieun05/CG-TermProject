@@ -3,6 +3,8 @@
 #include "game_object.h"
 #include "common.h"
 #include <string>
+#include <random>
+#include <memory> // For std::unique_ptr
 
 // 기본 장애물 클래스 (부모 클래스)
 class Obstacle : public GameObject {
@@ -64,12 +66,6 @@ protected:
 	void SetupBoundaryMesh();
 };
 
-
-
-
-
-
-
 // obstacle class 상속받은 장애물들
 class Cactus : public Obstacle {
 public:
@@ -123,9 +119,6 @@ public:
 private:
 };
 
-
-
-
 //스포너
 class ObstacleSpawner : public GameObject {
 public:
@@ -142,6 +135,12 @@ public:
 private:
 	float spawnTimer;
 	float spawnInterval;
+	
+	// 랜덤 생성기 멤버 변수
+	std::random_device rd;
+	std::mt19937 gen;
+	std::uniform_int_distribution<> dis;
+	std::uniform_real_distribution<> random_spawnInterval;
 	
 	// 랜덤하게 장애물 종류를 선택하기 위한 메서드
 	std::unique_ptr<Obstacle> CreateRandomObstacle();
