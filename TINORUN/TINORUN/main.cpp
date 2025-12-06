@@ -118,8 +118,11 @@ void InitGameObjects()
 		scoreDisplay = nullptr;
 		tino = nullptr;
 
-		auto press_enter = std::move(std::make_unique<Images>(0.5f, -1.0f, 0.8f, 0.3f, "assets/Press_Enter.png"));
-		g_gameWorld.AddObject(std::move(press_enter));
+		/*auto press_enter = std::move(std::make_unique<Images>(0.5f, -1.0f, 0.8f, 0.3f, "assets/Press_Enter.png"));
+		g_gameWorld.AddObject(std::move(press_enter));*/
+
+		auto start_tex = std::move(std::make_unique<Images>(0.0f, 0.0f, 2.0f, 2.0f, "assets/start_texture.png"));
+		g_gameWorld.AddObject(std::move(start_tex));
 
 		// Ground 객체 생성 및 GameWorld에 추가
 		auto ground = std::make_unique<Ground>(1, RGBA{ 231 / 255., 217 / 255., 176 / 255., 1.0f });
@@ -133,7 +136,7 @@ void InitGameObjects()
 		auto tino_ptr = std::make_unique<Tino>("assets/Tino.obj", "assets/Tino_jump.obj",
 			"assets/Tino_down.obj", "assets/Tino_base.png");
 		tino = tino_ptr.get(); // 전역 포인터에 할당
-		tino->position = glm::vec3(-3.0f, -3.0f, 0.0f);  // Ground 위에 배치
+		tino->position = glm::vec3(3.0f, -3.0f, 0.0f);  // Ground 위에 배치
 		tino->scale = glm::vec3(1.3f, 1.3f, 1.3f);     // 크기 조정 (우선 기본 크기로)
 		g_gameWorld.AddObject(std::move(tino_ptr));
 
