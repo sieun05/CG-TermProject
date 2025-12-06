@@ -1,6 +1,8 @@
 #include "game_world.h"
 #include "obstacle.h"
 #include "game_state.h"
+#include "tino.h"
+#include "common.h"
 
 // 전역 게임 월드 인스턴스 정의
 GameWorld g_gameWorld;
@@ -19,7 +21,7 @@ void GameWorld::AddPendingObject(std::unique_ptr<GameObject> object) {
 }
 
 void GameWorld::ProcessPendingObjects() {
-    // 대기 중인 객체들을 실제 게임 객체 리스트에 추가
+    // 대기 중인 객체들을 메인 게임 객체 리스트에 추가
     for (auto& obj : pendingObjects) {
         if (obj) {
             gameObjects.push_back(std::move(obj));
@@ -30,7 +32,7 @@ void GameWorld::ProcessPendingObjects() {
 
 void GameWorld::RemoveInactiveObjects() {
     // remove_if와 erase를 사용하여 비활성화된 객체들 제거
-    // TempObstacle의 경우 ShouldBeRemoved() 조건도 확인
+    // TempObstacle에 대해 ShouldBeRemoved() 조건도 확인
     gameObjects.erase(
         std::remove_if(gameObjects.begin(), gameObjects.end(),
             [](const std::unique_ptr<GameObject>& obj) {
@@ -50,6 +52,47 @@ void GameWorld::RemoveInactiveObjects() {
     );
 }
 
+void GameWorld::CheckCollisions() {
+    // Tino 객체 찾기
+    Tino* tino = nullptr;
+    for (auto& obj : gameObjects) {
+        if (obj && obj->isActive) {
+            tino = dynamic_cast<Tino*>(obj.get());
+            if (tino) break;
+        }
+    }
+    
+    if (!tino) return; // Tino가 없으면 충돌 검사 생략
+    
+    // Tino와 다른 모든 객체 간의 충돌 검사
+    for (auto& obj : gameObjects) {
+        if (!obj || !obj->isActive || obj.get() == tino) {
+            continue; // 비활성 객체나 Tino 자기 자신은 건너뜀
+        }
+        
+        // 장애물과의 충돌 검사
+        Obstacle* obstacle = dynamic_cast<Obstacle*>(obj.get());
+        if (obstacle) {
+            if (CheckCollision(tino, obstacle)) {
+                // 충돌 발생!
+                std::cout << "충돌 감지: Tino와 " << 
+                    (obstacle->GetType() == Obstacle::ObstacleType::CACTUS ? "선인장" :
+                     obstacle->GetType() == Obstacle::ObstacleType::TREE ? "나무" :
+                     obstacle->GetType() == Obstacle::ObstacleType::MUSHROOM ? "버섯" :
+                     obstacle->GetType() == Obstacle::ObstacleType::BIRD ? "새" : "장애물")
+                    << " 충돌!" << std::endl;
+                
+                // 충돌 콜백 호출
+                tino->OnCollision(obstacle);
+                obstacle->OnCollision(tino);
+                
+                // 게임 오버 처리 (선택적)
+                // scene = GameState::GAME_OVER;
+            }
+        }
+    }
+}
+
 void GameWorld::UpdateAll() {
     // 활성화된 모든 객체 업데이트
     for (auto& object : gameObjects) {
@@ -58,7 +101,10 @@ void GameWorld::UpdateAll() {
         }
     }
     
-    // Update 루프가 끝난 후에 대기 중인 객체들 추가
+    // 충돌 검사 수행
+    CheckCollisions();
+    
+    // Update 이후에 대기 중인 새로운 객체들 추가
     ProcessPendingObjects();
     
     // 비활성화된 객체들 제거

@@ -1,4 +1,5 @@
 #include "tino.h"
+#include "obstacle.h"
 #include "game_state.h"
 #include "LoadBitmap.h"
 #include <fstream>
@@ -377,7 +378,7 @@ void Tino::OnCollision(GameObject* other)
 {
     // 충돌 시 처리할 로직 구현
     // 예: 장애물과 충돌 시 게임 오버 처리
-    std::cout << "Tino가 다른 객체와 충돌했습니다!" << std::endl;
+    std::cout << "Tino collision detected!" << std::endl;
     
     // 필요에 따라 게임 상태 변경이나 다른 처리 로직 추가 가능
     // 예: scene = GameState::GAME_OVER;
