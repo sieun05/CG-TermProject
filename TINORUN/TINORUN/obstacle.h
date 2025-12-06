@@ -3,6 +3,8 @@
 #include "game_object.h"
 #include "common.h"
 #include <string>
+#include <random>
+#include <memory> // For std::unique_ptr
 
 // 기본 장애물 클래스 (부모 클래스)
 class Obstacle : public GameObject {
@@ -16,6 +18,10 @@ public:
 	// GameObject의 가상 함수들을 오버라이드
 	virtual void Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc) override;
 	virtual void Update() override;
+	virtual void OnCollision(GameObject* other) override;
+
+	// 경계 박스를 와이어프레임으로 렌더링
+	void DrawBoundary(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc);
 
 	// 모델 로딩
 	bool LoadOBJ(const std::string& objPath);
@@ -53,13 +59,12 @@ protected:
 
 	bool isLoaded;
 	virtual void SetupMesh();
+	
+	// 경계 박스 렌더링용 VAO/VBO
+	GLuint boundaryVAO = 0;
+	GLuint boundaryVBO = 0;
+	void SetupBoundaryMesh();
 };
-
-
-
-
-
-
 
 // obstacle class 상속받은 장애물들
 class Cactus : public Obstacle {
@@ -114,9 +119,6 @@ public:
 private:
 };
 
-
-
-
 //스포너
 class ObstacleSpawner : public GameObject {
 public:
@@ -133,6 +135,12 @@ public:
 private:
 	float spawnTimer;
 	float spawnInterval;
+	
+	// 랜덤 생성기 멤버 변수
+	std::random_device rd;
+	std::mt19937 gen;
+	std::uniform_int_distribution<> dis;
+	std::uniform_real_distribution<> random_spawnInterval;
 	
 	// 랜덤하게 장애물 종류를 선택하기 위한 메서드
 	std::unique_ptr<Obstacle> CreateRandomObstacle();

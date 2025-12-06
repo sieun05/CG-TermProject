@@ -1,8 +1,8 @@
 #pragma once
 #include "Header.h"
 #include "game_object.h"
-#include <memory>
 #include <vector>
+#include <memory>
 
 class GameWorld {
 public:
@@ -29,6 +29,9 @@ public:
     
     // 모든 객체 제거
     void Clear();
+    
+    // 충돌 검사 메서드
+    void CheckCollisions();
     
     // 활성 객체 수 반환
     size_t GetActiveObjectCount() const;

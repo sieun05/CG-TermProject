@@ -125,6 +125,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Axes.cpp" />
+    <ClCompile Include="collision.cpp" />
+    <ClCompile Include="Images.cpp" />
     <ClCompile Include="game_world.cpp" />
     <ClCompile Include="Images.cpp" />
     <ClCompile Include="ground.cpp" />

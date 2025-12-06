@@ -1,4 +1,5 @@
 #include "tino.h"
+#include "obstacle.h"
 #include "game_state.h"
 #include "LoadBitmap.h"
 #include <fstream>
@@ -320,10 +321,40 @@ void Tino::Update()
 				position -= glm::vec3(0.0f, 0.1f, 0.0f); // 점프 후 내려오기
 			if (position.y < 0.0f)
 				position.y = 0.0f;
+
+            boundary.r1 = glm::vec3(-0.8f, 0.2f, -0.8f); // 왼쪽 아래 뒤
+            boundary.r2 = glm::vec3(0.8f, 0.2f, -0.8f);  // 오른쪽 아래 뒤
+            boundary.r3 = glm::vec3(0.8f, 3.8f, -0.8f);   // 오른쪽 위 뒤
+            boundary.r4 = glm::vec3(-0.8f, 3.8f, -0.8f);  // 왼쪽 위 뒤
+            boundary.r5 = glm::vec3(-0.8f, 0.2f, 0.8f);  // 왼쪽 아래 앞
+            boundary.r6 = glm::vec3(0.8f, 3.8f, 0.8f);    // 오른쪽 위 앞
+
+            SetupBoundaryMesh();
         }
         if (stateTimer <= 0.0f) {
             state = RUNNING;
             stateTimer = 0.0f;
+
+            boundary.r1 = glm::vec3(-0.8f, 0.2f, -0.8f); // 왼쪽 아래 뒤
+            boundary.r2 = glm::vec3(0.8f, 0.2f, -0.8f);  // 오른쪽 아래 뒤
+            boundary.r3 = glm::vec3(0.8f, 3.8f, -0.8f);   // 오른쪽 위 뒤
+            boundary.r4 = glm::vec3(-0.8f, 3.8f, -0.8f);  // 왼쪽 위 뒤
+            boundary.r5 = glm::vec3(-0.8f, 0.2f, 0.8f);  // 왼쪽 아래 앞
+            boundary.r6 = glm::vec3(0.8f, 3.8f, 0.8f);    // 오른쪽 위 앞
+
+            SetupBoundaryMesh();
+        }
+
+        if (state == SLIDING) {
+            // 슬라이딩 중일 때 경계 박스 조정
+            boundary.r1 = glm::vec3(-0.8f, 0.2f, -0.8f); // 왼쪽 아래 뒤
+            boundary.r2 = glm::vec3(0.8f, 0.2f,  -0.8f);  // 오른쪽 아래 뒤
+            boundary.r3 = glm::vec3(0.8f, 2.5f,  -0.8f);   // 오른쪽 위 뒤
+            boundary.r4 = glm::vec3(-0.8f, 2.5f, -0.8f);  // 왼쪽 위 뒤
+            boundary.r5 = glm::vec3(-0.8f, 0.2f, 2.4f);  // 왼쪽 아래 앞
+            boundary.r6 = glm::vec3(0.8f, 2.5f,  2.4f);    // 오른쪽 위 앞
+
+            SetupBoundaryMesh();
         }
     }
 }
@@ -347,7 +378,7 @@ void Tino::OnCollision(GameObject* other)
 {
     // 충돌 시 처리할 로직 구현
     // 예: 장애물과 충돌 시 게임 오버 처리
-    std::cout << "Tino가 다른 객체와 충돌했습니다!" << std::endl;
+    std::cout << "Tino collision detected!" << std::endl;
     
     // 필요에 따라 게임 상태 변경이나 다른 처리 로직 추가 가능
     // 예: scene = GameState::GAME_OVER;
