@@ -227,10 +227,6 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 	case ' ':	// 점프 (추후 구현)
 		tino->StateChange(State::JUMPING);
 		break;
-	case 'd':
-	case 'D':	// 슬라이딩 (추후 구현)
-		tino->StateChange(State::SLIDING);
-		break;
 	case '\r': 
 	case '\n':		// 엔터 누르면 시작
 		if (scene == GameState::TITLE) {

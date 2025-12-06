@@ -298,4 +298,24 @@ void Tino::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 void Tino::Update()
 {
     // 필요한 업데이트 로직 구현
+    if (stateTimer > 0.0f) {
+        stateTimer -= 0.016f; // 약 60FPS 가정
+        if (stateTimer <= 0.0f) {
+            StateChange(RUNNING);
+            stateTimer = 0.0f;
+        }
+    }
+}
+
+void Tino::StateChange(State newState)
+{
+    state = newState;
+
+    if (newState == JUMPING) 
+		stateTimer = JUMP_DURATION;
+	else if (newState == SLIDING)
+		stateTimer = SLIDE_DURATION;
+    else {
+		stateTimer = 0.0f;
+    }
 }

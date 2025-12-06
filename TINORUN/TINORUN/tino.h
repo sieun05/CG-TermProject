@@ -19,13 +19,13 @@ public:
     Tino(const Tino& other) = delete;
     Tino& operator=(const Tino& other) = delete;
 
-    // GameObject�� ���� �Լ����� �������̵�
+    // 렌더링
     void Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc) override;
     void Update() override;
     
-    void StateChange(State newState) { state = newState; }
+    void StateChange(State newState);
 
-    // �� �ε�
+    // 로드
     bool LoadOBJ(const std::string& objPath, State targetState);
     bool LoadTexture(const std::string& texturePath);
 
@@ -47,6 +47,10 @@ private:
     BITMAPINFO* bmp;
 
     State state;
+    float stateTimer;
+
+	static constexpr float JUMP_DURATION = 0.5f; // 점프 상태 지속 시간 (초)
+	static constexpr float SLIDE_DURATION = 0.5f; // 슬라이드 상태 지속 시간 (초)
 
     void SetupMesh(State targetState);
 };
