@@ -48,7 +48,7 @@ ma_engine engine;
 ma_result result;
 ma_sound sounds[3];
 
-bool timer = false;
+bool timer = true;
 
 //--- 메인 함수
 void main(int argc, char** argv)
@@ -81,7 +81,7 @@ void main(int argc, char** argv)
 	glutMouseFunc(Mouse);
 	//glutSpecialFunc(SpecialKeyDown);    // 화살표 등 특수키 눌림 처리
 	//glutSpecialUpFunc(SpecialKeyUp);
-	// glutTimerFunc(16, Timer, 1); // 약 60FPS로 타이머 시작
+	glutTimerFunc(16, Timer, 1); // 약 60FPS로 타이머 시작
 	
 	InitBuffer();
 	InitGameObjects();		// 게임 객체 초기화
@@ -151,7 +151,10 @@ void InitGameObjects()
 			glm::vec3(0.0f, 1.0f, 0.0f)   //				 			UP
 		);
 
-		if (timer) timer = false;
+		if (!timer) {
+			timer = true;
+			glutTimerFunc(16, Timer, 1);
+		}
 		ma_sound_stop(&sounds[2]); // 배경음악 정지
 	}
 	// PLAYING 상태에서만 ObstacleSpawner 추가
