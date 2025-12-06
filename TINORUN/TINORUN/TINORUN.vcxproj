@@ -128,7 +128,6 @@
     <ClCompile Include="collision.cpp" />
     <ClCompile Include="Images.cpp" />
     <ClCompile Include="game_world.cpp" />
-    <ClCompile Include="Images.cpp" />
     <ClCompile Include="ground.cpp" />
     <ClCompile Include="obstacle.cpp" />
     <ClCompile Include="ScoreDisplay.cpp" />
