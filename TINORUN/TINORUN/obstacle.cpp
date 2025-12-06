@@ -433,6 +433,8 @@ Cactus::Cactus(const std::string& objPath, const std::string& texturePath)
     : Obstacle(objPath, texturePath)
 {
 
+    scale = glm::vec3(0.2f, 0.2f, 0.2f);
+
     // Cactus 전용 boundary 설정 (더 크고 높게)
     boundary.r1 = glm::vec3(-2.0f, 0.0f, -2.0f); // 왼쪽 아래 뒤
     boundary.r2 = glm::vec3(2.0f, 0.0f, -2.0f);  // 오른쪽 아래 뒤
@@ -502,6 +504,8 @@ Tree::Tree(const std::string& objPath, const std::string& texturePath)
     : Obstacle(objPath, texturePath)
 {
     
+    scale = glm::vec3(0.2f, 0.2f, 0.2f);
+
     // Tree 전용 boundary 설정 (나무 모양에 맞게)
     boundary.r1 = glm::vec3(-3.0f, 8.0f, -3.0f); // 왼쪽 아래 뒤
     boundary.r2 = glm::vec3(3.0f, 8.0f, -3.0f);  // 오른쪽 아래 뒤
@@ -629,8 +633,8 @@ Bird::Bird() : Obstacle()
 Bird::Bird(const std::string& objPath, const std::string& texturePath)
     : Obstacle(objPath, texturePath)
 {
-    position = glm::vec3(SPAWN_X_POSITION, 4.0f, 0.0f);
-	scale = glm::vec3(0.7f, 0.7f, 0.7f);
+    position = glm::vec3(SPAWN_X_POSITION, 3.5f, 0.0f);
+	scale = glm::vec3(0.9f, 0.9f, 0.9f);
 	rotation = glm::vec3(0.0f, -180.0f, 0.0f);
     
     // Bird 전용 boundary 설정 (새 모양에 맞게 - 날개 포함)
