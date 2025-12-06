@@ -318,7 +318,7 @@ void Tino::Update()
 
 void Tino::StateChange(State newState)
 {
-    if (state != RUNNING) return; 
+	if (state != RUNNING) return; // 현재 RUNNING 상태에서만 상태 변경 허용
 
     state = newState;
 

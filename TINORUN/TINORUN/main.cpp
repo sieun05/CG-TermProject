@@ -6,7 +6,8 @@
 #include "ground.h"
 #include "tino.h"  // Tino 헤더 추가
 #include "obstacle.h" // 장애물 헤더 추가 
-#include "Button.h"	// 버튼 헤더 추가
+#include "Images.h"	// 버튼 헤더 추가
+#include "ScoreDisplay.h"	// 점수 헤더 추가
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "../stb_image.h"
@@ -36,6 +37,8 @@ GLint uUseTexture_loc = -1;
 GLint uTextureSampler_loc = -1;
 
 Tino* tino = nullptr;
+ScoreDisplay* scoreDisplay = nullptr;
+int gameScore = 0;
 
 //--- 메인 함수
 void main(int argc, char** argv)
@@ -94,8 +97,8 @@ void InitGameObjects()
 	if (scene == GameState::TITLE) {
 		g_gameWorld.Clear(); // 이전 게임 객체들 제거
 
-		auto start_button = std::move(std::make_unique<Button>(0.5f, -1.0f, 0.8f, 0.3f, "assets/Press_Enter.png"));
-		g_gameWorld.AddObject(std::move(start_button));
+		auto press_enter = std::move(std::make_unique<Images>(0.5f, -1.0f, 0.8f, 0.3f, "assets/Press_Enter.png"));
+		g_gameWorld.AddObject(std::move(press_enter));
 
 		// Tino 객체 생성 및 GameWorld에 추가
 		// 경로 수정: assets 폴더로 직접 접근
@@ -108,8 +111,8 @@ void InitGameObjects()
 	}
 	else if (scene == GameState::LOBBY) {
 		g_gameWorld.Clear(); // 이전 게임 객체들 제거
-		auto start_button = std::move(std::make_unique<Button>(0.5f, -1.0f, 0.8f, 0.3f, "assets/Press_Enter.png"));
-		g_gameWorld.AddObject(std::move(start_button));
+		auto press_enter = std::move(std::make_unique<Images>(0.5f, -1.0f, 0.8f, 0.3f, "assets/Press_Enter.png"));
+		g_gameWorld.AddObject(std::move(press_enter));
 
 		// Tino 객체 생성 및 GameWorld에 추가
 		// 경로 수정: assets 폴더로 직접 접근
@@ -119,6 +122,17 @@ void InitGameObjects()
 		tino->position = glm::vec3(0.0f, 1.0f, 0.0f);  // Ground 위에 배치
 		tino->scale = glm::vec3(0.7f, 0.7f, 0.7f);     // 크기 조정 (우선 기본 크기로)
 		g_gameWorld.AddObject(std::move(tino_ptr));
+
+		auto score = std::make_unique<ScoreDisplay>(
+			-0.95f,
+			0.95f,
+			0.05f,
+			0.1f,
+			"assets/score_text.png"
+		);
+		scoreDisplay = score.get();
+		scoreDisplay->SetScore(23170);
+		g_gameWorld.AddObject(std::move(score));
 	}
 
 	// PLAYING 상태에서만 ObstacleSpawner 추가
@@ -141,6 +155,17 @@ void InitGameObjects()
 		std::cout << "PLAYING 모드 시작 - ObstacleSpawner 추가" << std::endl;
 		auto spawner = std::make_unique<ObstacleSpawner>();
 		g_gameWorld.AddObject(std::move(spawner));
+
+		auto score = std::make_unique<ScoreDisplay>(
+			-0.95f,
+			0.95f,
+			0.05f,
+			0.1f,
+			"assets/score_text.png"
+		);
+		scoreDisplay = score.get();
+		scoreDisplay->SetScore(0);
+		g_gameWorld.AddObject(std::move(score));
 	}
 }
 
@@ -214,6 +239,13 @@ GLvoid Reshape(int w, int h)
 GLvoid Timer(int value)
 {
 	const float deltaTime = 0.016f;
+
+	if (scene == GameState::PLAYING) {	// 게임 스코어 증가
+		gameScore += 1;
+		if (scoreDisplay) {
+			scoreDisplay->SetScore(gameScore);
+		}
+	}
 
 	// GameWorld를 통해 모든 객체 업데이트 (ObstacleSpawner 포함)
 	g_gameWorld.UpdateAll();

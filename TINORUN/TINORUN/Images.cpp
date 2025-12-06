@@ -1,10 +1,10 @@
-#include "Button.h"
+#include "Images.h"
 #include "game_state.h"
 #include "LoadBitmap.h"
 
 extern "C" void stbi_set_flip_vertically_on_load(int flag_true_if_should_flip);
 
-Button::Button(float x, float y, float w, float h, const std::string& texturePath)
+Images::Images(float x, float y, float w, float h, const std::string& texturePath)
 	: x(x), y(y), w(w), h(h)
 {
 	InitBuffer();
@@ -14,7 +14,7 @@ Button::Button(float x, float y, float w, float h, const std::string& texturePat
 	scale = glm::vec3(w, h, 1.0f);
 }
 
-void Button::InitBuffer()
+void Images::InitBuffer()
 {
 	float vertices[] = {
 		// 위치                // 컬러              // 텍스처 좌표
@@ -50,7 +50,7 @@ void Button::InitBuffer()
 	glBindVertexArray(0);
 }
 
-bool Button::LoadTexture(const std::string& texturePath)
+bool Images::LoadTexture(const std::string& texturePath)
 {
 	glGenTextures(1, &textureID);
 	glBindTexture(GL_TEXTURE_2D, textureID);
@@ -82,7 +82,7 @@ bool Button::LoadTexture(const std::string& texturePath)
 	return true;
 }
 
-void Button::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
+void Images::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 {	
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::scale(model, scale);
@@ -108,7 +108,7 @@ void Button::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 	glUniform1i(uUseTexture_loc, 0); // 텍스처 사용 안함
 }
 
-void Button::Update()
+void Images::Update()
 {
 	// 버튼은 특별한 업데이트가 필요 없음
 	return;
