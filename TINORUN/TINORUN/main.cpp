@@ -149,6 +149,8 @@ void InitGameObjects()
 			glm::vec3(0.0f, 0.0f, 0.0f),  // 							AT
 			glm::vec3(0.0f, 1.0f, 0.0f)   //				 			UP
 		);
+
+		if (!timer) timer = true;
 	}
 	// PLAYING 상태에서만 ObstacleSpawner 추가
 	else if (scene == GameState::PLAYING) {
@@ -206,9 +208,12 @@ void InitGameObjects()
 
 		// 배경음악 재생
 		ma_engine_play_sound(&engine, "assets/background.mp3", NULL);
+		if (!timer) timer = true;
 	}
 	else if (scene == GameState::GAME_OVER) {
 		g_gameWorld.Clear(); // 이전 게임 객체들 제거
+
+		timer = false;
 
 		auto gameover = std::move(std::make_unique<Images>(0.0f, 0.0f, 0.0f, 2.0f, 2.0f, "assets/gameover.png"));
 		g_gameWorld.AddObject(std::move(gameover));
@@ -234,32 +239,33 @@ void InitGameObjects()
 
 		// 선인장 - 왼쪽
 		auto cactus = std::make_unique<Cactus>("assets/obstacle1.obj", "assets/obstacle1_base.bmp");
-		cactus->position = glm::vec3(0.0f, 0.0f, 0.0f);
-		cactus->scale = glm::vec3(1.5f, 1.5f, 1.5f);
-		cactus->rotation = glm::vec3(0.0f, 30.0f, 0.0f);
+		cactus->position = glm::vec3(-3.0f, -3.0f, 0.0f);
+		cactus->scale = glm::vec3(0.2f, 0.2f, 0.2f);
+		cactus->rotation = glm::vec3(0.0f, 30.0f, 20.0f);
 		cactus->SetSpeed(0.0f);  // 움직이지 않게
 		g_gameWorld.AddObject(std::move(cactus));
 
 		// 나무 - 오른쪽
 		auto tree = std::make_unique<Tree>("assets/obstacle2.obj", "assets/obstacle2_base.bmp");
-		tree->position = glm::vec3(5.0f, -3.0f, -2.0f);
-		tree->scale = glm::vec3(2.0f, 2.0f, 2.0f);
-		tree->rotation = glm::vec3(0.0f, -45.0f, 0.0f);
+		tree->position = glm::vec3(8.0f, 2.0f, -2.0f);
+		tree->scale = glm::vec3(0.3f, 0.3f, 0.3f);
+		tree->rotation = glm::vec3(20.0f, -45.0f, 45.0f);
 		tree->SetSpeed(0.0f);
 		g_gameWorld.AddObject(std::move(tree));
 
 		// 버섯 - 중앙 뒤쪽
 		auto mushroom = std::make_unique<Mushroom>("assets/obstacle3.obj", "assets/obstacle3_base.bmp");
-		mushroom->position = glm::vec3(0.0f, -3.0f, -5.0f);
+		mushroom->position = glm::vec3(-8.0f, 2.0f, -5.0f);
 		mushroom->scale = glm::vec3(1.2f, 1.2f, 1.2f);
+		mushroom->rotation = glm::vec3(10.0f, 0.0f, -10.0f);
 		mushroom->SetSpeed(0.0f);
 		g_gameWorld.AddObject(std::move(mushroom));
 
 		// 새 - 공중
 		auto bird = std::make_unique<Bird>("assets/bird.obj", "assets/bird_base.bmp");
-		bird->position = glm::vec3(3.0f, 2.0f, 0.0f);
-		bird->scale = glm::vec3(1.0f, 1.0f, 1.0f);
-		bird->rotation = glm::vec3(0.0f, 90.0f, 0.0f);
+		bird->position = glm::vec3(5.0f, -2.0f, 0.0f);
+		bird->scale = glm::vec3(0.8f, 0.8f, 0.8f);
+		bird->rotation = glm::vec3(0.0f, -180.0f, 0.0f);
 		bird->SetSpeed(0.0f);
 		g_gameWorld.AddObject(std::move(bird));
 
@@ -337,6 +343,8 @@ GLvoid Reshape(int w, int h)
 
 GLvoid Timer(int value)
 {
+	if (!timer) return;
+
 	const float deltaTime = 0.016f;
 
 	if (scene == GameState::PLAYING) {	// 게임 스코어 증가
