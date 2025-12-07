@@ -34,29 +34,17 @@ extern glm::mat4 gView;
 extern glm::mat4 gModel;
 extern GLint uMVP_loc;
 
-// Texture uniform locations
-extern GLint uUseTexture_loc;
-extern GLint uTextureSampler_loc;
-
-// Lighting and shadow uniform locations
+// 변환 행렬 관련 uniform 변수들
 extern GLint uModel_loc;
 extern GLint uView_loc;
 extern GLint uProjection_loc;
-extern GLint uLightSpaceMatrix_loc;
-extern GLint uUseLighting_loc;
-extern GLint uUseShadows_loc;
-extern GLint uLightDir_loc;
-extern GLint uLightColor_loc;
-extern GLint uViewPos_loc;
-extern GLint uAmbientStrength_loc;
-extern GLint uSpecularStrength_loc;
-extern GLint uShininess_loc;
-extern GLint uShadowMap_loc;
 
-// Shadow system
-extern GLuint shadowMapFBO;
-extern GLuint shadowMapTexture;
-extern const unsigned int SHADOW_WIDTH;
-extern const unsigned int SHADOW_HEIGHT;
-extern GLuint shadowShaderProgram;
-extern glm::mat4 lightSpaceMatrix;
+// 텍스처 관련 uniform 변수들
+extern GLint uUseTexture_loc;
+extern GLint uTextureSampler_loc;
+
+// 조명 관련 uniform 변수들
+extern GLint uUseLighting_loc;
+
+// 함수 선언
+void InitGameObjects();

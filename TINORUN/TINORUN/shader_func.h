@@ -3,66 +3,65 @@
 #include <gl/glew.h>
 #include <gl/freeglut.h>
 #include <gl/freeglut_ext.h> 
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 void make_vertexShaders();
 void make_fragmentShaders();
 GLuint make_shaderProgram();
 void AfterMakeShaders();
 
-// Shadow shader functions
-void make_shadowVertexShaders();
-void make_shadowFragmentShaders();
-GLuint make_shadowShaderProgram();
-void InitShadowMap();
+//--- 필요한변수들
+GLuint shaderProgramID; //--- 셰이더 프로그램 이름
+GLuint vertexShader;	//--- 버텍스셰이더객체
+GLuint fragmentShader;	//--- 프래그먼트 셰이더객체
 
-// Required variables
-GLuint shaderProgramID; // Shader program name
-GLuint vertexShader;	// Vertex shader object
-GLuint fragmentShader;	// Fragment shader object
-
-// Shadow shader objects
-GLuint shadowVertexShader;
-GLuint shadowFragmentShader;
-
-// Uniform location variables
+// 기본 uniform 변수 위치들
+extern GLint uMVP_loc;
+extern GLint uModel_loc;
+extern GLint uView_loc;
+extern GLint uProjection_loc;
 extern GLint uUseTexture_loc;
 extern GLint uTextureSampler_loc;
+extern GLint uUseLighting_loc;
 
 void AfterMakeShaders()
 {
 	glUseProgram(shaderProgramID);
-
-	// Basic uniform locations
+	
+	// 기본 변환 행렬들
 	uMVP_loc = glGetUniformLocation(shaderProgramID, "uMVP");
-	if (uMVP_loc < 0) { printf("uMVP get error\n"); exit(1); }
-
-	// Texture uniform locations
+	if (uMVP_loc < 0) { printf("uMVP get error\n"); }
+	
+	uModel_loc = glGetUniformLocation(shaderProgramID, "uModel");
+	if (uModel_loc < 0) { printf("uModel get error\n"); }
+	
+	uView_loc = glGetUniformLocation(shaderProgramID, "uView");
+	if (uView_loc < 0) { printf("uView get error\n"); }
+	
+	uProjection_loc = glGetUniformLocation(shaderProgramID, "uProjection");
+	if (uProjection_loc < 0) { printf("uProjection get error\n"); }
+	
+	// 텍스처 관련 uniform 변수 위치 얻기
 	uUseTexture_loc = glGetUniformLocation(shaderProgramID, "useTexture");
 	uTextureSampler_loc = glGetUniformLocation(shaderProgramID, "textureSampler");
-
-	// Lighting and shadow uniform locations
-	uModel_loc = glGetUniformLocation(shaderProgramID, "uModel");
-	uView_loc = glGetUniformLocation(shaderProgramID, "uView");
-	uProjection_loc = glGetUniformLocation(shaderProgramID, "uProjection");
-	uLightSpaceMatrix_loc = glGetUniformLocation(shaderProgramID, "uLightSpaceMatrix");
+	
+	// 조명 관련 uniform
 	uUseLighting_loc = glGetUniformLocation(shaderProgramID, "useLighting");
-	uUseShadows_loc = glGetUniformLocation(shaderProgramID, "useShadows");
-	uLightDir_loc = glGetUniformLocation(shaderProgramID, "lightDir");
-	uLightColor_loc = glGetUniformLocation(shaderProgramID, "lightColor");
-	uViewPos_loc = glGetUniformLocation(shaderProgramID, "viewPos");
-	uAmbientStrength_loc = glGetUniformLocation(shaderProgramID, "ambientStrength");
-	uSpecularStrength_loc = glGetUniformLocation(shaderProgramID, "specularStrength");
-	uShininess_loc = glGetUniformLocation(shaderProgramID, "shininess");
-	uShadowMap_loc = glGetUniformLocation(shaderProgramID, "shadowMap");
-
-	// Bind texture samplers to texture units
+	
+	// 텍스처 샘플러를 텍스처 유닛 0에 바인딩
 	if (uTextureSampler_loc >= 0) {
 		glUniform1i(uTextureSampler_loc, 0);  // Texture unit 0
 	}
 	if (uShadowMap_loc >= 0) {
 		glUniform1i(uShadowMap_loc, 1);  // Texture unit 1
 	}
-
+	
+	// 기본적으로 조명 활성화
+	if (uUseLighting_loc >= 0) {
+		glUniform1i(uUseLighting_loc, 1);
+	}
+	
 	glUseProgram(0);
 }
 
@@ -92,8 +91,8 @@ char* filetobuf(const char* file)	//���̴� ������ �о� �
 void make_vertexShaders()
 {
 	GLchar* vertexSource;
-	//--- ���ؽ����̴��о������ϰ��������ϱ�
-	//--- filetobuf: ��������� �Լ��� �ؽ�Ʈ���о���ڿ��������ϴ��Լ�
+	//--- 버텍스세이더읽어저장하고컴파일하기
+	//--- filetobuf: 파일내용을 읽는함수는 텍스트를읽어서문자열에저장하는함수
 
 	vertexSource = filetobuf("vertex.glsl");
 
@@ -122,7 +121,7 @@ void make_fragmentShaders()
 	//--- �����׸�Ʈ���̴��о������ϰ��������ϱ�
 	fragmentSource = filetobuf("fragment.glsl");    // �����׼��̴� �о����
 
-	//--- �����׸�Ʈ���̴� ��ü �����
+	//--- 프래그먼트세이더객체만들기
 	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	//--- ���̴��ڵ带���̴���ü���ֱ�
 	glShaderSource(fragmentShader, 1, &fragmentSource, NULL);

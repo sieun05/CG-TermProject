@@ -128,6 +128,7 @@
     <ClCompile Include="Images.cpp" />
     <ClCompile Include="game_world.cpp" />
     <ClCompile Include="ground.cpp" />
+    <ClCompile Include="Light.cpp" />
     <ClCompile Include="obstacle.cpp" />
     <ClCompile Include="ScoreDisplay.cpp" />
     <ClCompile Include="tino.cpp" />
@@ -139,6 +140,7 @@
     <ClInclude Include="game_state.h" />
     <ClInclude Include="game_world.h" />
     <ClInclude Include="ground.h" />
+    <ClInclude Include="Light.h" />
     <ClInclude Include="LoadBitmap.h" />
     <ClInclude Include="miniaudio.h" />
     <ClInclude Include="obstacle.h" />

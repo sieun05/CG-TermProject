@@ -1,118 +1,178 @@
 #version 330 core
-// out_Color: Color value from vertex shader
-// out_TexCoord: Texture coordinates from vertex shader
-// out_Normal: Normal vector from vertex shader
-// out_FragPos: Fragment position from vertex shader
-// FragColor: Final pixel color output
 
-in vec3 out_Color; // Color from vertex shader
-in vec2 out_TexCoord; // Texture coordinates from vertex shader
-in vec3 out_Normal; // Normal from vertex shader
-in vec3 out_FragPos; // Fragment position from vertex shader
-in vec4 out_FragPosLightSpace; // Fragment position in light space
+//--- 입력 변수들
+in vec3 out_Color; //--- 정점 셰이더에서 받은 컬러 값
+in vec2 out_TexCoord; //--- 정점 셰이더에서 받은 텍스처 좌표
+in vec3 FragPos; //--- 월드 공간의 정점 위치
+in vec3 Normal; //--- 월드 공간의 법선 벡터
 
-uniform sampler2D textureSampler; // Texture sampler
-uniform sampler2D shadowMap; // Shadow map sampler
-uniform bool useTexture; // Texture usage flag
-uniform bool useLighting; // Lighting usage flag
-uniform bool useShadows; // Shadow usage flag
+//--- 조명 구조체
+struct Light {
+    int type; // 0: Directional, 1: Point, 2: Spot
+    
+    vec3 position; // 점광원, 스포트라이트용
+    vec3 direction; // 평행광, 스포트라이트용
+    
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+    
+    // 감쇠 계수 (점광원, 스포트라이트용)
+    float constant;
+    float linear;
+    float quadratic;
+    
+    // 스포트라이트용
+    float cutOff;
+    float outerCutOff;
+};
 
-// Lighting parameters
-uniform vec3 lightDir; // Directional light direction
-uniform vec3 lightColor; // Light color
-uniform vec3 viewPos; // Camera position
-uniform float ambientStrength; // Ambient light strength
-uniform float specularStrength; // Specular light strength
-uniform float shininess; // Shininess (specular power)
+//--- 재질 구조체
+struct Material {
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+    float shininess;
+};
 
-out vec4 FragColor; // Final color output
+//--- Uniform 변수들
+uniform sampler2D textureSampler; //--- 텍스처 샘플러
+uniform bool useTexture; //--- 텍스처 사용 여부
+uniform bool useLighting; //--- 조명 사용 여부
 
-// Calculate shadow factor (0.0 = in shadow, 1.0 = fully lit)
-float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDirection)
-{
-    // Perform perspective divide
-    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
-
-    // Transform to [0,1] range
-    projCoords = projCoords * 0.5 + 0.5;
-
-    // Get closest depth value from light's perspective
-    float closestDepth = texture(shadowMap, projCoords.xy).r;
-
-    // Get depth of current fragment from light's perspective
-    float currentDepth = projCoords.z;
-
-    // Check whether current fragment is in shadow
-    // Add bias to prevent shadow acne
-    float bias = max(0.05 * (1.0 - dot(normal, lightDirection)), 0.005);
-
-    // PCF (Percentage Closer Filtering) for soft shadows
-    float shadow = 0.0;
-    vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
-    for(int x = -1; x <= 1; ++x)
-    {
-        for(int y = -1; y <= 1; ++y)
-        {
-            float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
-            shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
-        }
-    }
-    shadow /= 9.0;
-
-    // Keep the shadow at 0.0 when outside the far plane region of the light's frustum
-    if(projCoords.z > 1.0)
-        shadow = 0.0;
+// 조명 관련 uniform
+uniform int lightCount;
+uniform Light lights[8]; // 최대 8개 조명
+uniform Material material;
+uniform vec3 viewPos; // 카메라 위치
 
     return 1.0 - shadow;
 }
 
+//--- 평행광 계산 함수
+vec3 CalcDirectionalLight(Light light, vec3 normal, vec3 viewDir, vec3 matDiffuse) {
+    vec3 lightDir = normalize(-light.direction);
+    
+    // 확산광 계산
+    float diff = max(dot(normal, lightDir), 0.0);
+    
+    // 반사광 계산 (Blinn-Phong)
+    vec3 halfwayDir = normalize(lightDir + viewDir);
+    float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess);
+    
+    // 각 성분 계산
+    vec3 ambient = light.ambient * material.ambient * matDiffuse;
+    vec3 diffuse = light.diffuse * diff * material.diffuse * matDiffuse;
+    vec3 specular = light.specular * spec * material.specular;
+    
+    return ambient + diffuse + specular;
+}
+
+//--- 점광원 계산 함수
+vec3 CalcPointLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 matDiffuse) {
+    vec3 lightDir = normalize(light.position - fragPos);
+    
+    // 확산광 계산
+    float diff = max(dot(normal, lightDir), 0.0);
+    
+    // 반사광 계산 (Blinn-Phong)
+    vec3 halfwayDir = normalize(lightDir + viewDir);
+    float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess);
+    
+    // 감쇠 계산
+    float distance = length(light.position - fragPos);
+    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
+    
+    // 각 성분 계산
+    vec3 ambient = light.ambient * material.ambient * matDiffuse;
+    vec3 diffuse = light.diffuse * diff * material.diffuse * matDiffuse;
+    vec3 specular = light.specular * spec * material.specular;
+    
+    ambient *= attenuation;
+    diffuse *= attenuation;
+    specular *= attenuation;
+    
+    return ambient + diffuse + specular;
+}
+
+//--- 스포트라이트 계산 함수
+vec3 CalcSpotLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 matDiffuse) {
+    vec3 lightDir = normalize(light.position - fragPos);
+    
+    // 확산광 계산
+    float diff = max(dot(normal, lightDir), 0.0);
+    
+    // 반사광 계산 (Blinn-Phong)
+    vec3 halfwayDir = normalize(lightDir + viewDir);
+    float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess);
+    
+    // 감쇠 계산
+    float distance = length(light.position - fragPos);
+    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
+    
+    // 스포트라이트 강도 계산
+    float theta = dot(lightDir, normalize(-light.direction));
+    float epsilon = light.cutOff - light.outerCutOff;
+    float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
+    
+    // 각 성분 계산
+    vec3 ambient = light.ambient * material.ambient * matDiffuse;
+    vec3 diffuse = light.diffuse * diff * material.diffuse * matDiffuse;
+    vec3 specular = light.specular * spec * material.specular;
+    
+    ambient *= attenuation * intensity;
+    diffuse *= attenuation * intensity;
+    specular *= attenuation * intensity;
+    
+    return ambient + diffuse + specular;
+}
+
 void main()
 {
-    vec4 objectColor;
-
+    // 기본 재질 색상 결정
+    vec3 materialColor;
     if (useTexture) {
-        // Use texture
         vec4 texColor = texture(textureSampler, out_TexCoord);
-
-        // Transparency handling
+        // 알파 테스트
         if(texColor.a < 0.1)
             discard;
-
-        objectColor = texColor;
+        materialColor = texColor.rgb;
     } else {
-        // Use vertex color
-        objectColor = vec4(out_Color, 1.0);
+        materialColor = out_Color;
     }
-
-    if (useLighting) {
-        // Normalize normal vector
-        vec3 norm = normalize(out_Normal);
-        vec3 lightDirection = normalize(-lightDir); // Light direction
-
-        // Ambient lighting
-        vec3 ambient = ambientStrength * lightColor;
-
-        // Diffuse lighting
-        float diff = max(dot(norm, lightDirection), 0.0);
-        vec3 diffuse = diff * lightColor;
-
-        // Specular lighting (Blinn-Phong)
-        vec3 viewDir = normalize(viewPos - out_FragPos);
-        vec3 halfwayDir = normalize(lightDirection + viewDir);
-        float spec = pow(max(dot(norm, halfwayDir), 0.0), shininess);
-        vec3 specular = specularStrength * spec * lightColor;
-
-        // Calculate shadow
-        float shadow = 1.0;
-        if (useShadows) {
-            shadow = ShadowCalculation(out_FragPosLightSpace, norm, lightDirection);
+    
+    // 조명 계산
+    if (useLighting && lightCount > 0) {
+        vec3 normal = normalize(Normal);
+        vec3 viewDir = normalize(viewPos - FragPos);
+        vec3 result = vec3(0.0);
+        
+        // 모든 조명에 대해 계산
+        for(int i = 0; i < lightCount && i < 8; i++) {
+            if (lights[i].type == 0) {
+                // 평행광 (태양광)
+                result += CalcDirectionalLight(lights[i], normal, viewDir, materialColor);
+            }
+            else if (lights[i].type == 1) {
+                // 점광원
+                result += CalcPointLight(lights[i], normal, FragPos, viewDir, materialColor);
+            }
+            else if (lights[i].type == 2) {
+                // 스포트라이트
+                result += CalcSpotLight(lights[i], normal, FragPos, viewDir, materialColor);
+            }
         }
-
-        // Combine lighting (ambient is not affected by shadows)
-        vec3 result = (ambient + shadow * (diffuse + specular)) * objectColor.rgb;
-        FragColor = vec4(result, objectColor.a);
+        
+        FragColor = vec4(result, 1.0);
     } else {
-        // No lighting
-        FragColor = objectColor;
+        // 조명 없이 기본 렌더링
+        if (useTexture) {
+            vec4 texColor = texture(textureSampler, out_TexCoord);
+            if(texColor.a < 0.1)
+                discard;
+            FragColor = texColor;
+        } else {
+            FragColor = vec4(materialColor, 1.0);
+        }
     }
 }
