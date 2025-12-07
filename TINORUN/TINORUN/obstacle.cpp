@@ -6,37 +6,37 @@
 #include <sstream>
 #include <random>
 
-// Á¤Àû »ó¼ö Á¤ÀÇ
+// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 const float Obstacle::REMOVAL_X_POSITION = -20.0f;
 const float Obstacle::SPAWN_X_POSITION = 40.0f;
 
-// Àå¾Ö¹°¿ë Àü¿ª º¯¼ö Á¤ÀÇ
+// ï¿½ï¿½Ö¹ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 GLuint VAO_obstacle = 0;
 GLuint VBO_obstacle[2] = { 0, };
 GLuint EBO_obstacle = 0;
 
-// Àü¿ª Á¡¼ö º¯¼ö (main.cpp¿¡¼­ Á¤ÀÇµÊ)
+// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (main.cppï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Çµï¿½)
 extern int gameScore;
 
-// Àü¿ª ¼Óµµ °è»ê ÇÔ¼ö
+// ï¿½ï¿½ï¿½ï¿½ ï¿½Óµï¿½ ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½
 float GetObstacleSpeed() {
-    int speedLevel = gameScore / 1000;  // 1000Á¡¸¶´Ù ·¹º§¾÷
+    int speedLevel = gameScore / 1000;  // 1000ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     
-    // ¼Óµµ º¯°æ ¾Ë¸² (ÇÑ ¹ø¸¸)
+    // ï¿½Óµï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ë¸ï¿½ (ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
     static int lastNotifiedLevel = -1;
     if (speedLevel != lastNotifiedLevel && speedLevel > 0) {
-        std::cout << "¼Óµµ Áõ°¡! ·¹º§ " << speedLevel << " (Á¡¼ö: " << gameScore << ")" << std::endl;
+        std::cout << "ï¿½Óµï¿½ ï¿½ï¿½ï¿½ï¿½! ï¿½ï¿½ï¿½ï¿½ " << speedLevel << " (ï¿½ï¿½ï¿½ï¿½: " << gameScore << ")" << std::endl;
         lastNotifiedLevel = speedLevel;
     }
     
-    // ±âº» ¼Óµµ: -6.0f, 1000Á¡¸¶´Ù 10% Áõ°¡, ÃÖ´ë 2.5¹è±îÁö
+    // ï¿½âº» ï¿½Óµï¿½: -6.0f, 1000ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 10% ï¿½ï¿½ï¿½ï¿½, ï¿½Ö´ï¿½ 2.5ï¿½ï¿½ï¿½ï¿½ï¿½
     float speedMultiplier = 1.0f + (speedLevel * 0.1f);
     float speed = -6.0f * std::min(speedMultiplier, 2.5f);
     
     return speed;
 }
 
-// ±âº» Obstacle Å¬·¡½º ±¸Çö
+// ï¿½âº» Obstacle Å¬ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 Obstacle::Obstacle(const std::string& objPath, const std::string& texturePath)
     : VAO(0), VBO(0), EBO(0), textureID(0), moveSpeed(-6.0f), bmp(nullptr), isLoaded(false)
 {
@@ -44,34 +44,34 @@ Obstacle::Obstacle(const std::string& objPath, const std::string& texturePath)
     scale = glm::vec3(0.25f, 0.25f, 0.25f);
 	rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 
-    // Ãæµ¹ ¿µ¿ª ¼³Á¤ (Àå¾Ö¹°ÀÇ ±âº» Å©±â ±âÁØ)
-    boundary.r1 = glm::vec3(-0.5f, -0.5f, -0.5f); // ¿ÞÂÊ ¾Æ·¡ µÚ
-    boundary.r2 = glm::vec3(0.5f, -0.5f, -0.5f);  // ¿À¸¥ÂÊ ¾Æ·¡ µÚ
-    boundary.r3 = glm::vec3(0.5f, 0.5f, -0.5f);   // ¿À¸¥ÂÊ À§ µÚ
-    boundary.r4 = glm::vec3(-0.5f, 0.5f, -0.5f);  // ¿ÞÂÊ À§ µÚ
-    boundary.r5 = glm::vec3(-0.5f, -0.5f, 0.5f);  // ¿ÞÂÊ ¾Æ·¡ ¾Õ
-    boundary.r6 = glm::vec3(0.5f, 0.5f, 0.5f);    // ¿À¸¥ÂÊ À§ ¾Õ
+    // ï¿½æµ¹ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½Ö¹ï¿½ï¿½ï¿½ ï¿½âº» Å©ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
+    boundary.r1 = glm::vec3(-0.5f, -0.5f, -0.5f); // ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ ï¿½ï¿½
+    boundary.r2 = glm::vec3(0.5f, -0.5f, -0.5f);  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ ï¿½ï¿½
+    boundary.r3 = glm::vec3(0.5f, 0.5f, -0.5f);   // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½
+    boundary.r4 = glm::vec3(-0.5f, 0.5f, -0.5f);  // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½
+    boundary.r5 = glm::vec3(-0.5f, -0.5f, 0.5f);  // ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ ï¿½ï¿½
+    boundary.r6 = glm::vec3(0.5f, 0.5f, 0.5f);    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½
 
-    //std::cout << "Àå¾Ö¹° »ý¼º ½Ãµµ, OBJ °æ·Î: " << objPath << std::endl;
+    //std::cout << "ï¿½ï¿½Ö¹ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ãµï¿½, OBJ ï¿½ï¿½ï¿½: " << objPath << std::endl;
 
     if (LoadOBJ(objPath)) {
-        //std::cout << "OBJ ·Îµù ¼º°ø!" << std::endl;
+        //std::cout << "OBJ ï¿½Îµï¿½ ï¿½ï¿½ï¿½ï¿½!" << std::endl;
         SetupMesh();
         isLoaded = true;
-        //std::cout << "Àå¾Ö¹° ÃÊ±âÈ­ ¿Ï·á" << std::endl;
+        //std::cout << "ï¿½ï¿½Ö¹ï¿½ ï¿½Ê±ï¿½È­ ï¿½Ï·ï¿½" << std::endl;
     }
     else {
-        std::cerr << "Àå¾Ö¹° ÃÊ±âÈ­ ½ÇÆÐ: OBJ ·Îµù ½ÇÆÐ" << std::endl;
+        std::cerr << "ï¿½ï¿½Ö¹ï¿½ ï¿½Ê±ï¿½È­ ï¿½ï¿½ï¿½ï¿½: OBJ ï¿½Îµï¿½ ï¿½ï¿½ï¿½ï¿½" << std::endl;
     }
     
-    // °æ°è ¹Ú½º ¸Þ½Ã ¼³Á¤
+    // ï¿½ï¿½ï¿½ ï¿½Ú½ï¿½ ï¿½Þ½ï¿½ ï¿½ï¿½ï¿½ï¿½
     SetupBoundaryMesh();
     
     if (LoadTexture(texturePath)) {
-        //std::cout << "Àå¾Ö¹° ÅØ½ºÃ³ ·Îµù ¼º°ø!" << std::endl;
+        //std::cout << "ï¿½ï¿½Ö¹ï¿½ ï¿½Ø½ï¿½Ã³ ï¿½Îµï¿½ ï¿½ï¿½ï¿½ï¿½!" << std::endl;
     }
     else {
-        std::cerr << "Àå¾Ö¹° ÅØ½ºÃ³ ·Îµù ½ÇÆÐ!" << std::endl;
+        std::cerr << "ï¿½ï¿½Ö¹ï¿½ ï¿½Ø½ï¿½Ã³ ï¿½Îµï¿½ ï¿½ï¿½ï¿½ï¿½!" << std::endl;
     }
 }
 
@@ -82,34 +82,34 @@ Obstacle::~Obstacle()
 	if (EBO != 0) glDeleteBuffers(1, &EBO);
 	if (textureID != 0) glDeleteTextures(1, &textureID);
 	
-	// °æ°è ¹Ú½º ¹öÆÛ Á¤¸®
+	// ï¿½ï¿½ï¿½ ï¿½Ú½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	if (boundaryVAO != 0) glDeleteVertexArrays(1, &boundaryVAO);
 	if (boundaryVBO != 0) glDeleteBuffers(1, &boundaryVBO);
 }
 
 bool Obstacle::LoadOBJ(const std::string& objPath)
 {
-    //std::cout << "OBJ ÆÄÀÏ ·Îµù ½ÃÀÛ: " << objPath << std::endl;
+    //std::cout << "OBJ ï¿½ï¿½ï¿½ï¿½ ï¿½Îµï¿½ ï¿½ï¿½ï¿½ï¿½: " << objPath << std::endl;
 
     std::ifstream file(objPath);
     if (!file.is_open()) {
         std::cerr << "Failed to open OBJ file: " << objPath << std::endl;
 
-        // ´Ù¸¥ °æ·Îµéµµ ½ÃµµÇØº¸±â
+        // ï¿½Ù¸ï¿½ ï¿½ï¿½Îµéµµ ï¿½Ãµï¿½ï¿½Øºï¿½ï¿½ï¿½
         std::string altPath1 = objPath;
         std::string altPath2 = ".." + objPath;
         std::string altPath3 = "./TINORUN/" + objPath;
 
-        std::cout << "´ëÃ¼ °æ·Î ½Ãµµ: " << altPath1 << std::endl;
+        std::cout << "ï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½ ï¿½Ãµï¿½: " << altPath1 << std::endl;
         file.open(altPath1);
         if (!file.is_open()) {
-            std::cout << "´ëÃ¼ °æ·Î ½Ãµµ: " << altPath2 << std::endl;
+            std::cout << "ï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½ ï¿½Ãµï¿½: " << altPath2 << std::endl;
             file.open(altPath2);
             if (!file.is_open()) {
-                std::cout << "´ëÃ¼ °æ·Î ½Ãµµ: " << altPath3 << std::endl;
+                std::cout << "ï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½ ï¿½Ãµï¿½: " << altPath3 << std::endl;
                 file.open(altPath3);
                 if (!file.is_open()) {
-                    std::cout << "OBJ ÆÄÀÏÀ» Ã£À» ¼ö ¾øÀ½." << std::endl;
+                    std::cout << "OBJ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã£ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½." << std::endl;
                     return false;
                 }
             }
@@ -130,45 +130,45 @@ bool Obstacle::LoadOBJ(const std::string& objPath)
         iss >> prefix;
 
         if (prefix == "v") {
-            // Á¤Á¡ À§Ä¡
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡
             glm::vec3 vertex;
             iss >> vertex.x >> vertex.y >> vertex.z;
             temp_vertices.push_back(vertex);
             vertexCount++;
         }
         else if (prefix == "vt") {
-            // ÅØ½ºÃ³ ÁÂÇ¥
+            // ï¿½Ø½ï¿½Ã³ ï¿½ï¿½Ç¥
             glm::vec2 texCoord;
             iss >> texCoord.x >> texCoord.y;
             temp_texCoords.push_back(texCoord);
         }
         else if (prefix == "vn") {
-            // ¹ý¼± º¤ÅÍ
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             glm::vec3 normal;
             iss >> normal.x >> normal.y >> normal.z;
             temp_normals.push_back(normal);
         }
         else if (prefix == "f") {
-            // ¸é Á¤º¸
+            // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             std::vector<std::string> faceVertices;
             std::string vertexStr;
             while (iss >> vertexStr) {
                 faceVertices.push_back(vertexStr);
             }
 
-            if (faceVertices.size() < 3) continue; // »ï°¢ÇüÀÌ ¾Æ´Ñ ¸éÀº ¹«½Ã
+            if (faceVertices.size() < 3) continue; // ï¿½ï°¢ï¿½ï¿½ï¿½ï¿½ ï¿½Æ´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             faceCount++;
 
-            // "v/vt/vn" Çü½Ä ÆÄ½Ì
+            // "v/vt/vn" ï¿½ï¿½ï¿½ï¿½ ï¿½Ä½ï¿½
             auto parseVertex = [](const std::string& vertexStr) {
                 std::vector<std::string> parts = Split(vertexStr, '/');
                 std::vector<unsigned int> indices;
                 for (const auto& part : parts) {
                     if (!part.empty()) {
-                        indices.push_back(std::stoi(part) - 1); // OBJ´Â 1-based ÀÎµ¦½º
+                        indices.push_back(std::stoi(part) - 1); // OBJï¿½ï¿½ 1-based ï¿½Îµï¿½ï¿½ï¿½
                     }
                     else {
-                        indices.push_back(0); // ºó ºÎºÐÀº 0À¸·Î Ã³¸®
+                        indices.push_back(0); // ï¿½ï¿½ ï¿½Îºï¿½ï¿½ï¿½ 0ï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½
                     }
                 }
                 return indices;
@@ -183,7 +183,7 @@ bool Obstacle::LoadOBJ(const std::string& objPath)
                 }
             }
             else if (faceVertices.size() == 4) {
-                // »ç°¢ÇüÀ» µÎ °³ÀÇ »ï°¢ÇüÀ¸·Î ºÐÇÒ
+                // ï¿½ç°¢ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï°¢ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
                 int triangleIndices[6] = { 0, 1, 2, 0, 2, 3 };
                 for (int i = 0; i < 6; ++i) {
                     auto indices = parseVertex(faceVertices[triangleIndices[i]]);
@@ -197,24 +197,24 @@ bool Obstacle::LoadOBJ(const std::string& objPath)
 
     file.close();
 
-    //std::cout << "OBJ ÆÄÀÏ ÆÄ½Ì ¿Ï·á: Á¤Á¡ " << vertexCount << "°³, ¸é " << faceCount << "°³" << std::endl;
+    //std::cout << "OBJ ï¿½ï¿½ï¿½ï¿½ ï¿½Ä½ï¿½ ï¿½Ï·ï¿½: ï¿½ï¿½ï¿½ï¿½ " << vertexCount << "ï¿½ï¿½, ï¿½ï¿½ " << faceCount << "ï¿½ï¿½" << std::endl;
 
-    // ÀÎµ¦½º¸¦ »ç¿ëÇØ¼­ ÃÖÁ¾ Á¤Á¡ ¹è¿­ ±¸¼º
+    // ï¿½Îµï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ø¼ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½è¿­ ï¿½ï¿½ï¿½ï¿½
     vertices.clear();
     indices.clear();
 
     for (size_t i = 0; i < vertexIndices.size(); ++i) {
         Vertex vertex;
 
-        // À§Ä¡
+        // ï¿½ï¿½Ä¡
         if (vertexIndices[i] < temp_vertices.size()) {
             vertex.position = temp_vertices[vertexIndices[i]];
         }
 
-        // ±âº» ÆÄ¶õ»ö ÄÃ·¯ ¼³Á¤ (Tino Ä³¸¯ÅÍ »ö»ó)
+        // ï¿½âº» ï¿½Ä¶ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ ï¿½ï¿½ï¿½ï¿½ (Tino Ä³ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
         vertex.color = glm::vec3(0.3f, 0.7f, 1.0f);
 
-        // ÅØ½ºÃ³ ÁÂÇ¥
+        // ï¿½Ø½ï¿½Ã³ ï¿½ï¿½Ç¥
         if (i < texCoordIndices.size() && texCoordIndices[i] < temp_texCoords.size()) {
             vertex.texCoord = temp_texCoords[texCoordIndices[i]];
         }
@@ -222,7 +222,7 @@ bool Obstacle::LoadOBJ(const std::string& objPath)
             vertex.texCoord = glm::vec2(0.0f, 0.0f);
         }
 
-        // ¹ý¼±
+        // ï¿½ï¿½ï¿½ï¿½
         if (i < normalIndices.size() && normalIndices[i] < temp_normals.size()) {
             vertex.normal = temp_normals[normalIndices[i]];
         }
@@ -234,10 +234,10 @@ bool Obstacle::LoadOBJ(const std::string& objPath)
         indices.push_back(static_cast<unsigned int>(i));
     }
 
-    //std::cout << "ÃÖÁ¾ Loaded OBJ: " << vertices.size() << " vertices, " << indices.size() << " indices" << std::endl;
+    //std::cout << "ï¿½ï¿½ï¿½ï¿½ Loaded OBJ: " << vertices.size() << " vertices, " << indices.size() << " indices" << std::endl;
 
     if (vertices.empty()) {
-        std::cerr << "°æ°í: Á¤Á¡ µ¥ÀÌÅÍ°¡ ¾ø½À´Ï´Ù!" << std::endl;
+        std::cerr << "ï¿½ï¿½ï¿½: ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½!" << std::endl;
         return false;
     }
 
@@ -249,13 +249,13 @@ bool Obstacle::LoadTexture(const std::string& texturePath)
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_2D, textureID);
 
-    // ÅØ½ºÃ³ ¸Å°³º¯¼ö ¼³Á¤
+    // ï¿½Ø½ï¿½Ã³ ï¿½Å°ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    // ÀÌ¹ÌÁö ·Îµå (¿©±â¼­´Â ´Ü»ö ÀÌ¹ÌÁö »ç¿ë)
+    // ï¿½Ì¹ï¿½ï¿½ï¿½ ï¿½Îµï¿½ (ï¿½ï¿½ï¿½â¼­ï¿½ï¿½ ï¿½Ü»ï¿½ ï¿½Ì¹ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½)
     unsigned char* data = LoadDIBitmap(texturePath.c_str(), &bmp);
     if (data == NULL) {
         std::cerr << "Failed to load texture: " << texturePath << std::endl;
@@ -268,39 +268,39 @@ bool Obstacle::LoadTexture(const std::string& texturePath)
 
 void Obstacle::SetupMesh()
 {
-    std::cout << "obstacle SetupMesh ½ÃÀÛ" << std::endl;
+    std::cout << "obstacle SetupMesh ï¿½ï¿½ï¿½ï¿½" << std::endl;
 
-    // VAO »ý¼º
+    // VAO ï¿½ï¿½ï¿½ï¿½
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
 
     glBindVertexArray(VAO);
 
-    // VBO ¼³Á¤
+    // VBO ï¿½ï¿½ï¿½ï¿½
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
 
-    // EBO ¼³Á¤
+    // EBO ï¿½ï¿½ï¿½ï¿½
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
 
-    // Á¤Á¡ ¼Ó¼º ¼³Á¤
-    // À§Ä¡ (location = 0)
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½Ó¼ï¿½ ï¿½ï¿½ï¿½ï¿½
+    // ï¿½ï¿½Ä¡ (location = 0)
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
 
-    // ÄÃ·¯ (location = 1)
+    // ï¿½Ã·ï¿½ (location = 1)
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, color));
 
-    // ÅØ½ºÃ³ ÁÂÇ¥ (location = 2)
+    // ï¿½Ø½ï¿½Ã³ ï¿½ï¿½Ç¥ (location = 2)
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
 
     glBindVertexArray(0);
 
-    std::cout << "obstacle SetupMesh ¿Ï·á, VAO: " << VAO << std::endl;
+    std::cout << "obstacle SetupMesh ï¿½Ï·ï¿½, VAO: " << VAO << std::endl;
 }
 
 bool Obstacle::ShouldBeRemoved() const
@@ -314,18 +314,18 @@ void Obstacle::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 
 void Obstacle::Update()
 {
-    // Á¡¼ö¿¡ µû¸¥ µ¿Àû ¼Óµµ Àû¿ë
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Óµï¿½ ï¿½ï¿½ï¿½ï¿½
     moveSpeed = GetObstacleSpeed();
     
-    // xÃàÀ¸·Î ÀÌµ¿ (¾à 60FPS ±âÁØ deltaTime = 0.016f °¡Á¤)
+    // xï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ (ï¿½ï¿½ 60FPS ï¿½ï¿½ï¿½ï¿½ deltaTime = 0.016f ï¿½ï¿½ï¿½ï¿½)
     const float deltaTime = 0.016f;
     position.x += moveSpeed * deltaTime;
 
-    // µð¹ö±× Ãâ·Â (°¡²û¾¿¸¸)
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½)
     static int frameCount = 0;
     frameCount++;
-    if (frameCount % 60 == 0) { // 1ÃÊ¸¶´Ù Ãâ·Â
-        //std::cout << "Àå¾Ö¹° À§Ä¡: x = " << position.x << ", ¼Óµµ: " << moveSpeed << std::endl;
+    if (frameCount % 60 == 0) { // 1ï¿½Ê¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
+        //std::cout << "ï¿½ï¿½Ö¹ï¿½ ï¿½ï¿½Ä¡: x = " << position.x << ", ï¿½Óµï¿½: " << moveSpeed << std::endl;
     }
 }
 
@@ -335,19 +335,19 @@ inline void Obstacle::OnCollision(GameObject* other) {
 
 void Obstacle::SetupBoundaryMesh()
 {
-    // ¹Ú½ºÀÇ 8°³ Á¤Á¡ Á¤ÀÇ (boundaryÀÇ r1~r6¸¦ ÀÌ¿ëÇØ¼­ ÀüÃ¼ 8°³ Á¤Á¡ ±¸¼º)
+    // ï¿½Ú½ï¿½ï¿½ï¿½ 8ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (boundaryï¿½ï¿½ r1~r6ï¿½ï¿½ ï¿½Ì¿ï¿½ï¿½Ø¼ï¿½ ï¿½ï¿½Ã¼ 8ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
     float boundaryVertices[] = {
-        // µÞ¸é 4°³ Á¤Á¡ (z = -0.5)
-        boundary.r1.x, boundary.r1.y, boundary.r1.z, 0.0f, 1.0f, 0.0f,  // 0: ¿ÞÂÊ ¾Æ·¡ µÚ (ÃÊ·Ï»ö)
-        boundary.r2.x, boundary.r2.y, boundary.r2.z, 0.0f, 1.0f, 0.0f,  // 1: ¿À¸¥ÂÊ ¾Æ·¡ µÚ
-        boundary.r3.x, boundary.r3.y, boundary.r3.z, 0.0f, 1.0f, 0.0f,  // 2: ¿À¸¥ÂÊ À§ µÚ
-        boundary.r4.x, boundary.r4.y, boundary.r4.z, 0.0f, 1.0f, 0.0f,  // 3: ¿ÞÂÊ À§ µÚ
+        // ï¿½Þ¸ï¿½ 4ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (z = -0.5)
+        boundary.r1.x, boundary.r1.y, boundary.r1.z, 0.0f, 1.0f, 0.0f,  // 0: ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ ï¿½ï¿½ (ï¿½Ê·Ï»ï¿½)
+        boundary.r2.x, boundary.r2.y, boundary.r2.z, 0.0f, 1.0f, 0.0f,  // 1: ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ ï¿½ï¿½
+        boundary.r3.x, boundary.r3.y, boundary.r3.z, 0.0f, 1.0f, 0.0f,  // 2: ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½
+        boundary.r4.x, boundary.r4.y, boundary.r4.z, 0.0f, 1.0f, 0.0f,  // 3: ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½
         
-        // ¾Õ¸é 4°³ Á¤Á¡ (z = +0.5)
-        boundary.r5.x, boundary.r5.y, boundary.r5.z, 0.0f, 1.0f, 0.0f,  // 4: ¿ÞÂÊ ¾Æ·¡ ¾Õ
-        boundary.r6.x, boundary.r5.y, boundary.r5.z, 0.0f, 1.0f, 0.0f,  // 5: ¿À¸¥ÂÊ ¾Æ·¡ ¾Õ
-        boundary.r6.x, boundary.r6.y, boundary.r6.z, 0.0f, 1.0f, 0.0f,  // 6: ¿À¸¥ÂÊ À§ ¾Õ
-        boundary.r5.x, boundary.r6.y, boundary.r6.z, 0.0f, 1.0f, 0.0f   // 7: ¿ÞÂÊ À§ ¾Õ
+        // ï¿½Õ¸ï¿½ 4ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (z = +0.5)
+        boundary.r5.x, boundary.r5.y, boundary.r5.z, 0.0f, 1.0f, 0.0f,  // 4: ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ ï¿½ï¿½
+        boundary.r6.x, boundary.r5.y, boundary.r5.z, 0.0f, 1.0f, 0.0f,  // 5: ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ ï¿½ï¿½
+        boundary.r6.x, boundary.r6.y, boundary.r6.z, 0.0f, 1.0f, 0.0f,  // 6: ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½
+        boundary.r5.x, boundary.r6.y, boundary.r6.z, 0.0f, 1.0f, 0.0f   // 7: ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½
     };
 
     glGenVertexArrays(1, &boundaryVAO);
@@ -358,11 +358,11 @@ void Obstacle::SetupBoundaryMesh()
     glBindBuffer(GL_ARRAY_BUFFER, boundaryVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(boundaryVertices), boundaryVertices, GL_STATIC_DRAW);
 
-    // À§Ä¡ ¼Ó¼º
+    // ï¿½ï¿½Ä¡ ï¿½Ó¼ï¿½
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    // »ö»ó ¼Ó¼º
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½Ó¼ï¿½
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
@@ -374,15 +374,15 @@ void Obstacle::DrawBoundary(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_
 {
     if (boundaryVAO == 0) return;
 
-    // ÅØ½ºÃ³ »ç¿ë ¾ÈÇÔ
+    // ï¿½Ø½ï¿½Ã³ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     glUniform1i(uUseTexture_loc, 0);
 
     glBindVertexArray(boundaryVAO);
 
-    // ÇöÀç Àå¾Ö¹°ÀÇ º¯È¯ Çà matrix Àû¿ë
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ö¹ï¿½ï¿½ï¿½ ï¿½ï¿½È¯ ï¿½ï¿½ matrix ï¿½ï¿½ï¿½ï¿½
     glm::mat4 model = GetModelMatrix();
     
-    // Àå¾Ö¹° Å¸ÀÔ¿¡ µû¸¥ Ãß°¡ º¯È¯ Àû¿ë
+    // ï¿½ï¿½Ö¹ï¿½ Å¸ï¿½Ô¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ß°ï¿½ ï¿½ï¿½È¯ ï¿½ï¿½ï¿½ï¿½
     if (GetType() == ObstacleType::CACTUS) {
         glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(-35.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         model = model * rotate;
@@ -391,41 +391,41 @@ void Obstacle::DrawBoundary(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_
     glm::mat4 mvp = gProjection * gView * model;
     glUniformMatrix4fv(uMVP_loc, 1, GL_FALSE, &mvp[0][0]);
 
-    // ¼± µÎ²² ¼³Á¤
+    // ï¿½ï¿½ ï¿½Î²ï¿½ ï¿½ï¿½ï¿½ï¿½
     glLineWidth(2.0f);
     
-    // ¹Ú½ºÀÇ 12°³ ¸ð¼­¸®¸¦ ¼±À¸·Î ±×¸®±â
+    // ï¿½Ú½ï¿½ï¿½ï¿½ 12ï¿½ï¿½ ï¿½ð¼­¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½×¸ï¿½ï¿½ï¿½
     unsigned int boundaryIndices[] = {
-        // µÞ¸éÀÇ 4°³ ¸ð¼­¸®
+        // ï¿½Þ¸ï¿½ï¿½ï¿½ 4ï¿½ï¿½ ï¿½ð¼­¸ï¿½
         0, 1,  1, 2,  2, 3,  3, 0,
-        // ¾Õ¸éÀÇ 4°³ ¸ð¼­¸®  
+        // ï¿½Õ¸ï¿½ï¿½ï¿½ 4ï¿½ï¿½ ï¿½ð¼­¸ï¿½  
         4, 5,  5, 6,  6, 7,  7, 4,
-        // ¾ÕµÚ¸¦ ¿¬°áÇÏ´Â 4°³ ¸ð¼­¸®
+        // ï¿½ÕµÚ¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ 4ï¿½ï¿½ ï¿½ð¼­¸ï¿½
         0, 4,  1, 5,  2, 6,  3, 7
     };
 
-    // ÀÎµ¦½º¸¦ ÀÌ¿ëÇØ ¼± ±×¸®±â
+    // ï¿½Îµï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¿ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½×¸ï¿½ï¿½ï¿½
     glDrawElements(GL_LINES, 24, GL_UNSIGNED_INT, boundaryIndices);
     
-    // ¼± µÎ²² º¹¿ø
+    // ï¿½ï¿½ ï¿½Î²ï¿½ ï¿½ï¿½ï¿½ï¿½
     glLineWidth(1.0f);
     
     glBindVertexArray(0);
 }
 
 
-// Cactus ±¸Çö
+// Cactus ï¿½ï¿½ï¿½ï¿½
 Cactus::Cactus() : Obstacle()
 {
-    // Cactus Àü¿ë boundary ¼³Á¤ (´õ Å©°í ³ô°Ô)
-    boundary.r1 = glm::vec3(-2.0f, 0.0f, -2.0f); // ¿ÞÂÊ ¾Æ·¡ µÚ
-    boundary.r2 = glm::vec3(2.0f, 0.0f, -2.0f);  // ¿À¸¥ÂÊ ¾Æ·¡ µÚ
-    boundary.r3 = glm::vec3(2.0f, 15.0f, -2.0f);   // ¿À¸¥ÂÊ À§ µÚ
-    boundary.r4 = glm::vec3(-2.0f, 15.0f, -2.0f);  // ¿ÞÂÊ À§ µÚ
-    boundary.r5 = glm::vec3(-2.0f, 0.0f, 2.0f);  // ¿ÞÂÊ ¾Æ·¡ ¾Õ
-    boundary.r6 = glm::vec3(2.0f, 15.0f, 2.0f);    // ¿À¸¥ÂÊ À§ ¾Õ
+    // Cactus ï¿½ï¿½ï¿½ï¿½ boundary ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ Å©ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
+    boundary.r1 = glm::vec3(-2.0f, 0.0f, -2.0f); // ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ ï¿½ï¿½
+    boundary.r2 = glm::vec3(2.0f, 0.0f, -2.0f);  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ ï¿½ï¿½
+    boundary.r3 = glm::vec3(2.0f, 15.0f, -2.0f);   // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½
+    boundary.r4 = glm::vec3(-2.0f, 15.0f, -2.0f);  // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½
+    boundary.r5 = glm::vec3(-2.0f, 0.0f, 2.0f);  // ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ ï¿½ï¿½
+    boundary.r6 = glm::vec3(2.0f, 15.0f, 2.0f);    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½
     
-    // boundary º¯°æ ÈÄ boundary ¸Þ½Ã ´Ù½Ã ¼³Á¤
+    // boundary ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ boundary ï¿½Þ½ï¿½ ï¿½Ù½ï¿½ ï¿½ï¿½ï¿½ï¿½
     SetupBoundaryMesh();
 }
 
@@ -435,15 +435,15 @@ Cactus::Cactus(const std::string& objPath, const std::string& texturePath)
 
     scale = glm::vec3(0.2f, 0.2f, 0.2f);
 
-    // Cactus Àü¿ë boundary ¼³Á¤ (´õ Å©°í ³ô°Ô)
-    boundary.r1 = glm::vec3(-2.0f, 0.0f, -2.0f); // ¿ÞÂÊ ¾Æ·¡ µÚ
-    boundary.r2 = glm::vec3(2.0f, 0.0f, -2.0f);  // ¿À¸¥ÂÊ ¾Æ·¡ µÚ
-    boundary.r3 = glm::vec3(2.0f, 15.0f, -2.0f);   // ¿À¸¥ÂÊ À§ µÚ
-    boundary.r4 = glm::vec3(-2.0f, 15.0f, -2.0f);  // ¿ÞÂÊ À§ µÚ
-    boundary.r5 = glm::vec3(-2.0f, 0.0f, 2.0f);  // ¿ÞÂÊ ¾Æ·¡ ¾Õ
-    boundary.r6 = glm::vec3(2.0f, 15.0f, 2.0f);    // ¿À¸¥ÂÊ À§ ¾Õ
+    // Cactus ï¿½ï¿½ï¿½ï¿½ boundary ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ Å©ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
+    boundary.r1 = glm::vec3(-2.0f, 0.0f, -2.0f); // ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ ï¿½ï¿½
+    boundary.r2 = glm::vec3(2.0f, 0.0f, -2.0f);  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ ï¿½ï¿½
+    boundary.r3 = glm::vec3(2.0f, 15.0f, -2.0f);   // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½
+    boundary.r4 = glm::vec3(-2.0f, 15.0f, -2.0f);  // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½
+    boundary.r5 = glm::vec3(-2.0f, 0.0f, 2.0f);  // ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ ï¿½ï¿½
+    boundary.r6 = glm::vec3(2.0f, 15.0f, 2.0f);    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½
 
-    // boundary º¯°æ ÈÄ boundary ¸Þ½Ã ´Ù½Ã ¼³Á¤
+    // boundary ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ boundary ï¿½Þ½ï¿½ ï¿½Ù½ï¿½ ï¿½ï¿½ï¿½ï¿½
     SetupBoundaryMesh();
 }
 
@@ -465,6 +465,11 @@ void Cactus::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glm::mat4 mvp = gProjection * gView * model;
     glUniformMatrix4fv(uMVP_loc, 1, GL_FALSE, &mvp[0][0]);
 
+    // Update model matrix for lighting
+    if (uModel_loc >= 0) {
+        glUniformMatrix4fv(uModel_loc, 1, GL_FALSE, &model[0][0]);
+    }
+
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
 
@@ -472,31 +477,31 @@ void Cactus::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glBindTexture(GL_TEXTURE_2D, 0);
     glUniform1i(uUseTexture_loc, 0);
     
-    // °æ°è ¹Ú½º¸¦ ¿ÍÀÌ¾îÇÁ·¹ÀÓÀ¸·Î ±×¸®±â
+    // ï¿½ï¿½ï¿½ ï¿½Ú½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½×¸ï¿½ï¿½ï¿½
     DrawBoundary(gProjection, gView, uMVP_loc);
 }
 
 void Cactus::Update()
 {
-    Obstacle::Update(); // ±âº» ÀÌµ¿
+    Obstacle::Update(); // ï¿½âº» ï¿½Ìµï¿½
 
     const float deltaTime = 0.016f;
 }
 
 
-// Tree ±¸Çö
+// Tree ï¿½ï¿½ï¿½ï¿½
 Tree::Tree() : Obstacle()
 {
     
-    // Tree Àü¿ë boundary ¼³Á¤ (³ª¹« ¸ð¾ç¿¡ ¸Â°Ô)
-    boundary.r1 = glm::vec3(-3.0f, 8.0f, -3.0f); // ¿ÞÂÊ ¾Æ·¡ µÚ
-    boundary.r2 = glm::vec3(3.0f, 8.0f, -3.0f);  // ¿À¸¥ÂÊ ¾Æ·¡ µÚ
-    boundary.r3 = glm::vec3(3.0f, 16.0f, -3.0f);   // ¿À¸¥ÂÊ À§ µÚ (´õ ³ô°Ô)
-    boundary.r4 = glm::vec3(-3.0f, 16.0f, -3.0f);  // ¿ÞÂÊ À§ µÚ
-    boundary.r5 = glm::vec3(-3.0f, 8.0f, 3.0f);  // ¿ÞÂÊ ¾Æ·¡ ¾Õ
-    boundary.r6 = glm::vec3(3.0f, 16.0f, 3.0f);    // ¿À¸¥ÂÊ À§ ¾Õ
+    // Tree ï¿½ï¿½ï¿½ï¿½ boundary ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ç¿¡ ï¿½Â°ï¿½)
+    boundary.r1 = glm::vec3(-3.0f, 8.0f, -3.0f); // ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ ï¿½ï¿½
+    boundary.r2 = glm::vec3(3.0f, 8.0f, -3.0f);  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ ï¿½ï¿½
+    boundary.r3 = glm::vec3(3.0f, 16.0f, -3.0f);   // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ (ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
+    boundary.r4 = glm::vec3(-3.0f, 16.0f, -3.0f);  // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½
+    boundary.r5 = glm::vec3(-3.0f, 8.0f, 3.0f);  // ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ ï¿½ï¿½
+    boundary.r6 = glm::vec3(3.0f, 16.0f, 3.0f);    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½
     
-    // boundary º¯°æ ÈÄ boundary ¸Þ½Ã ´Ù½Ã ¼³Á¤
+    // boundary ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ boundary ï¿½Þ½ï¿½ ï¿½Ù½ï¿½ ï¿½ï¿½ï¿½ï¿½
     SetupBoundaryMesh();
 }
 
@@ -506,15 +511,15 @@ Tree::Tree(const std::string& objPath, const std::string& texturePath)
     
     scale = glm::vec3(0.2f, 0.2f, 0.2f);
 
-    // Tree Àü¿ë boundary ¼³Á¤ (³ª¹« ¸ð¾ç¿¡ ¸Â°Ô)
-    boundary.r1 = glm::vec3(-3.0f, 8.0f, -3.0f); // ¿ÞÂÊ ¾Æ·¡ µÚ
-    boundary.r2 = glm::vec3(3.0f, 8.0f, -3.0f);  // ¿À¸¥ÂÊ ¾Æ·¡ µÚ
-    boundary.r3 = glm::vec3(3.0f, 16.0f, -3.0f);   // ¿À¸¥ÂÊ À§ µÚ (´õ ³ô°Ô)
-    boundary.r4 = glm::vec3(-3.0f, 16.0f, -3.0f);  // ¿ÞÂÊ À§ µÚ
-    boundary.r5 = glm::vec3(-3.0f, 8.0f, 3.0f);  // ¿ÞÂÊ ¾Æ·¡ ¾Õ
-    boundary.r6 = glm::vec3(3.0f, 16.0f, 3.0f);    // ¿À¸¥ÂÊ À§ ¾Õ
+    // Tree ï¿½ï¿½ï¿½ï¿½ boundary ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ç¿¡ ï¿½Â°ï¿½)
+    boundary.r1 = glm::vec3(-3.0f, 8.0f, -3.0f); // ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ ï¿½ï¿½
+    boundary.r2 = glm::vec3(3.0f, 8.0f, -3.0f);  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ ï¿½ï¿½
+    boundary.r3 = glm::vec3(3.0f, 16.0f, -3.0f);   // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ (ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
+    boundary.r4 = glm::vec3(-3.0f, 16.0f, -3.0f);  // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½
+    boundary.r5 = glm::vec3(-3.0f, 8.0f, 3.0f);  // ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ ï¿½ï¿½
+    boundary.r6 = glm::vec3(3.0f, 16.0f, 3.0f);    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½
     
-    // boundary º¯°æ ÈÄ boundary ¸Þ½Ã ´Ù½Ã ¼³Á¤
+    // boundary ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ boundary ï¿½Þ½ï¿½ ï¿½Ù½ï¿½ ï¿½ï¿½ï¿½ï¿½
     SetupBoundaryMesh();
 }
 
@@ -534,6 +539,11 @@ void Tree::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glm::mat4 mvp = gProjection * gView * model;
     glUniformMatrix4fv(uMVP_loc, 1, GL_FALSE, &mvp[0][0]);
 
+    // Update model matrix for lighting
+    if (uModel_loc >= 0) {
+        glUniformMatrix4fv(uModel_loc, 1, GL_FALSE, &model[0][0]);
+    }
+
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
 
@@ -541,28 +551,28 @@ void Tree::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glBindTexture(GL_TEXTURE_2D, 0);
     glUniform1i(uUseTexture_loc, 0);
     
-    // °æ°è ¹Ú½º¸¦ ¿ÍÀÌ¾îÇÁ·¹ÀÓÀ¸·Î ±×¸®±â
+    // ï¿½ï¿½ï¿½ ï¿½Ú½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½×¸ï¿½ï¿½ï¿½
     DrawBoundary(gProjection, gView, uMVP_loc);
 }
 
 void Tree::Update()
 {
-    Obstacle::Update(); // ±âº» ÀÌµ¿
+    Obstacle::Update(); // ï¿½âº» ï¿½Ìµï¿½
 }
 
 
-// Mushroom ±¸Çö
+// Mushroom ï¿½ï¿½ï¿½ï¿½
 Mushroom::Mushroom() : Obstacle()
 {
-    // Mushroom Àü¿ë boundary ¼³Á¤ (¹ö¼¸ ¸ð¾ç¿¡ ¸Â°Ô - ÀÛ°í ³·À½)
-    boundary.r1 = glm::vec3(-0.8f, 0.0f, -0.8f); // ¿ÞÂÊ ¾Æ·¡ µÚ
-    boundary.r2 = glm::vec3(0.8f, 0.0f, -0.8f);  // ¿À¸¥ÂÊ ¾Æ·¡ µÚ
-    boundary.r3 = glm::vec3(0.8f, 2.0f, -0.8f);   // ¿À¸¥ÂÊ À§ µÚ (³·°Ô)
-    boundary.r4 = glm::vec3(-0.8f, 2.0f, -0.8f);  // ¿ÞÂÊ À§ µÚ
-    boundary.r5 = glm::vec3(-0.8f, 0.0f, 0.8f);  // ¿ÞÂÊ ¾Æ·¡ ¾Õ
-    boundary.r6 = glm::vec3(0.8f, 2.0f, 0.8f);    // ¿À¸¥ÂÊ À§ ¾Õ
+    // Mushroom ï¿½ï¿½ï¿½ï¿½ boundary ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ç¿¡ ï¿½Â°ï¿½ - ï¿½Û°ï¿½ ï¿½ï¿½ï¿½ï¿½)
+    boundary.r1 = glm::vec3(-0.8f, 0.0f, -0.8f); // ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ ï¿½ï¿½
+    boundary.r2 = glm::vec3(0.8f, 0.0f, -0.8f);  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ ï¿½ï¿½
+    boundary.r3 = glm::vec3(0.8f, 2.0f, -0.8f);   // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½)
+    boundary.r4 = glm::vec3(-0.8f, 2.0f, -0.8f);  // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½
+    boundary.r5 = glm::vec3(-0.8f, 0.0f, 0.8f);  // ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ ï¿½ï¿½
+    boundary.r6 = glm::vec3(0.8f, 2.0f, 0.8f);    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½
     
-    // boundary º¯°æ ÈÄ boundary ¸Þ½Ã ´Ù½Ã ¼³Á¤
+    // boundary ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ boundary ï¿½Þ½ï¿½ ï¿½Ù½ï¿½ ï¿½ï¿½ï¿½ï¿½
     SetupBoundaryMesh();
 }
 
@@ -571,15 +581,15 @@ Mushroom::Mushroom(const std::string& objPath, const std::string& texturePath)
 {
 	scale = glm::vec3(1.0f, 1.0f, 1.0f);
     
-    // Mushroom Àü¿ë boundary ¼³Á¤ (¹ö¼¸ ¸ð¾ç¿¡ ¸Â°Ô - ÀÛ°í ³·À½)
-    boundary.r1 = glm::vec3(-0.8f, 0.0f, -0.8f); // ¿ÞÂÊ ¾Æ·¡ µÚ
-    boundary.r2 = glm::vec3(0.8f, 0.0f, -0.8f);  // ¿À¸¥ÂÊ ¾Æ·¡ µÚ
-    boundary.r3 = glm::vec3(0.8f, 2.0f, -0.8f);   // ¿À¸¥ÂÊ À§ µÚ (³·°Ô)
-    boundary.r4 = glm::vec3(-0.8f, 2.0f, -0.8f);  // ¿ÞÂÊ À§ µÚ
-    boundary.r5 = glm::vec3(-0.8f, 0.0f, 0.8f);  // ¿ÞÂÊ ¾Æ·¡ ¾Õ
-    boundary.r6 = glm::vec3(0.8f, 2.0f, 0.8f);    // ¿À¸¥ÂÊ À§ ¾Õ
+    // Mushroom ï¿½ï¿½ï¿½ï¿½ boundary ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ç¿¡ ï¿½Â°ï¿½ - ï¿½Û°ï¿½ ï¿½ï¿½ï¿½ï¿½)
+    boundary.r1 = glm::vec3(-0.8f, 0.0f, -0.8f); // ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ ï¿½ï¿½
+    boundary.r2 = glm::vec3(0.8f, 0.0f, -0.8f);  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ ï¿½ï¿½
+    boundary.r3 = glm::vec3(0.8f, 2.0f, -0.8f);   // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½)
+    boundary.r4 = glm::vec3(-0.8f, 2.0f, -0.8f);  // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½
+    boundary.r5 = glm::vec3(-0.8f, 0.0f, 0.8f);  // ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ ï¿½ï¿½
+    boundary.r6 = glm::vec3(0.8f, 2.0f, 0.8f);    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½
     
-    // boundary º¯°æ ÈÄ boundary ¸Þ½Ã ´Ù½Ã ¼³Á¤
+    // boundary ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ boundary ï¿½Þ½ï¿½ ï¿½Ù½ï¿½ ï¿½ï¿½ï¿½ï¿½
     SetupBoundaryMesh();
 }
 
@@ -599,6 +609,11 @@ void Mushroom::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glm::mat4 mvp = gProjection * gView * model;
     glUniformMatrix4fv(uMVP_loc, 1, GL_FALSE, &mvp[0][0]);
 
+    // Update model matrix for lighting
+    if (uModel_loc >= 0) {
+        glUniformMatrix4fv(uModel_loc, 1, GL_FALSE, &model[0][0]);
+    }
+
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
 
@@ -606,27 +621,27 @@ void Mushroom::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glBindTexture(GL_TEXTURE_2D, 0);
     glUniform1i(uUseTexture_loc, 0);
     
-    // °æ°è ¹Ú½º¸¦ ¿ÍÀÌ¾îÇÁ·¹ÀÓÀ¸·Î ±×¸®±â
+    // ï¿½ï¿½ï¿½ ï¿½Ú½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½×¸ï¿½ï¿½ï¿½
     DrawBoundary(gProjection, gView, uMVP_loc);
 }
 
 void Mushroom::Update()
 {
-    Obstacle::Update(); // ±âº» ÀÌµ¿
+    Obstacle::Update(); // ï¿½âº» ï¿½Ìµï¿½
 }
 
-// Bird ±¸Çö
+// Bird ï¿½ï¿½ï¿½ï¿½
 Bird::Bird() : Obstacle()
 {
-    // Bird Àü¿ë boundary ¼³Á¤ (»õ ¸ð¾ç¿¡ ¸Â°Ô - ³¯°³ Æ÷ÇÔ)
-    boundary.r1 = glm::vec3(-1.2f, -0.2f, -0.8f); // ¿ÞÂÊ ¾Æ·¡ µÚ (³¯°³ Æø °í·Á)
-    boundary.r2 = glm::vec3(1.2f, -0.2f, -0.8f);  // ¿À¸¥ÂÊ ¾Æ·¡ µÚ
-    boundary.r3 = glm::vec3(1.2f, 1.4f, -0.8f);   // ¿À¸¥ÂÊ À§ µÚ (»õ ³ôÀÌ)
-    boundary.r4 = glm::vec3(-1.2f, 1.4f, -0.8f);  // ¿ÞÂÊ À§ µÚ
-    boundary.r5 = glm::vec3(-1.2f, -0.2f, 0.8f);  // ¿ÞÂÊ ¾Æ·¡ ¾Õ
-    boundary.r6 = glm::vec3(1.2f, 1.4f, 0.8f);    // ¿À¸¥ÂÊ À§ ¾Õ
+    // Bird ï¿½ï¿½ï¿½ï¿½ boundary ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ ï¿½ï¿½ç¿¡ ï¿½Â°ï¿½ - ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
+    boundary.r1 = glm::vec3(-1.2f, -0.2f, -0.8f); // ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
+    boundary.r2 = glm::vec3(1.2f, -0.2f, -0.8f);  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ ï¿½ï¿½
+    boundary.r3 = glm::vec3(1.2f, 1.4f, -0.8f);   // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ (ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
+    boundary.r4 = glm::vec3(-1.2f, 1.4f, -0.8f);  // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½
+    boundary.r5 = glm::vec3(-1.2f, -0.2f, 0.8f);  // ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ ï¿½ï¿½
+    boundary.r6 = glm::vec3(1.2f, 1.4f, 0.8f);    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½
     
-    // boundary º¯°æ ÈÄ boundary ¸Þ½Ã ´Ù½Ã ¼³Á¤
+    // boundary ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ boundary ï¿½Þ½ï¿½ ï¿½Ù½ï¿½ ï¿½ï¿½ï¿½ï¿½
     SetupBoundaryMesh();
 }
 
@@ -637,15 +652,15 @@ Bird::Bird(const std::string& objPath, const std::string& texturePath)
 	scale = glm::vec3(0.9f, 0.9f, 0.9f);
 	rotation = glm::vec3(0.0f, -180.0f, 0.0f);
     
-    // Bird Àü¿ë boundary ¼³Á¤ (»õ ¸ð¾ç¿¡ ¸Â°Ô - ³¯°³ Æ÷ÇÔ)
-    boundary.r1 = glm::vec3(-1.2f, -0.2f, -0.8f); // ¿ÞÂÊ ¾Æ·¡ µÚ (³¯°³ Æø °í·Á)
-    boundary.r2 = glm::vec3(1.2f, -0.2f, -0.8f);  // ¿À¸¥ÂÊ ¾Æ·¡ µÚ
-    boundary.r3 = glm::vec3(1.2f, 1.4f, -0.8f);   // ¿À¸¥ÂÊ À§ µÚ (»õ ³ôÀÌ)
-    boundary.r4 = glm::vec3(-1.2f, 1.4f, -0.8f);  // ¿ÞÂÊ À§ µÚ
-    boundary.r5 = glm::vec3(-1.2f, -0.2f, 0.8f);  // ¿ÞÂÊ ¾Æ·¡ ¾Õ
-    boundary.r6 = glm::vec3(1.2f, 1.4f, 0.8f);    // ¿À¸¥ÂÊ À§ ¾Õ
+    // Bird ï¿½ï¿½ï¿½ï¿½ boundary ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ ï¿½ï¿½ç¿¡ ï¿½Â°ï¿½ - ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
+    boundary.r1 = glm::vec3(-1.2f, -0.2f, -0.8f); // ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
+    boundary.r2 = glm::vec3(1.2f, -0.2f, -0.8f);  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ ï¿½ï¿½
+    boundary.r3 = glm::vec3(1.2f, 1.4f, -0.8f);   // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ (ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
+    boundary.r4 = glm::vec3(-1.2f, 1.4f, -0.8f);  // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½
+    boundary.r5 = glm::vec3(-1.2f, -0.2f, 0.8f);  // ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ ï¿½ï¿½
+    boundary.r6 = glm::vec3(1.2f, 1.4f, 0.8f);    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½
     
-    // boundary º¯°æ ÈÄ boundary ¸Þ½Ã ´Ù½Ã ¼³Á¤
+    // boundary ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ boundary ï¿½Þ½ï¿½ ï¿½Ù½ï¿½ ï¿½ï¿½ï¿½ï¿½
     SetupBoundaryMesh();
 }
 
@@ -665,6 +680,11 @@ void Bird::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glm::mat4 mvp = gProjection * gView * model;
     glUniformMatrix4fv(uMVP_loc, 1, GL_FALSE, &mvp[0][0]);
 
+    // Update model matrix for lighting
+    if (uModel_loc >= 0) {
+        glUniformMatrix4fv(uModel_loc, 1, GL_FALSE, &model[0][0]);
+    }
+
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
 
@@ -672,56 +692,56 @@ void Bird::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glBindTexture(GL_TEXTURE_2D, 0);
     glUniform1i(uUseTexture_loc, 0);
     
-    // °æ°è ¹Ú½º¸¦ ¿ÍÀÌ¾îÇÁ·¹ÀÓÀ¸·Î ±×¸®±â
+    // ï¿½ï¿½ï¿½ ï¿½Ú½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½×¸ï¿½ï¿½ï¿½
     DrawBoundary(gProjection, gView, uMVP_loc);
 }
 
 void Bird::Update()
 {
-    Obstacle::Update(); // ±âº» ÀÌµ¿
+    Obstacle::Update(); // ï¿½âº» ï¿½Ìµï¿½
 }
 
 
 ObstacleSpawner::ObstacleSpawner()
     : spawnTimer(0.0f), spawnInterval(2.0f), gen(rd()), dis(0, 3), random_spawnInterval(4.0f, 7.0f)
 {
-    // ½ºÆ÷³Ê´Â ·»´õ¸µµÇÁö ¾Ê´Â °´Ã¼ÀÌ¹Ç·Î À§Ä¡´Â »ó°ü¾øÀ½
-    std::cout << "ObstacleSpawner »ý¼ºµÊ" << std::endl;
+    // ï¿½ï¿½ï¿½ï¿½ï¿½Ê´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê´ï¿½ ï¿½ï¿½Ã¼ï¿½Ì¹Ç·ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    std::cout << "ObstacleSpawner ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½" << std::endl;
 }
 
 void ObstacleSpawner::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 {
-    // ½ºÆ÷³Ê´Â ·»´õ¸µµÇÁö ¾ÊÀ½
+    // ï¿½ï¿½ï¿½ï¿½ï¿½Ê´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 }
 
 void ObstacleSpawner::Update()
 {
-    // PLAYING »óÅÂÀÏ ¶§¸¸ Àå¾Ö¹° »ý¼º
+    // PLAYING ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ö¹ï¿½ ï¿½ï¿½ï¿½ï¿½
     if (scene != GameState::PLAYING) {
-        spawnTimer = 0.0f; // ´Ù¸¥ »óÅÂ¿¡¼­´Â Å¸ÀÌ¸Ó ÃÊ±âÈ­
+        spawnTimer = 0.0f; // ï¿½Ù¸ï¿½ ï¿½ï¿½ï¿½Â¿ï¿½ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½Ì¸ï¿½ ï¿½Ê±ï¿½È­
         return;
     }
 
-    const float deltaTime = 0.016f; // ¾à 60FPS ±âÁØ
+    const float deltaTime = 0.016f; // ï¿½ï¿½ 60FPS ï¿½ï¿½ï¿½ï¿½
     spawnTimer += deltaTime;
 
-    // ·£´ýÇÑ »ý¼º °£°Ý ¼³Á¤
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     spawnInterval = random_spawnInterval(gen);
 
     if (spawnTimer >= spawnInterval) {
-        // Á÷Á¢ GameWorld¿¡ Ãß°¡ÇÏÁö ¾Ê°í ´ë±â¿­¿¡ Ãß°¡
+        // ï¿½ï¿½ï¿½ï¿½ GameWorldï¿½ï¿½ ï¿½ß°ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê°ï¿½ ï¿½ï¿½â¿­ï¿½ï¿½ ï¿½ß°ï¿½
         SpawnObstacle();
         spawnTimer = 0.0f;
-        // »õ·Î¿î ·£´ý °£°ÝÀ¸·Î ¼³Á¤
+        // ï¿½ï¿½ï¿½Î¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         spawnInterval = random_spawnInterval(gen);
     }
 }
 
 void ObstacleSpawner::SpawnObstacle()
 {
-    std::cout << "ObstacleSpawner: »õ·Î¿î Àå¾Ö¹° »ý¼º ´ë±â¿­¿¡ Ãß°¡!" << std::endl;
+    std::cout << "ObstacleSpawner: ï¿½ï¿½ï¿½Î¿ï¿½ ï¿½ï¿½Ö¹ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½â¿­ï¿½ï¿½ ï¿½ß°ï¿½!" << std::endl;
 
-    // ·£´ýÇÏ°Ô Àå¾Ö¹° Á¾·ù ¼±ÅÃ
+    // ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½Ö¹ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     auto obstacle = CreateRandomObstacle();
     if (obstacle) {
         g_gameWorld.AddPendingObject(std::move(obstacle));
@@ -734,16 +754,16 @@ std::unique_ptr<Obstacle> ObstacleSpawner::CreateRandomObstacle()
 
     switch (obstacleType) {
         case 0:
-            std::cout << "¼±ÀÎÀå »ý¼º" << std::endl;
+            std::cout << "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½" << std::endl;
             return std::make_unique<Cactus>("assets/obstacle1.obj", "assets/obstacle1_base.bmp");
         case 1:
-            std::cout << "³ª¹« »ý¼º" << std::endl;
+            std::cout << "ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½" << std::endl;
             return std::make_unique<Tree>("assets/obstacle2.obj", "assets/obstacle2_base.bmp");
         case 2:
-            std::cout << "¹ö¼¸ »ý¼º" << std::endl;
+            std::cout << "ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½" << std::endl;
             return std::make_unique<Mushroom>("assets/obstacle3.obj", "assets/obstacle3_base.bmp");
         case 3:
-            std::cout << "»õ »ý¼º" << std::endl;
+            std::cout << "ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½" << std::endl;
             return std::make_unique<Bird>("assets/bird.obj", "assets/bird_base.bmp");
         default:
             return std::make_unique<Obstacle>("assets/obstacle1.obj", "assets/obstacle1_base.bmp");

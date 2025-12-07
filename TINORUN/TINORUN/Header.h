@@ -16,7 +16,7 @@
 
 using namespace std;
 
-// »ö»ó ±¸Á¶Ã¼ ¹× Å¸ÀÔ Á¤ÀÇ
+// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ã¼ ï¿½ï¿½ Å¸ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 struct RGBA { float r, g, b, a; };
 
 struct Boundary {
@@ -28,12 +28,35 @@ struct Boundary {
 	glm::vec3 r6;
 };
 
-// Àü¿ª º¯¼ö ¼±¾ð (shaderProgramID´Â shader_func.h¿¡¼­ Á¤ÀÇµÊ)
+// Global matrices (shaderProgramID is defined in shader_func.h)
 extern glm::mat4 gProjection;
 extern glm::mat4 gView;
 extern glm::mat4 gModel;
 extern GLint uMVP_loc;
 
-// ÅØ½ºÃ³ °ü·Ã uniform º¯¼öµé
+// Texture uniform locations
 extern GLint uUseTexture_loc;
 extern GLint uTextureSampler_loc;
+
+// Lighting and shadow uniform locations
+extern GLint uModel_loc;
+extern GLint uView_loc;
+extern GLint uProjection_loc;
+extern GLint uLightSpaceMatrix_loc;
+extern GLint uUseLighting_loc;
+extern GLint uUseShadows_loc;
+extern GLint uLightDir_loc;
+extern GLint uLightColor_loc;
+extern GLint uViewPos_loc;
+extern GLint uAmbientStrength_loc;
+extern GLint uSpecularStrength_loc;
+extern GLint uShininess_loc;
+extern GLint uShadowMap_loc;
+
+// Shadow system
+extern GLuint shadowMapFBO;
+extern GLuint shadowMapTexture;
+extern const unsigned int SHADOW_WIDTH;
+extern const unsigned int SHADOW_HEIGHT;
+extern GLuint shadowShaderProgram;
+extern glm::mat4 lightSpaceMatrix;

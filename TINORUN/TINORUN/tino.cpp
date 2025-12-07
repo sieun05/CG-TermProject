@@ -292,6 +292,11 @@ void Tino::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     // ?좊땲???ㅼ젙
     glUniformMatrix4fv(uMVP_loc, 1, GL_FALSE, &mvp[0][0]);
 
+    // Update model matrix for lighting
+    if (uModel_loc >= 0) {
+        glUniformMatrix4fv(uModel_loc, 1, GL_FALSE, &model[0][0]);
+    }
+
     // 梨꾩썙吏??쇨컖?뺤쑝濡?洹몃━湲?
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(currentMesh.indices.size()), GL_UNSIGNED_INT, 0);

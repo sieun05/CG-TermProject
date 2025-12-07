@@ -36,6 +36,29 @@ GLint uMVP_loc = -1;
 GLint uUseTexture_loc = -1;
 GLint uTextureSampler_loc = -1;
 
+// Lighting and shadow uniform locations
+GLint uModel_loc = -1;
+GLint uView_loc = -1;
+GLint uProjection_loc = -1;
+GLint uLightSpaceMatrix_loc = -1;
+GLint uUseLighting_loc = -1;
+GLint uUseShadows_loc = -1;
+GLint uLightDir_loc = -1;
+GLint uLightColor_loc = -1;
+GLint uViewPos_loc = -1;
+GLint uAmbientStrength_loc = -1;
+GLint uSpecularStrength_loc = -1;
+GLint uShininess_loc = -1;
+GLint uShadowMap_loc = -1;
+
+// Shadow system
+GLuint shadowMapFBO = 0;
+GLuint shadowMapTexture = 0;
+const unsigned int SHADOW_WIDTH = 2048;
+const unsigned int SHADOW_HEIGHT = 2048;
+GLuint shadowShaderProgram = 0;
+glm::mat4 lightSpaceMatrix(1.0f);
+
 // 게임 상태 관련 변수 정의 (scene은 game_world.cpp에서 정의됨)
 bool gameover_flag222 = false;
 
@@ -74,6 +97,12 @@ void main(int argc, char** argv)
 	make_fragmentShaders();
 	shaderProgramID = make_shaderProgram();
 	AfterMakeShaders();	//셰이더에서 uniform 변수 위치 얻기
+
+	//--- 그림자 맵 셰이더 및 시스템 초기화
+	make_shadowVertexShaders();
+	make_shadowFragmentShaders();
+	shadowShaderProgram = make_shadowShaderProgram();
+	InitShadowMap();
 
 	glutReshapeFunc(Reshape);
 	glutDisplayFunc(drawScene);
@@ -313,7 +342,6 @@ GLvoid drawScene()
 
 	//--- 렌더링 파이프라인에 세이더 불러우기
 	glUseProgram(shaderProgramID);
-
 
 	// GameWorld를 통해 모든 객체 렌더링
 	g_gameWorld.DrawAll(gProjection, gView, uMVP_loc);

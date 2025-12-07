@@ -9,34 +9,64 @@ void make_fragmentShaders();
 GLuint make_shaderProgram();
 void AfterMakeShaders();
 
-//--- ÇÊ¿äÇÑº¯¼ö¼±¾ð
-GLuint shaderProgramID; //--- ¼ÎÀÌ´õ ÇÁ·Î±×·¥ ÀÌ¸§
-GLuint vertexShader;	//--- ¹öÅØ½º¼ÎÀÌ´õ°´Ã¼
-GLuint fragmentShader;	//--- ÇÁ·¡±×¸ÕÆ® ¼ÎÀÌ´õ°´Ã¼
+// Shadow shader functions
+void make_shadowVertexShaders();
+void make_shadowFragmentShaders();
+GLuint make_shadowShaderProgram();
+void InitShadowMap();
 
-// »õ·Î¿î uniform º¯¼ö À§Ä¡µé
+// Required variables
+GLuint shaderProgramID; // Shader program name
+GLuint vertexShader;	// Vertex shader object
+GLuint fragmentShader;	// Fragment shader object
+
+// Shadow shader objects
+GLuint shadowVertexShader;
+GLuint shadowFragmentShader;
+
+// Uniform location variables
 extern GLint uUseTexture_loc;
 extern GLint uTextureSampler_loc;
 
 void AfterMakeShaders()
 {
 	glUseProgram(shaderProgramID);
+
+	// Basic uniform locations
 	uMVP_loc = glGetUniformLocation(shaderProgramID, "uMVP");
 	if (uMVP_loc < 0) { printf("uMVP get error\n"); exit(1); }
-	
-	// ÅØ½ºÃ³ °ü·Ã uniform º¯¼ö À§Ä¡ ¾ò±â
+
+	// Texture uniform locations
 	uUseTexture_loc = glGetUniformLocation(shaderProgramID, "useTexture");
 	uTextureSampler_loc = glGetUniformLocation(shaderProgramID, "textureSampler");
-	
-	// ÅØ½ºÃ³ »ùÇÃ·¯¸¦ ÅØ½ºÃ³ À¯´Ö 0¿¡ ¹ÙÀÎµù
+
+	// Lighting and shadow uniform locations
+	uModel_loc = glGetUniformLocation(shaderProgramID, "uModel");
+	uView_loc = glGetUniformLocation(shaderProgramID, "uView");
+	uProjection_loc = glGetUniformLocation(shaderProgramID, "uProjection");
+	uLightSpaceMatrix_loc = glGetUniformLocation(shaderProgramID, "uLightSpaceMatrix");
+	uUseLighting_loc = glGetUniformLocation(shaderProgramID, "useLighting");
+	uUseShadows_loc = glGetUniformLocation(shaderProgramID, "useShadows");
+	uLightDir_loc = glGetUniformLocation(shaderProgramID, "lightDir");
+	uLightColor_loc = glGetUniformLocation(shaderProgramID, "lightColor");
+	uViewPos_loc = glGetUniformLocation(shaderProgramID, "viewPos");
+	uAmbientStrength_loc = glGetUniformLocation(shaderProgramID, "ambientStrength");
+	uSpecularStrength_loc = glGetUniformLocation(shaderProgramID, "specularStrength");
+	uShininess_loc = glGetUniformLocation(shaderProgramID, "shininess");
+	uShadowMap_loc = glGetUniformLocation(shaderProgramID, "shadowMap");
+
+	// Bind texture samplers to texture units
 	if (uTextureSampler_loc >= 0) {
-		glUniform1i(uTextureSampler_loc, 0);
+		glUniform1i(uTextureSampler_loc, 0);  // Texture unit 0
 	}
-	
+	if (uShadowMap_loc >= 0) {
+		glUniform1i(uShadowMap_loc, 1);  // Texture unit 1
+	}
+
 	glUseProgram(0);
 }
 
-char* filetobuf(const char* file)	//¼ÎÀÌ´õ ÆÄÀÏÀ» ÀÐ¾î ¹®ÀÚ¿­·Î ¹ÝÈ¯ÇÏ´Â À¯Æ¿¸®Æ¼ ÇÔ¼ö
+char* filetobuf(const char* file)	//ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ð¾ï¿½ ï¿½ï¿½ï¿½Ú¿ï¿½ï¿½ï¿½ ï¿½ï¿½È¯ï¿½Ï´ï¿½ ï¿½ï¿½Æ¿ï¿½ï¿½Æ¼ ï¿½Ô¼ï¿½
 {
 	FILE* fptr;
 	long length;
@@ -58,55 +88,55 @@ char* filetobuf(const char* file)	//¼ÎÀÌ´õ ÆÄÀÏÀ» ÀÐ¾î ¹®ÀÚ¿­·Î ¹ÝÈ¯ÇÏ´Â À¯Æ¿¸®Æ
 	return buf;
 }
 
-//--- ¹öÅØ½º¼ÎÀÌ´õ°´Ã¼¸¸µé±â
+//--- ï¿½ï¿½ï¿½Ø½ï¿½ï¿½ï¿½ï¿½Ì´ï¿½ï¿½ï¿½Ã¼ï¿½ï¿½ï¿½ï¿½ï¿½
 void make_vertexShaders()
 {
 	GLchar* vertexSource;
-	//--- ¹öÅØ½º¼¼ÀÌ´õÀÐ¾îÀúÀåÇÏ°íÄÄÆÄÀÏÇÏ±â
-	//--- filetobuf: »ç¿ëÀÚÁ¤ÀÇ ÇÔ¼ö·Î ÅØ½ºÆ®¸¦ÀÐ¾î¼­¹®ÀÚ¿­¿¡ÀúÀåÇÏ´ÂÇÔ¼ö
+	//--- ï¿½ï¿½ï¿½Ø½ï¿½ï¿½ï¿½ï¿½Ì´ï¿½ï¿½Ð¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï±ï¿½
+	//--- filetobuf: ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½Æ®ï¿½ï¿½ï¿½Ð¾î¼­ï¿½ï¿½ï¿½Ú¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ï¿½Ô¼ï¿½
 
 	vertexSource = filetobuf("vertex.glsl");
 
-	//¹öÅØ½º ¼ÎÀÌ´õ °´Ã¼ ¸¸µé±â
+	//ï¿½ï¿½ï¿½Ø½ï¿½ ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½ï¿½
 	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	//¼ÎÀÌ´õ ÄÚµå¸¦ ¼ÎÀÌ´õ °´Ã¼¿¡ ³Ö±â
+	//ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½Úµå¸¦ ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½Ö±ï¿½
 	glShaderSource(vertexShader, 1, &vertexSource, NULL);
-	//¹öÅØ½º ¼ÎÀÌ´õ ÄÄÆÄÀÏÇÏ±â
+	//ï¿½ï¿½ï¿½Ø½ï¿½ ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï±ï¿½
 	glCompileShader(vertexShader);
 
-	//ÄÄÆÄÀÏÀÌ Á¦´ë·Î µÇ¾ú´ÂÁö Ã¼Å©ÇÏ±â
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ç¾ï¿½ï¿½ï¿½ï¿½ï¿½ Ã¼Å©ï¿½Ï±ï¿½
 	GLint result;
 	GLchar errorLog[512];
 	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &result);
 	if (!result)
 	{
 		glGetShaderInfoLog(vertexShader, 512, NULL, errorLog);
-		std::cerr << "ERROR: vertex shader ÄÄÆÄÀÏ ½ÇÆÐ\n" << errorLog << std::endl;
+		std::cerr << "ERROR: vertex shader ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½\n" << errorLog << std::endl;
 		return;
 	}
 }
-//--- ÇÁ·¡±×¸ÕÆ®¼¼ÀÌ´õ°´Ã¼¸¸µé±â
+//--- ï¿½ï¿½ï¿½ï¿½ï¿½×¸ï¿½Æ®ï¿½ï¿½ï¿½Ì´ï¿½ï¿½ï¿½Ã¼ï¿½ï¿½ï¿½ï¿½ï¿½
 void make_fragmentShaders()
 {
 	GLchar* fragmentSource;
-	//--- ÇÁ·¡±×¸ÕÆ®¼¼ÀÌ´õÀÐ¾îÀúÀåÇÏ°íÄÄÆÄÀÏÇÏ±â
-	fragmentSource = filetobuf("fragment.glsl");    // ÇÁ·¡±×¼¼ÀÌ´õ ÀÐ¾î¿À±â
+	//--- ï¿½ï¿½ï¿½ï¿½ï¿½×¸ï¿½Æ®ï¿½ï¿½ï¿½Ì´ï¿½ï¿½Ð¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï±ï¿½
+	fragmentSource = filetobuf("fragment.glsl");    // ï¿½ï¿½ï¿½ï¿½ï¿½×¼ï¿½ï¿½Ì´ï¿½ ï¿½Ð¾ï¿½ï¿½ï¿½ï¿½
 
-	//--- ÇÁ·¡±×¸ÕÆ®¼¼ÀÌ´õ °´Ã¼ ¸¸µé±â
+	//--- ï¿½ï¿½ï¿½ï¿½ï¿½×¸ï¿½Æ®ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½ï¿½
 	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	//--- ¼ÎÀÌ´õÄÚµå¸¦¼ÎÀÌ´õ°´Ã¼¿¡³Ö±â
+	//--- ï¿½ï¿½ï¿½Ì´ï¿½ï¿½Úµå¸¦ï¿½ï¿½ï¿½Ì´ï¿½ï¿½ï¿½Ã¼ï¿½ï¿½ï¿½Ö±ï¿½
 	glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
-	//--- ÇÁ·¡±×¸ÕÆ®¼¼ÀÌ´õÄÄÆÄÀÏÇÏ±â
+	//--- ï¿½ï¿½ï¿½ï¿½ï¿½×¸ï¿½Æ®ï¿½ï¿½ï¿½Ì´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï±ï¿½
 	glCompileShader(fragmentShader);
 
-	//--- ÄÄÆÄÀÏÀÌÁ¦´ë·ÎµÇ¾ú´ÂÁöÃ¼Å©ÇÏ±â
+	//--- ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÎµÇ¾ï¿½ï¿½ï¿½ï¿½ï¿½Ã¼Å©ï¿½Ï±ï¿½
 	GLint result;
 	GLchar errorLog[512];
 	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &result);
 	if (!result)
 	{
 		glGetShaderInfoLog(fragmentShader, 512, NULL, errorLog);
-		std::cerr << "ERROR: frag_shader ÄÄÆÄÀÏ ½ÇÆÐ\n" << errorLog << std::endl;
+		std::cerr << "ERROR: frag_shader ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½\n" << errorLog << std::endl;
 		return;
 	}
 }
@@ -128,10 +158,105 @@ GLuint make_shaderProgram()
 
 	if (!result) {
 		glGetProgramInfoLog(shaderID, 512, NULL, errorLog);
-		std::cerr << "ERROR: shader program ¿¬°á ½ÇÆÐ\n" << errorLog << std::endl;
+		std::cerr << "ERROR: shader program ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½\n" << errorLog << std::endl;
 		return -1;
 	}
 
 	glUseProgram(shaderID);
 	return shaderID;
+}
+
+// Shadow shader functions
+void make_shadowVertexShaders()
+{
+	GLchar* vertexSource;
+	vertexSource = filetobuf("shadow_vertex.glsl");
+
+	shadowVertexShader = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(shadowVertexShader, 1, &vertexSource, NULL);
+	glCompileShader(shadowVertexShader);
+
+	GLint result;
+	GLchar errorLog[512];
+	glGetShaderiv(shadowVertexShader, GL_COMPILE_STATUS, &result);
+	if (!result)
+	{
+		glGetShaderInfoLog(shadowVertexShader, 512, NULL, errorLog);
+		std::cerr << "ERROR: shadow vertex shader compile error\n" << errorLog << std::endl;
+		return;
+	}
+}
+
+void make_shadowFragmentShaders()
+{
+	GLchar* fragmentSource;
+	fragmentSource = filetobuf("shadow_fragment.glsl");
+
+	shadowFragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(shadowFragmentShader, 1, &fragmentSource, NULL);
+	glCompileShader(shadowFragmentShader);
+
+	GLint result;
+	GLchar errorLog[512];
+	glGetShaderiv(shadowFragmentShader, GL_COMPILE_STATUS, &result);
+	if (!result)
+	{
+		glGetShaderInfoLog(shadowFragmentShader, 512, NULL, errorLog);
+		std::cerr << "ERROR: shadow fragment shader compile error\n" << errorLog << std::endl;
+		return;
+	}
+}
+
+GLuint make_shadowShaderProgram()
+{
+	GLint result;
+	GLchar errorLog[512];
+	GLuint shaderID;
+	shaderID = glCreateProgram();
+
+	glAttachShader(shaderID, shadowVertexShader);
+	glAttachShader(shaderID, shadowFragmentShader);
+	glLinkProgram(shaderID);
+
+	glDeleteShader(shadowVertexShader);
+	glDeleteShader(shadowFragmentShader);
+	glGetProgramiv(shaderID, GL_LINK_STATUS, &result);
+
+	if (!result) {
+		glGetProgramInfoLog(shaderID, 512, NULL, errorLog);
+		std::cerr << "ERROR: shadow shader program link error\n" << errorLog << std::endl;
+		return -1;
+	}
+
+	return shaderID;
+}
+
+void InitShadowMap()
+{
+	// Generate framebuffer
+	glGenFramebuffers(1, &shadowMapFBO);
+
+	// Generate depth texture
+	glGenTextures(1, &shadowMapTexture);
+	glBindTexture(GL_TEXTURE_2D, shadowMapTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
+		SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+
+	// Attach depth texture to framebuffer
+	glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowMapTexture, 0);
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+
+	// Check framebuffer status
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		std::cerr << "ERROR: Shadow framebuffer is not complete!" << std::endl;
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

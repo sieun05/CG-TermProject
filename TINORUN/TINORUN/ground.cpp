@@ -239,6 +239,11 @@ void Ground::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glm::mat4 mvp = gProjection * gView * model;
     glUniformMatrix4fv(uMVP_loc, 1, GL_FALSE, &mvp[0][0]);
 
+    // Update model matrix for lighting
+    if (uModel_loc >= 0) {
+        glUniformMatrix4fv(uModel_loc, 1, GL_FALSE, &model[0][0]);
+    }
+
 	// �ؽ�ó ��� ����
 	if (useTexture) {
 		glUniform1i(uUseTexture_loc, 1);
