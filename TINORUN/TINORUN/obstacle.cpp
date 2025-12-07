@@ -21,18 +21,18 @@ extern int gameScore;
 // ���� �ӵ� ��� �Լ�
 float GetObstacleSpeed() {
     int speedLevel = gameScore / 1000;  // 1000������ ������
-    
+
     // �ӵ� ���� �˸� (�� ����)
     static int lastNotifiedLevel = -1;
     if (speedLevel != lastNotifiedLevel && speedLevel > 0) {
         std::cout << "�ӵ� ����! ���� " << speedLevel << " (����: " << gameScore << ")" << std::endl;
         lastNotifiedLevel = speedLevel;
     }
-    
+
     // 기본 속도: -6.0f, 1000점마다 10% 증가, 최대 2.5배까지
     float speedMultiplier = 1.0f + (speedLevel * 0.2f);
     float speed = -6.0f * speedMultiplier;
-    
+
     return speed;
 }
 
@@ -51,7 +51,7 @@ Obstacle::Obstacle()
     boundary.r4 = glm::vec3(-0.5f, 0.5f, -0.5f);  // 왼쪽 위 뒤
     boundary.r5 = glm::vec3(-0.5f, -0.5f, 0.5f);  // 왼쪽 아래 앞
     boundary.r6 = glm::vec3(0.5f, 0.5f, 0.5f);    // 오른쪽 위 앞
-    
+
     // 경계 박스 메시 설정
     SetupBoundaryMesh();
 }
@@ -61,7 +61,7 @@ Obstacle::Obstacle(const std::string& objPath, const std::string& texturePath)
 {
     position = glm::vec3(SPAWN_X_POSITION, 0.5f, 0.0f);
     scale = glm::vec3(0.25f, 0.25f, 0.25f);
-	rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+    rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 
     // �浹 ���� ���� (��ֹ��� �⺻ ũ�� ����)
     boundary.r1 = glm::vec3(-0.5f, -0.5f, -0.5f); // ���� �Ʒ� ��
@@ -82,10 +82,10 @@ Obstacle::Obstacle(const std::string& objPath, const std::string& texturePath)
     else {
         std::cerr << "��ֹ� �ʱ�ȭ ����: OBJ �ε� ����" << std::endl;
     }
-    
+
     // ��� �ڽ� �޽� ����
     SetupBoundaryMesh();
-    
+
     if (LoadTexture(texturePath)) {
         //std::cout << "��ֹ� �ؽ�ó �ε� ����!" << std::endl;
     }
@@ -96,14 +96,14 @@ Obstacle::Obstacle(const std::string& objPath, const std::string& texturePath)
 
 Obstacle::~Obstacle()
 {
-	if (VAO != 0) glDeleteVertexArrays(1, &VAO);
-	if (VBO != 0) glDeleteBuffers(1, &VBO);
-	if (EBO != 0) glDeleteBuffers(1, &EBO);
-	if (textureID != 0) glDeleteTextures(1, &textureID);
-	
-	// ��� �ڽ� ���� ����
-	if (boundaryVAO != 0) glDeleteVertexArrays(1, &boundaryVAO);
-	if (boundaryVBO != 0) glDeleteBuffers(1, &boundaryVBO);
+    if (VAO != 0) glDeleteVertexArrays(1, &VAO);
+    if (VBO != 0) glDeleteBuffers(1, &VBO);
+    if (EBO != 0) glDeleteBuffers(1, &EBO);
+    if (textureID != 0) glDeleteTextures(1, &textureID);
+
+    // ��� �ڽ� ���� ����
+    if (boundaryVAO != 0) glDeleteVertexArrays(1, &boundaryVAO);
+    if (boundaryVBO != 0) glDeleteBuffers(1, &boundaryVBO);
 }
 
 bool Obstacle::LoadOBJ(const std::string& objPath)
@@ -339,7 +339,7 @@ void Obstacle::Update()
 {
     // ������ ���� ���� �ӵ� ����
     moveSpeed = GetObstacleSpeed();
-    
+
     // x������ �̵� (�� 60FPS ���� deltaTime = 0.016f ����)
     const float deltaTime = 0.016f;
     position.x += moveSpeed * deltaTime;
@@ -365,7 +365,7 @@ void Obstacle::SetupBoundaryMesh()
         boundary.r2.x, boundary.r2.y, boundary.r2.z, 0.0f, 1.0f, 0.0f,  // 1: ������ �Ʒ� ��
         boundary.r3.x, boundary.r3.y, boundary.r3.z, 0.0f, 1.0f, 0.0f,  // 2: ������ �� ��
         boundary.r4.x, boundary.r4.y, boundary.r4.z, 0.0f, 1.0f, 0.0f,  // 3: ���� �� ��
-        
+
         // �ո� 4�� ���� (z = +0.5)
         boundary.r5.x, boundary.r5.y, boundary.r5.z, 0.0f, 1.0f, 0.0f,  // 4: ���� �Ʒ� ��
         boundary.r6.x, boundary.r5.y, boundary.r5.z, 0.0f, 1.0f, 0.0f,  // 5: ������ �Ʒ� ��
@@ -377,7 +377,7 @@ void Obstacle::SetupBoundaryMesh()
     glGenBuffers(1, &boundaryVBO);
 
     glBindVertexArray(boundaryVAO);
-    
+
     glBindBuffer(GL_ARRAY_BUFFER, boundaryVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(boundaryVertices), boundaryVertices, GL_STATIC_DRAW);
 
@@ -404,7 +404,7 @@ void Obstacle::DrawBoundary(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_
 
     // ���� ��ֹ��� ��ȯ �� matrix ����
     glm::mat4 model = GetModelMatrix();
-    
+
     // ��ֹ� Ÿ�Կ� ���� �߰� ��ȯ ����
     if (GetType() == ObstacleType::CACTUS) {
         glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(-35.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -416,7 +416,7 @@ void Obstacle::DrawBoundary(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_
 
     // �� �β� ����
     glLineWidth(2.0f);
-    
+
     // �ڽ��� 12�� �𼭸��� ������ �׸���
     unsigned int boundaryIndices[] = {
         // �޸��� 4�� �𼭸�
@@ -429,10 +429,10 @@ void Obstacle::DrawBoundary(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_
 
     // �ε����� �̿��� �� �׸���
     glDrawElements(GL_LINES, 24, GL_UNSIGNED_INT, boundaryIndices);
-    
+
     // �� �β� ����
     glLineWidth(1.0f);
-    
+
     glBindVertexArray(0);
 }
 
@@ -488,7 +488,7 @@ void Cactus::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     // 변환 행렬들을 셰이더에 전송
     glm::mat4 mvp = gProjection * gView * model;
     glUniformMatrix4fv(uMVP_loc, 1, GL_FALSE, &mvp[0][0]);
-    
+
     // 조명 계산용 행렬들 전송
     if (uModel_loc >= 0) {
         glUniformMatrix4fv(uModel_loc, 1, GL_FALSE, glm::value_ptr(model));
@@ -499,7 +499,7 @@ void Cactus::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     if (uProjection_loc >= 0) {
         glUniformMatrix4fv(uProjection_loc, 1, GL_FALSE, glm::value_ptr(gProjection));
     }
-    
+
     // Material 설정 제거 - 공통 조명 사용
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -508,7 +508,7 @@ void Cactus::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
     glUniform1i(uUseTexture_loc, 0);
-    
+
     // 충돌 박스를 와이어프레임으로 그리기
     DrawBoundary(gProjection, gView, uMVP_loc);
 }
@@ -524,7 +524,7 @@ void Cactus::Update()
 // Tree ����
 Tree::Tree() : Obstacle()
 {
-    
+
     // Tree ���� boundary ���� (���� ��翡 �°�)
     boundary.r1 = glm::vec3(-3.0f, 8.0f, -3.0f); // ���� �Ʒ� ��
     boundary.r2 = glm::vec3(3.0f, 8.0f, -3.0f);  // ������ �Ʒ� ��
@@ -532,15 +532,15 @@ Tree::Tree() : Obstacle()
     boundary.r4 = glm::vec3(-3.0f, 16.0f, -3.0f);  // ���� �� ��
     boundary.r5 = glm::vec3(-3.0f, 8.0f, 3.0f);  // ���� �Ʒ� ��
     boundary.r6 = glm::vec3(3.0f, 16.0f, 3.0f);    // ������ �� ��
-    
+
     // boundary ���� �� boundary �޽� �ٽ� ����
     SetupBoundaryMesh();
 }
 
-Tree::Tree(const std::string& objPath, const std::string& texturePath) 
+Tree::Tree(const std::string& objPath, const std::string& texturePath)
     : Obstacle(objPath, texturePath)
 {
-    
+
     scale = glm::vec3(0.2f, 0.2f, 0.2f);
 
     // Tree ���� boundary ���� (���� ��翡 �°�)
@@ -550,7 +550,7 @@ Tree::Tree(const std::string& objPath, const std::string& texturePath)
     boundary.r4 = glm::vec3(-3.0f, 16.0f, -3.0f);  // ���� �� ��
     boundary.r5 = glm::vec3(-3.0f, 8.0f, 3.0f);  // ���� �Ʒ� ��
     boundary.r6 = glm::vec3(3.0f, 16.0f, 3.0f);    // ������ �� ��
-    
+
     // boundary ���� �� boundary �޽� �ٽ� ����
     SetupBoundaryMesh();
 }
@@ -571,7 +571,7 @@ void Tree::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     // 변환 행렬들을 셰이더에 전송
     glm::mat4 mvp = gProjection * gView * model;
     glUniformMatrix4fv(uMVP_loc, 1, GL_FALSE, &mvp[0][0]);
-    
+
     // 조명 계산용 행렬들 전송
     if (uModel_loc >= 0) {
         glUniformMatrix4fv(uModel_loc, 1, GL_FALSE, glm::value_ptr(model));
@@ -582,7 +582,7 @@ void Tree::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     if (uProjection_loc >= 0) {
         glUniformMatrix4fv(uProjection_loc, 1, GL_FALSE, glm::value_ptr(gProjection));
     }
-    
+
     // Material 설정 제거 - 공통 조명 사용
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -591,7 +591,7 @@ void Tree::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
     glUniform1i(uUseTexture_loc, 0);
-    
+
     // 충돌 박스를 와이어프레임으로 그리기
     DrawBoundary(gProjection, gView, uMVP_loc);
 }
@@ -612,7 +612,7 @@ Mushroom::Mushroom() : Obstacle()
     boundary.r4 = glm::vec3(-0.8f, 2.0f, -0.8f);  // ���� �� ��
     boundary.r5 = glm::vec3(-0.8f, 0.0f, 0.8f);  // ���� �Ʒ� ��
     boundary.r6 = glm::vec3(0.8f, 2.0f, 0.8f);    // ������ �� ��
-    
+
     // boundary ���� �� boundary �޽� �ٽ� ����
     SetupBoundaryMesh();
 }
@@ -620,8 +620,8 @@ Mushroom::Mushroom() : Obstacle()
 Mushroom::Mushroom(const std::string& objPath, const std::string& texturePath)
     : Obstacle(objPath, texturePath)
 {
-	scale = glm::vec3(1.0f, 1.0f, 1.0f);
-    
+    scale = glm::vec3(1.0f, 1.0f, 1.0f);
+
     // Mushroom ���� boundary ���� (���� ��翡 �°� - �۰� ����)
     boundary.r1 = glm::vec3(-0.8f, 0.0f, -0.8f); // ���� �Ʒ� ��
     boundary.r2 = glm::vec3(0.8f, 0.0f, -0.8f);  // ������ �Ʒ� ��
@@ -629,7 +629,7 @@ Mushroom::Mushroom(const std::string& objPath, const std::string& texturePath)
     boundary.r4 = glm::vec3(-0.8f, 2.0f, -0.8f);  // ���� �� ��
     boundary.r5 = glm::vec3(-0.8f, 0.0f, 0.8f);  // ���� �Ʒ� ��
     boundary.r6 = glm::vec3(0.8f, 2.0f, 0.8f);    // ������ �� ��
-    
+
     // boundary ���� �� boundary �޽� �ٽ� ����
     SetupBoundaryMesh();
 }
@@ -650,7 +650,7 @@ void Mushroom::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     // 변환 행렬들을 셰이더에 전송
     glm::mat4 mvp = gProjection * gView * model;
     glUniformMatrix4fv(uMVP_loc, 1, GL_FALSE, &mvp[0][0]);
-    
+
     // 조명 계산용 행렬들 전송
     if (uModel_loc >= 0) {
         glUniformMatrix4fv(uModel_loc, 1, GL_FALSE, glm::value_ptr(model));
@@ -661,7 +661,7 @@ void Mushroom::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     if (uProjection_loc >= 0) {
         glUniformMatrix4fv(uProjection_loc, 1, GL_FALSE, glm::value_ptr(gProjection));
     }
-    
+
     // Material 설정 제거 - 공통 조명 사용
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -670,7 +670,7 @@ void Mushroom::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
     glUniform1i(uUseTexture_loc, 0);
-    
+
     // 충돌 박스를 와이어프레임으로 그리기
     DrawBoundary(gProjection, gView, uMVP_loc);
 }
@@ -690,7 +690,7 @@ Bird::Bird() : Obstacle()
     boundary.r4 = glm::vec3(-1.2f, 1.4f, -0.8f);  // ���� �� ��
     boundary.r5 = glm::vec3(-1.2f, -0.2f, 0.8f);  // ���� �Ʒ� ��
     boundary.r6 = glm::vec3(1.2f, 1.4f, 0.8f);    // ������ �� ��
-    
+
     // boundary ���� �� boundary �޽� �ٽ� ����
     SetupBoundaryMesh();
 }
@@ -699,9 +699,9 @@ Bird::Bird(const std::string& objPath, const std::string& texturePath)
     : Obstacle(objPath, texturePath)
 {
     position = glm::vec3(SPAWN_X_POSITION, 3.5f, 0.0f);
-	scale = glm::vec3(0.9f, 0.9f, 0.9f);
-	rotation = glm::vec3(0.0f, -180.0f, 0.0f);
-    
+    scale = glm::vec3(0.9f, 0.9f, 0.9f);
+    rotation = glm::vec3(0.0f, -180.0f, 0.0f);
+
     // Bird ���� boundary ���� (�� ��翡 �°� - ���� ����)
     boundary.r1 = glm::vec3(-1.2f, -0.2f, -0.8f); // ���� �Ʒ� �� (���� �� ����)
     boundary.r2 = glm::vec3(1.2f, -0.2f, -0.8f);  // ������ �Ʒ� ��
@@ -709,7 +709,7 @@ Bird::Bird(const std::string& objPath, const std::string& texturePath)
     boundary.r4 = glm::vec3(-1.2f, 1.4f, -0.8f);  // ���� �� ��
     boundary.r5 = glm::vec3(-1.2f, -0.2f, 0.8f);  // ���� �Ʒ� ��
     boundary.r6 = glm::vec3(1.2f, 1.4f, 0.8f);    // ������ �� ��
-    
+
     // boundary ���� �� boundary �޽� �ٽ� ����
     SetupBoundaryMesh();
 }
@@ -730,7 +730,7 @@ void Bird::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     // 변환 행렬들을 셰이더에 전송
     glm::mat4 mvp = gProjection * gView * model;
     glUniformMatrix4fv(uMVP_loc, 1, GL_FALSE, &mvp[0][0]);
-    
+
     // 조명 계산용 행렬들 전송
     if (uModel_loc >= 0) {
         glUniformMatrix4fv(uModel_loc, 1, GL_FALSE, glm::value_ptr(model));
@@ -741,7 +741,7 @@ void Bird::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     if (uProjection_loc >= 0) {
         glUniformMatrix4fv(uProjection_loc, 1, GL_FALSE, glm::value_ptr(gProjection));
     }
-    
+
     // Material 설정 제거 - 공통 조명 사용
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -750,7 +750,7 @@ void Bird::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
     glUniform1i(uUseTexture_loc, 0);
-    
+
     // 충돌 박스를 와이어프레임으로 그리기
     DrawBoundary(gProjection, gView, uMVP_loc);
 }
@@ -767,17 +767,15 @@ ObstacleSpawner::ObstacleSpawner()
 {
 }
 
-
-
 void ObstacleSpawner::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 {
 }
 
 void ObstacleSpawner::Update()
-{ 
+{
     if (scene != GameState::PLAYING) {
-        spawnTimer = 0.0f; 
-        return; 
+        spawnTimer = 0.0f;
+        return;
     }
 
     const float deltaTime = 0.016f; // �� 60FPS ����
@@ -808,21 +806,21 @@ std::unique_ptr<Obstacle> ObstacleSpawner::CreateRandomObstacle()
     int obstacleType = dis(gen);
 
     switch (obstacleType) {
-        case 0:
-            std::cout << "������ ����" << std::endl;
-            return std::make_unique<Cactus>("assets/obstacle1.obj", "assets/obstacle1_base.bmp");
-        case 1:
-            std::cout << "���� ����" << std::endl;
-            return std::make_unique<Tree>("assets/obstacle2.obj", "assets/obstacle2_base.bmp");
-        case 2:
-            std::cout << "���� ����" << std::endl;
-            return std::make_unique<Mushroom>("assets/obstacle3.obj", "assets/obstacle3_base.bmp");
-        case 3:
-            std::cout << "�� ����" << std::endl;
-            return std::make_unique<Bird>("assets/bird.obj", "assets/bird_base.bmp");
-        default:
-            // 기본값으로 선인장 생성 (추상 클래스 대신 구체적인 클래스 사용)
-            std::cout << "기본 선인장 생성" << std::endl;
-            return std::make_unique<Cactus>("assets/obstacle1.obj", "assets/obstacle1_base.bmp");
+    case 0:
+        std::cout << "������ ����" << std::endl;
+        return std::make_unique<Cactus>("assets/obstacle1.obj", "assets/obstacle1_base.bmp");
+    case 1:
+        std::cout << "���� ����" << std::endl;
+        return std::make_unique<Tree>("assets/obstacle2.obj", "assets/obstacle2_base.bmp");
+    case 2:
+        std::cout << "���� ����" << std::endl;
+        return std::make_unique<Mushroom>("assets/obstacle3.obj", "assets/obstacle3_base.bmp");
+    case 3:
+        std::cout << "�� ����" << std::endl;
+        return std::make_unique<Bird>("assets/bird.obj", "assets/bird_base.bmp");
+    default:
+        // 기본값으로 선인장 생성 (추상 클래스 대신 구체적인 클래스 사용)
+        std::cout << "기본 선인장 생성" << std::endl;
+        return std::make_unique<Cactus>("assets/obstacle1.obj", "assets/obstacle1_base.bmp");
     }
 }

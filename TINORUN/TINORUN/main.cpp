@@ -130,7 +130,7 @@ void main(int argc, char** argv)
 
 	InitBuffer();
 	InitGameObjects();		// 게임 객체 초기??
-	
+
 	// ���� ���¸� PLAYING���� ���� (�׽�Ʈ��)
 	scene = GameState::TITLE;
 
@@ -177,8 +177,8 @@ void InitGameObjects()
 
 		// Ground 객체 ?�성 �?GameWorld??추�?
 		auto ground = std::make_unique<Ground>(1, RGBA{ 231 / 255., 217 / 255., 176 / 255., 1.0f });
-		ground->position.y = -4.0f; 
-		ground->scale = glm::vec3(100.0f, 0.3f, 100.0f); 
+		ground->position.y = -4.0f;
+		ground->scale = glm::vec3(100.0f, 0.3f, 100.0f);
 		g_gameWorld.AddObject(std::move(ground));
 
 
@@ -226,15 +226,15 @@ void InitGameObjects()
 
 
 		// Ground 객체 ?�성 �?GameWorld??추�?
-		auto ground2 = std::make_unique<Ground>(1, RGBA{ 175 / 255., 145 / 255., 100 / 255., 1.0f } , "assets/ground_texture2.png");
+		auto ground2 = std::make_unique<Ground>(1, RGBA{ 175 / 255., 145 / 255., 100 / 255., 1.0f }, "assets/ground_texture2.png");
 		ground2->position.y = -4.0f; // ?�을 ?�간 ?�래�??�동
 		ground2->scale = glm::vec3(100.0f, 0.3f, 100.0f); // ?�을 ???�게 ?��??�링
 		g_gameWorld.AddObject(std::move(ground2));
-		
+
 
 		// Tino 객체 ?�성 �?GameWorld??추�?
 		// 경로 ?�정: assets ?�더�?직접 ?�근
-		auto tino_ptr = std::make_unique<Tino>("assets/Tino.obj", "assets/Tino_jump.obj", 
+		auto tino_ptr = std::make_unique<Tino>("assets/Tino.obj", "assets/Tino_jump.obj",
 			"assets/Tino_down.obj", "assets/Tino_base.png");
 		tino = tino_ptr.get(); // ?�역 ?�인?�에 ?�당
 		tino->position = glm::vec3(0.0f, 0.5f, 0.0f);  // Ground ?�에 배치
@@ -244,13 +244,7 @@ void InitGameObjects()
 
 		std::cout << "PLAYING 모드 ?�작 - ObstacleSpawner 추�?" << std::endl;
 		auto spawner = std::make_unique<ObstacleSpawner>();
-		spawner.get()->SetbackSpawnFlag(false); 
 		g_gameWorld.AddObject(std::move(spawner));
-
-		// 배경용 ObstacleSpawner 추가
-		auto back_spawner = std::make_unique<ObstacleSpawner>();
-		back_spawner.get()->SetbackSpawnFlag(true); // 배경용
-		g_gameWorld.AddObject(std::move(back_spawner));
 
 		auto score = std::make_unique<ScoreDisplay>(
 			-0.95f,
@@ -283,7 +277,7 @@ void InitGameObjects()
 	else if (scene == GameState::GAME_OVER) {
 		g_gameWorld.Clear(); // ?�전 게임 객체???�거
 
-		if(timer) timer = false;
+		if (timer) timer = false;
 
 		auto gameover = std::move(std::make_unique<Images>(0.0f, 0.0f, 0.0f, 2.0f, 2.0f, "assets/gameover.png"));
 		g_gameWorld.AddObject(std::move(gameover));
@@ -425,7 +419,7 @@ GLvoid Timer(int value)
 	glUseProgram(shaderProgramID);
 	g_lightManager.UpdateSunlight(0.0f);
 	g_lightManager.SendLightsToShader();
-	
+
 	glUseProgram(0);
 
 	// GameWorld�� ���� ��� ��ü ������Ʈ (ObstacleSpawner ����)
@@ -445,26 +439,26 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 	case ' ':	// ?�프 (추후 구현)
 		if (scene == GameState::PLAYING) {
 			tino->StateChange(State::JUMPING);
-			
+
 			ma_sound_start(&sounds[0]);	// ?�프 ?�운??
 			ma_sound_seek_to_pcm_frame(&sounds[0], 0);
 		}
 		break;
-	case '\r': 
+	case '\r':
 	case '\n':		// ?�터 ?�르�??�작
 		if (scene == GameState::TITLE) {
 			scene = GameState::PLAYING;
 			std::cout << "게임 ?�작" << std::endl;
 			InitGameObjects();		// 게임 객체 초기??
 		}
-		if(scene == GameState::GAME_OVER) {
+		if (scene == GameState::GAME_OVER) {
 			scene = GameState::TITLE;
 			gameover_flag222 = false;
 			std::cout << "?�?��? ?�면?�로 ?�동" << std::endl;
 			InitGameObjects();
 		}
 		break;
-	case 27:		
+	case 27:
 		if (scene == GameState::PLAYING) {
 			// ESC ?�르�??�?��?�?
 			scene = GameState::TITLE;

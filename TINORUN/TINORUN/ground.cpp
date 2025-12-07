@@ -60,29 +60,29 @@ void GroundInit()
         -size,  size, -size,  1.0f, 1.0f,  // 6
          size,  size, -size,  0.0f, 1.0f,  // 7
 
-        // ���ʸ� (x = -size)
-        -size, -size, -size,  0.0f, 0.0f,  // 8
-        -size, -size,  size,  1.0f, 0.0f,  // 9
-        -size,  size,  size,  1.0f, 1.0f,  // 10
-        -size,  size, -size,  0.0f, 1.0f,  // 11
+         // ���ʸ� (x = -size)
+         -size, -size, -size,  0.0f, 0.0f,  // 8
+         -size, -size,  size,  1.0f, 0.0f,  // 9
+         -size,  size,  size,  1.0f, 1.0f,  // 10
+         -size,  size, -size,  0.0f, 1.0f,  // 11
 
-        // �����ʸ� (x = +size)
-         size, -size,  size,  0.0f, 0.0f,  // 12
-         size, -size, -size,  1.0f, 0.0f,  // 13
-         size,  size, -size,  1.0f, 1.0f,  // 14
-         size,  size,  size,  0.0f, 1.0f,  // 15
+         // �����ʸ� (x = +size)
+          size, -size,  size,  0.0f, 0.0f,  // 12
+          size, -size, -size,  1.0f, 0.0f,  // 13
+          size,  size, -size,  1.0f, 1.0f,  // 14
+          size,  size,  size,  0.0f, 1.0f,  // 15
 
-        // �Ʒ��� (y = -size)
-        -size, -size, -size,  0.0f, 0.0f,  // 16
-         size, -size, -size,  1.0f, 0.0f,  // 17
-         size, -size,  size,  1.0f, 1.0f,  // 18
-        -size, -size,  size,  0.0f, 1.0f,  // 19
+          // �Ʒ��� (y = -size)
+          -size, -size, -size,  0.0f, 0.0f,  // 16
+           size, -size, -size,  1.0f, 0.0f,  // 17
+           size, -size,  size,  1.0f, 1.0f,  // 18
+          -size, -size,  size,  0.0f, 1.0f,  // 19
 
-        // ���� (y = +size)
-        -size,  size,  size,  0.0f, 0.0f,  // 20
-         size,  size,  size,  1.0f, 0.0f,  // 21
-         size,  size, -size,  1.0f, 1.0f,  // 22
-        -size,  size, -size,  0.0f, 1.0f   // 23
+          // ���� (y = +size)
+          -size,  size,  size,  0.0f, 0.0f,  // 20
+           size,  size,  size,  1.0f, 0.0f,  // 21
+           size,  size, -size,  1.0f, 1.0f,  // 22
+          -size,  size, -size,  0.0f, 1.0f   // 23
 
     };
 
@@ -221,16 +221,16 @@ void ChangeGroundColor(RGBA newColor)
         newColor.r, newColor.g, newColor.b,
         newColor.r, newColor.g, newColor.b,
         newColor.r, newColor.g, newColor.b,
-	};
+    };
     glBindBuffer(GL_ARRAY_BUFFER, VBO_ground[1]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(ground_colors), ground_colors, GL_STATIC_DRAW);
 }
 
 void Ground::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 {
-	if (!useTexture) {
-		ChangeGroundColor(this->color);
-	}
+    if (!useTexture) {
+        ChangeGroundColor(this->color);
+    }
 
     glBindVertexArray(VAO_ground);
 
@@ -260,22 +260,23 @@ void Ground::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     );
     g_lightManager.SendMaterialToShader(groundMaterial);
 
-	// 텍스처 사용 설정
-	if (useTexture) {
-		glUniform1i(uUseTexture_loc, 1);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, textureID);
-		glUniform1i(uTextureSampler_loc, 0);
-	} else {
-		glUniform1i(uUseTexture_loc, 0);
-	}
+    // 텍스처 사용 설정
+    if (useTexture) {
+        glUniform1i(uUseTexture_loc, 1);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, textureID);
+        glUniform1i(uTextureSampler_loc, 0);
+    }
+    else {
+        glUniform1i(uUseTexture_loc, 0);
+    }
 
     // 실제 면을 그림 (채워진 삼각형)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO_ground);
     glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
     // 경계선 와이어프레임을 그림 (검은색으로)
-    RGBA blackColor = {0.0f, 0.0f, 0.0f, 1.0f};
+    RGBA blackColor = { 0.0f, 0.0f, 0.0f, 1.0f };
     ChangeGroundColor(blackColor);
 
     glLineWidth(2.0f); // 선 두께 설정
@@ -286,10 +287,10 @@ void Ground::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 
     glLineWidth(1.0f); // 선 두께 복원
 
-	if (useTexture) {
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glUniform1i(uUseTexture_loc, 0);
-	}
+    if (useTexture) {
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glUniform1i(uUseTexture_loc, 0);
+    }
 
     glBindVertexArray(0);
 }
