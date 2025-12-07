@@ -253,7 +253,7 @@ void Ground::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 
     // Ground용 Material 설정 - 빛을 덜 반사하고 자연스러운 지면 색상
     Material groundMaterial = Material(
-        glm::vec3(0.05f, 0.05f, 0.05f),     // 어두운 환경광 (빛을 적게 받음)
+        glm::vec3(0.5f, 0.5f, 0.5f),     // 어두운 환경광 (빛을 적게 받음)
         glm::vec3(0.3f, 0.3f, 0.3f),        // 낮은 확산광 (반사를 적게 함)
         glm::vec3(0.1f, 0.1f, 0.1f),        // 매우 낮은 반사광
         8.0f                                 // 낮은 광택도 (거친 표면)

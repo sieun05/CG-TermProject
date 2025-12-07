@@ -80,7 +80,7 @@ ma_result result;
 
 ma_sound sounds[4];
 
-bool timer = true;
+bool timer = false;
 
 
 // ���� �ð� ���� (�Ϸ� �ֱ� �ùķ��̼ǿ�)
@@ -124,11 +124,6 @@ void main(int argc, char** argv)
 	//glutSpecialFunc(SpecialKeyDown);    // ?�살?????�수???�림 처리
 	//glutSpecialUpFunc(SpecialKeyUp);
 
-	glutTimerFunc(16, Timer, 1); // �� 60FPS�� Ÿ�̸� ����
-
-
-	glutTimerFunc(16, Timer, 1); // ??60FPS�??�?�머 ?�작
-
 	InitBuffer();
 	InitGameObjects();		// 게임 객체 초기??
 
@@ -165,6 +160,8 @@ void InitGameObjects()
 {
 	if (scene == GameState::TITLE) {
 		g_gameWorld.Clear(); // ?�전 게임 객체???�거
+
+		gameScore = 0;
 
 		// ?�인??초기??
 		scoreDisplay = nullptr;
@@ -352,6 +349,8 @@ void InitGameObjects()
 		// 게임?�버 ?�운???�생
 		ma_sound_start(&sounds[1]);
 		ma_sound_seek_to_pcm_frame(&sounds[1], 0);
+
+		gameScore = 0;
 	}
 }
 
