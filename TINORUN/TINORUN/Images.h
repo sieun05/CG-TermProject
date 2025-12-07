@@ -22,6 +22,6 @@ private:
 	BITMAPINFO* bmp;
 
 	float OffsetX = 0.0f;
-	float moveSpeed = 0.0005f;
+	float moveSpeed = 0.00005f;
 };
 

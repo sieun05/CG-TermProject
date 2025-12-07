@@ -325,9 +325,11 @@ void Tino::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
     glUniform1i(uUseTexture_loc, 0);
-    
+
     // 경계 박스를 와이어프레임으로 그리기(디버깅용)
-    DrawBoundary(gProjection, gView, uMVP_loc);
+    if (showBoundaryBox) {
+        DrawBoundary(gProjection, gView, uMVP_loc);
+    }
 }
 
 void Tino::Update()
@@ -341,12 +343,17 @@ void Tino::Update()
         stateTimer -= 0.016f; // ??60FPS 媛??
         if (state == JUMPING) {
 			float top = JUMP_DURATION / 2.0f;
-			if (stateTimer > top)
-				position += glm::vec3(0.0f, 0.1f, 0.0f); // ?먰봽 ???꾨줈 ?대룞
+            if (stateTimer > top) {
+				if (position.y <= 3.5f)
+					position += glm::vec3(0.0f, 0.1f, 0.0f); // ?먰봽 ?대젮?ㅺ린
+                //position += glm::vec3(0.0f, 0.1f, 0.0f); // ?먰봽 ???꾨줈 ?대룞
+            }
 			else
 				position -= glm::vec3(0.0f, 0.1f, 0.0f); // ?먰봽 ???대젮?ㅺ린
-			if (position.y < 0.5f)
-				position.y = 0.5f;
+            if (position.y < 0.5f) {
+                position.y = 0.5f;
+				state = RUNNING;
+            }
 
             boundary.r1 = glm::vec3(-0.8f, 0.4f, -0.8f); // ?쇱そ ?꾨옒 ??
             boundary.r2 = glm::vec3(0.8f, 0.4f, -0.8f);  // ?ㅻⅨ履??꾨옒 ??

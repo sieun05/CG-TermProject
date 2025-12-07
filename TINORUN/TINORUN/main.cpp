@@ -73,6 +73,7 @@ bool gameover_flag222 = false;
 Tino* tino = nullptr;
 ScoreDisplay* scoreDisplay = nullptr;
 int gameScore = 0;
+bool showBoundaryBox = false;  // 바운더리 박스 표시 여부
 
 // ���� ���� ����
 ma_engine engine;
@@ -482,9 +483,15 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 		}
 		InitGameObjects();
 		break;
-	case 'g':	// ?�인??
+	case 'g':	
+	case 'G':	// 강제 게임 오버 (디버그용)
 		scene = GameState::GAME_OVER;
 		InitGameObjects();
+		break;
+	case 'b':	// 바운더리 박스 토글
+	case 'B':
+		showBoundaryBox = !showBoundaryBox;
+		std::cout << "바운더리 박스 표시: " << (showBoundaryBox ? "ON" : "OFF") << std::endl;
 		break;
 	default: break;
 	}

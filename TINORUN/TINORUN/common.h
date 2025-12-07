@@ -4,10 +4,10 @@
 #include <string>
 #include <sstream>
 
-// Á¤Á¡ ±¸Á¶Ã¼
+// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ã¼
 struct Vertex {
     glm::vec3 position;
-    glm::vec3 color;      // ÄÃ·¯ Ãß°¡
+    glm::vec3 color;      // ï¿½Ã·ï¿½ ï¿½ß°ï¿½
     glm::vec2 texCoord;
     glm::vec3 normal;
 };
@@ -23,13 +23,13 @@ inline std::vector<std::string> Split(const std::string& str, char delimiter)
     return tokens;
 }
 
-// Àü¹æ ¼±¾ğ
+// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 class GameObject;
 
-// µÎ GameObjectÀÇ Ãæµ¹À» °Ë»çÇÏ´Â ÇÔ¼ö
+// ï¿½ï¿½ GameObjectï¿½ï¿½ ï¿½æµ¹ï¿½ï¿½ ï¿½Ë»ï¿½ï¿½Ï´ï¿½ ï¿½Ô¼ï¿½
 bool CheckCollision(const GameObject* obj1, const GameObject* obj2);
 
-// AABB (Axis-Aligned Bounding Box) ±¸Á¶Ã¼
+// AABB (Axis-Aligned Bounding Box) ï¿½ï¿½ï¿½ï¿½Ã¼
 struct AABB {
     glm::vec3 min;
     glm::vec3 max;
@@ -39,21 +39,24 @@ struct AABB {
         : min(minPoint), max(maxPoint) {}
 };
 
-// GameObject °´Ã¼·ÎºÎÅÍ Á¤È®ÇÑ AABB¸¦ °è»êÇÏ´Â ÇÔ¼ö (°³¼±µÈ ¹öÀü)
+// GameObject ï¿½ï¿½Ã¼ï¿½Îºï¿½ï¿½ï¿½ ï¿½ï¿½È®ï¿½ï¿½ AABBï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Ô¼ï¿½ (ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
 AABB BoundaryToAABB(const GameObject* obj);
 
-// Boundary¿¡¼­ AABB·Î º¯È¯ÇÏ´Â ÇÔ¼ö (±âÁ¸ ¹öÀü, ÇÏÀ§ È£È¯¼º)
+// Boundaryï¿½ï¿½ï¿½ï¿½ AABBï¿½ï¿½ ï¿½ï¿½È¯ï¿½Ï´ï¿½ ï¿½Ô¼ï¿½ (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ È£È¯ï¿½ï¿½)
 AABB BoundaryToAABB(const Boundary& boundary, const glm::vec3& position, 
                     const glm::vec3& rotation, const glm::vec3& scale);
 
-// µÎ AABBÀÇ Ãæµ¹À» °Ë»çÇÏ´Â ÇÔ¼ö (Çã¿ë ¿ÀÂ÷ Æ÷ÇÔ)
+// ï¿½ï¿½ AABBï¿½ï¿½ ï¿½æµ¹ï¿½ï¿½ ï¿½Ë»ï¿½ï¿½Ï´ï¿½ ï¿½Ô¼ï¿½ (ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
 bool AABBIntersect(const AABB& box1, const AABB& box2, float tolerance);
 
-// µÎ AABBÀÇ Ãæµ¹À» °Ë»çÇÏ´Â ÇÔ¼ö (±âº» Çã¿ë ¿ÀÂ÷)
+// ï¿½ï¿½ AABBï¿½ï¿½ ï¿½æµ¹ï¿½ï¿½ ï¿½Ë»ï¿½ï¿½Ï´ï¿½ ï¿½Ô¼ï¿½ (ï¿½âº» ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
 bool AABBIntersect(const AABB& box1, const AABB& box2);
 
-// µğ¹ö±×¿ë AABB Á¤º¸ Ãâ·Â ÇÔ¼ö
+// ï¿½ï¿½ï¿½ï¿½×¿ï¿½ AABB ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½
 void PrintAABB(const AABB& aabb, const std::string& name);
 
-// Ãæµ¹ ½Ã½ºÅÛ Å×½ºÆ® ÇÔ¼ö
+// ï¿½æµ¹ ï¿½Ã½ï¿½ï¿½ï¿½ ï¿½×½ï¿½Æ® ï¿½Ô¼ï¿½
 void TestCollisionSystem();
+
+// ë°”ìš´ë”ë¦¬ ë°•ìŠ¤ í‘œì‹œ ì—¬ë¶€
+extern bool showBoundaryBox;

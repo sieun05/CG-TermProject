@@ -23,6 +23,9 @@ public:
 private:
 	GLuint textureID = 0;
 	bool useTexture = false;
+
+	float OffsetX = 0.0f;
+	float moveSpeed = 0.00005f;
 };
 
 extern GLuint VAO_ground;

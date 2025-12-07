@@ -356,13 +356,6 @@ void Obstacle::Update()
     // x������ �̵� (�� 60FPS ���� deltaTime = 0.016f ����)
     const float deltaTime = 0.016f;
     position.x += moveSpeed * deltaTime;
-
-    // ����� ��� (��������)
-    static int frameCount = 0;
-    frameCount++;
-    if (frameCount % 60 == 0) { // 1�ʸ��� ���
-        //std::cout << "��ֹ� ��ġ: x = " << position.x << ", �ӵ�: " << moveSpeed << std::endl;
-    }
 }
 
 inline void Obstacle::OnCollision(GameObject* other) {
@@ -525,7 +518,9 @@ void Cactus::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glUniform1i(uUseTexture_loc, 0);
 
     // 충돌 박스를 와이어프레임으로 그리기
-    DrawBoundary(gProjection, gView, uMVP_loc);
+    if (showBoundaryBox) {
+        DrawBoundary(gProjection, gView, uMVP_loc);
+    }
 }
 
 void Cactus::Update()
@@ -611,7 +606,9 @@ void Tree::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glUniform1i(uUseTexture_loc, 0);
 
     // 충돌 박스를 와이어프레임으로 그리기
-    DrawBoundary(gProjection, gView, uMVP_loc);
+    if (showBoundaryBox) {
+        DrawBoundary(gProjection, gView, uMVP_loc);
+    }
 }
 
 void Tree::Update()
@@ -693,7 +690,9 @@ void Mushroom::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glUniform1i(uUseTexture_loc, 0);
 
     // 충돌 박스를 와이어프레임으로 그리기
-    DrawBoundary(gProjection, gView, uMVP_loc);
+    if (showBoundaryBox) {
+        DrawBoundary(gProjection, gView, uMVP_loc);
+    }
 }
 
 void Mushroom::Update()
@@ -776,7 +775,9 @@ void Bird::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glUniform1i(uUseTexture_loc, 0);
 
     // 충돌 박스를 와이어프레임으로 그리기
-    DrawBoundary(gProjection, gView, uMVP_loc);
+    if (showBoundaryBox) {
+        DrawBoundary(gProjection, gView, uMVP_loc);
+    }
 }
 
 void Bird::Update()

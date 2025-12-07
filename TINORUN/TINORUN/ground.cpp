@@ -2,6 +2,7 @@
 #include "game_state.h"
 #include "LoadBitmap.h"
 #include "Light.h"  // Light.h 추가
+#include "obstacle.h"  // GetObstacleSpeed 함수 선언을 위해 추가
 
 extern "C" void stbi_set_flip_vertically_on_load(int flag_true_if_should_flip);
 
@@ -232,6 +233,50 @@ void Ground::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
         ChangeGroundColor(this->color);
     }
 
+    // 텍스처 좌표 업데이트 (OffsetX 적용)
+    const float size = 2.0f;
+    const float ground_vertices[] = {
+        // 앞면 (z = +size) - 위치 + 텍스처 좌표
+        -size, -size,  size,  0.0f + OffsetX, 0.0f,  // 0
+         size, -size,  size,  1.0f + OffsetX, 0.0f,  // 1
+         size,  size,  size,  1.0f + OffsetX, 1.0f,  // 2
+        -size,  size,  size,  0.0f + OffsetX, 1.0f,  // 3
+
+        // 뒷면 (z = -size)
+         size, -size, -size,  0.0f + OffsetX, 0.0f,  // 4
+        -size, -size, -size,  1.0f + OffsetX, 0.0f,  // 5
+        -size,  size, -size,  1.0f + OffsetX, 1.0f,  // 6
+         size,  size, -size,  0.0f + OffsetX, 1.0f,  // 7
+
+         // 왼쪽면 (x = -size)
+         -size, -size, -size,  0.0f + OffsetX, 0.0f,  // 8
+         -size, -size,  size,  1.0f + OffsetX, 0.0f,  // 9
+         -size,  size,  size,  1.0f + OffsetX, 1.0f,  // 10
+         -size,  size, -size,  0.0f + OffsetX, 1.0f,  // 11
+
+         // 오른쪽면 (x = +size)
+          size, -size,  size,  0.0f + OffsetX, 0.0f,  // 12
+          size, -size, -size,  1.0f + OffsetX, 0.0f,  // 13
+          size,  size, -size,  1.0f + OffsetX, 1.0f,  // 14
+          size,  size,  size,  0.0f + OffsetX, 1.0f,  // 15
+
+          // 아랫면 (y = -size)
+          -size, -size, -size,  0.0f + OffsetX, 0.0f,  // 16
+           size, -size, -size,  1.0f + OffsetX, 0.0f,  // 17
+           size, -size,  size,  1.0f + OffsetX, 1.0f,  // 18
+          -size, -size,  size,  0.0f + OffsetX, 1.0f,  // 19
+
+          // 윗면 (y = +size)
+          -size,  size,  size,  0.0f + OffsetX, 0.0f,  // 20
+           size,  size,  size,  1.0f + OffsetX, 0.0f,  // 21
+           size,  size, -size,  1.0f + OffsetX, 1.0f,  // 22
+          -size,  size, -size,  0.0f + OffsetX, 1.0f   // 23
+    };
+
+    // VBO 업데이트
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_ground[0]);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(ground_vertices), ground_vertices);
+
     glBindVertexArray(VAO_ground);
 
     // 부모 클래스의 GetModelMatrix() 사용
@@ -297,5 +342,12 @@ void Ground::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 
 void Ground::Update()
 {
-    return;
+    if (scene == GameState::PLAYING) {
+        moveSpeed = GetObstacleSpeed();
+
+        // GetObstacleSpeed는 음수를 반환하므로 절댓값 사용
+        OffsetX += abs(moveSpeed) * 0.00005f;  // deltaTime 적용 (속도 조절)
+        if (OffsetX >= 1.0f)
+            OffsetX -= 1.0f;
+    }
 }
