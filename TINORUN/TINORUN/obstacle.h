@@ -2,13 +2,13 @@
 #include "Header.h"
 #include "game_object.h"
 #include "common.h"
-#include "Light.h"  // Á¶¸í ½Ã½ºÅÛ°ú Material Å¬·¡½º »ç¿ëÀ» À§ÇØ Ãß°¡
+#include "Light.h"  // ï¿½ï¿½ï¿½ï¿½ ï¿½Ã½ï¿½ï¿½Û°ï¿½ Material Å¬ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ß°ï¿½
 #include <string>
 #include <vector>
 #include <memory>
 #include <random>
 
-// ±âº» Àå¾Ö¹° Å¬·¡½º (ºÎ¸ð Å¬·¡½º)
+// ï¿½âº» ï¿½ï¿½Ö¹ï¿½ Å¬ï¿½ï¿½ï¿½ï¿½ (ï¿½Î¸ï¿½ Å¬ï¿½ï¿½ï¿½ï¿½)
 class Obstacle : public GameObject {
 public:
     enum class ObstacleType {
@@ -28,21 +28,21 @@ protected:
     GLuint textureID;
     BITMAPINFO* bmp;
 
-    float moveSpeed; // ÀÌµ¿ ¼Óµµ (xÃàÀ¸·Î ÀÌµ¿)
+    float moveSpeed; // ï¿½Ìµï¿½ ï¿½Óµï¿½ (xï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½)
     
-    // Á¦°ÅµÉ x À§Ä¡
+    // ï¿½ï¿½ï¿½Åµï¿½ x ï¿½ï¿½Ä¡
     static const float REMOVAL_X_POSITION;
-    // »ý¼ºµÉ x À§Ä¡
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ x ï¿½ï¿½Ä¡
     static const float SPAWN_X_POSITION;
     
     bool isLoaded;
 
-    // °æ°è ¹Ú½º ·»´õ¸µ¿ë VAO/VBO
+    // ï¿½ï¿½ï¿½ ï¿½Ú½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ VAO/VBO
     GLuint boundaryVAO = 0;
     GLuint boundaryVBO = 0;
     
     virtual void SetupMesh();
-    void SetupBoundaryMesh(); // protected·Î º¯°æ
+    void SetupBoundaryMesh(); // protectedï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
     bool backupSpawnFlag;
 
@@ -51,35 +51,35 @@ public:
     Obstacle(const std::string& objPath, const std::string& texturePath);
     virtual ~Obstacle();
 
-    // GameObjectÀÇ °¡»ó ÇÔ¼öµéÀ» ¿À¹ö¶óÀÌµå
+    // GameObjectï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ìµï¿½
     virtual void Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc) override;
     virtual void Update() override;
     virtual void OnCollision(GameObject* other) override;
     
-    // °æ°è ¹Ú½º¸¦ ¿ÍÀÌ¾îÇÁ·¹ÀÓÀ¸·Î ·»´õ¸µ
+    // ï¿½ï¿½ï¿½ ï¿½Ú½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     void DrawBoundary(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc);
     
-    // ¸ðµ¨ ·Îµå
+    // ï¿½ï¿½ ï¿½Îµï¿½
     bool LoadOBJ(const std::string& objPath);
     bool LoadTexture(const std::string& texturePath);
 
-    // Àå¾Ö¹°ÀÌ Á¦°ÅµÇ¾î¾ß ÇÏ´ÂÁö È®ÀÎ
+    // ï¿½ï¿½Ö¹ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ÅµÇ¾ï¿½ï¿½ ï¿½Ï´ï¿½ï¿½ï¿½ È®ï¿½ï¿½
     bool ShouldBeRemoved() const;
     
-    // ÀÌµ¿ ¼Óµµ ¼³Á¤
+    // ï¿½Ìµï¿½ ï¿½Óµï¿½ ï¿½ï¿½ï¿½ï¿½
     void SetSpeed(float speed) { moveSpeed = speed; }
 
-    // ¹è°æ¿ë
-    void SetbackSpawnFlag(bool flag) { backupSpawnFlag = flag; }
+    // ï¿½ï¿½ï¿½ï¿½
+    void SetbackSpawnFlag(bool flag);
 
-    // Àå¾Ö¹° Å¸ÀÔ ¹ÝÈ¯ (°¢ ÆÄ»ý Å¬·¡½º¿¡¼­ ±¸Çö)
+    // ï¿½ï¿½Ö¹ï¿½ Å¸ï¿½ï¿½ ï¿½ï¿½È¯ (ï¿½ï¿½ ï¿½Ä»ï¿½ Å¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
     virtual ObstacleType GetType() const = 0;
 };
 
-// Àü¿ª ¼Óµµ °è»ê ÇÔ¼ö ¼±¾ð
+// ï¿½ï¿½ï¿½ï¿½ ï¿½Óµï¿½ ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ ï¿½ï¿½ï¿½ï¿½
 float GetObstacleSpeed();
 
-// ¼±ÀÎÀå Å¬·¡½º
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Å¬ï¿½ï¿½ï¿½ï¿½
 class Cactus : public Obstacle {
 public:
     Cactus();
@@ -91,7 +91,7 @@ public:
     ObstacleType GetType() const override { return ObstacleType::CACTUS; }
 };
 
-// ³ª¹« Å¬·¡½º
+// ï¿½ï¿½ï¿½ï¿½ Å¬ï¿½ï¿½ï¿½ï¿½
 class Tree : public Obstacle {
 public:
     Tree();
@@ -103,7 +103,7 @@ public:
     ObstacleType GetType() const override { return ObstacleType::TREE; }
 };
 
-// ¹ö¼¸ Å¬·¡½º
+// ï¿½ï¿½ï¿½ï¿½ Å¬ï¿½ï¿½ï¿½ï¿½
 class Mushroom : public Obstacle {
 public:
     Mushroom();
@@ -115,7 +115,7 @@ public:
     ObstacleType GetType() const override { return ObstacleType::MUSHROOM; }
 };
 
-// »õ Å¬·¡½º
+// ï¿½ï¿½ Å¬ï¿½ï¿½ï¿½ï¿½
 class Bird : public Obstacle {
 public:
     Bird();
@@ -127,14 +127,14 @@ public:
     ObstacleType GetType() const override { return ObstacleType::BIRD; }
 };
 
-// Àå¾Ö¹° »ý¼º±â Å¬·¡½º
+// ï¿½ï¿½Ö¹ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Å¬ï¿½ï¿½ï¿½ï¿½
 class ObstacleSpawner : public GameObject {
 private:
     float spawnTimer;
     float spawnInterval;
 	bool backupSpawnFlag;
     
-    // ·£´ý »ý¼ºÀ» À§ÇÑ º¯¼öµé
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     std::random_device rd;
     std::mt19937 gen;
     std::uniform_int_distribution<> dis;

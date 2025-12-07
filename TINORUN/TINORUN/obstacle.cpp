@@ -25,7 +25,7 @@ float GetObstacleSpeed() {
     // �ӵ� ���� �˸� (�� ����)
     static int lastNotifiedLevel = -1;
     if (speedLevel != lastNotifiedLevel && speedLevel > 0) {
-        std::cout << "�ӵ� ����! ���� " << speedLevel << " (����: " << gameScore << ")" << std::endl;
+        // std::cout << "�ӵ� ����! ���� " << speedLevel << " (����: " << gameScore << ")" << std::endl;
         lastNotifiedLevel = speedLevel;
     }
 
@@ -59,7 +59,7 @@ Obstacle::Obstacle()
 Obstacle::Obstacle(const std::string& objPath, const std::string& texturePath)
     : VAO(0), VBO(0), EBO(0), textureID(0), moveSpeed(-6.0f), bmp(nullptr), isLoaded(false)
 {
-	if (backupSpawnFlag) position = glm::vec3(SPAWN_X_POSITION, 0.5f, -20.0f);
+	if (backupSpawnFlag) position = glm::vec3(SPAWN_X_POSITION + 20.0f, 0.5f, -20.0f);
 
     else position = glm::vec3(SPAWN_X_POSITION, 0.5f, 0.0f);
     scale = glm::vec3(0.25f, 0.25f, 0.25f);
@@ -82,7 +82,7 @@ Obstacle::Obstacle(const std::string& objPath, const std::string& texturePath)
         //std::cout << "��ֹ� �ʱ�ȭ �Ϸ�" << std::endl;
     }
     else {
-        std::cerr << "��ֹ� �ʱ�ȭ ����: OBJ �ε� ����" << std::endl;
+        //std::cerr << "��ֹ� �ʱ�ȭ ����: OBJ �ε� ����" << std::endl;
     }
 
     // ��� �ڽ� �޽� ����
@@ -92,7 +92,7 @@ Obstacle::Obstacle(const std::string& objPath, const std::string& texturePath)
         //std::cout << "��ֹ� �ؽ�ó �ε� ����!" << std::endl;
     }
     else {
-        std::cerr << "��ֹ� �ؽ�ó �ε� ����!" << std::endl;
+        //std::cerr << "��ֹ� �ؽ�ó �ε� ����!" << std::endl;
     }
 }
 
@@ -121,16 +121,16 @@ bool Obstacle::LoadOBJ(const std::string& objPath)
         std::string altPath2 = ".." + objPath;
         std::string altPath3 = "./TINORUN/" + objPath;
 
-        std::cout << "��ü ��� �õ�: " << altPath1 << std::endl;
+        //std::cout << "��ü ��� �õ�: " << altPath1 << std::endl;
         file.open(altPath1);
         if (!file.is_open()) {
-            std::cout << "��ü ��� �õ�: " << altPath2 << std::endl;
+            //std::cout << "��ü ��� �õ�: " << altPath2 << std::endl;
             file.open(altPath2);
             if (!file.is_open()) {
-                std::cout << "��ü ��� �õ�: " << altPath3 << std::endl;
+                //std::cout << "��ü ��� �õ�: " << altPath3 << std::endl;
                 file.open(altPath3);
                 if (!file.is_open()) {
-                    std::cout << "OBJ ������ ã�� �� ����." << std::endl;
+                    // std::cout << "OBJ ������ ã�� �� ����." << std::endl;
                     return false;
                 }
             }
@@ -258,7 +258,7 @@ bool Obstacle::LoadOBJ(const std::string& objPath)
     //std::cout << "���� Loaded OBJ: " << vertices.size() << " vertices, " << indices.size() << " indices" << std::endl;
 
     if (vertices.empty()) {
-        std::cerr << "���: ���� �����Ͱ� �����ϴ�!" << std::endl;
+        //std::cerr << "���: ���� �����Ͱ� �����ϴ�!" << std::endl;
         return false;
     }
 
@@ -289,7 +289,7 @@ bool Obstacle::LoadTexture(const std::string& texturePath)
 
 void Obstacle::SetupMesh()
 {
-    std::cout << "obstacle SetupMesh ����" << std::endl;
+    // std::cout << "obstacle SetupMesh ����" << std::endl;
 
     // VAO ����
     glGenVertexArrays(1, &VAO);
@@ -325,12 +325,22 @@ void Obstacle::SetupMesh()
 
     glBindVertexArray(0);
 
-    std::cout << "obstacle SetupMesh �Ϸ�, VAO: " << VAO << std::endl;
+    // std::cout << "obstacle SetupMesh �Ϸ�, VAO: " << VAO << std::endl;
 }
 
 bool Obstacle::ShouldBeRemoved() const
 {
     return position.x <= REMOVAL_X_POSITION;
+}
+
+void Obstacle::SetbackSpawnFlag(bool flag)
+{
+    backupSpawnFlag = flag;
+    if (backupSpawnFlag) {
+        position.x = SPAWN_X_POSITION + 40.0f;
+        position.z = -10.0f;
+        moveSpeed = -8.0f;
+    }
 }
 
 void Obstacle::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
@@ -483,10 +493,9 @@ void Cactus::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glBindVertexArray(VAO);
     glBindTexture(GL_TEXTURE_2D, textureID);
 
-    if (backupSpawnFlag) {
-        position.z = -10.0f;
+    if (backupSpawnFlag) 
 		scale = glm::vec3(0.15f, 0.15f, 0.15f);
-    }
+    
     glm::mat4 model = GetModelMatrix();
     glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(-35.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     model = model * rotate;
@@ -572,10 +581,9 @@ void Tree::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glBindVertexArray(VAO);
     glBindTexture(GL_TEXTURE_2D, textureID);
 
-    if (backupSpawnFlag) {
-        position.z = -10.0f;
+    if (backupSpawnFlag)
         scale = glm::vec3(0.15f, 0.15f, 0.15f);
-    }
+
     glm::mat4 model = GetModelMatrix();
 
     // 변환 행렬들을 셰이더에 전송
@@ -655,10 +663,9 @@ void Mushroom::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glBindVertexArray(VAO);
     glBindTexture(GL_TEXTURE_2D, textureID);
 
-    if (backupSpawnFlag) {
-        position.z = -10.0f;
+    if (backupSpawnFlag) 
         scale = glm::vec3(0.7f, 0.7f, 0.7f);
-    }
+
     glm::mat4 model = GetModelMatrix();
 
     // 변환 행렬들을 셰이더에 전송
@@ -739,10 +746,9 @@ void Bird::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glBindVertexArray(VAO);
     glBindTexture(GL_TEXTURE_2D, textureID);
 
-    if (backupSpawnFlag) {
-        position.z = -10.0f;
+    if (backupSpawnFlag)
         scale = glm::vec3(0.7f, 0.7f, 0.7f);
-    }
+    
     glm::mat4 model = GetModelMatrix();
 
     // 변환 행렬들을 셰이더에 전송
