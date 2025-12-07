@@ -11,12 +11,6 @@
 #include "ScoreDisplay.h"	// ���� ��� �߰�
 #include "Light.h"	// ���� ��� �߰�
 
-#include "tino.h"  // Tino ?�더 추�?
-#include "obstacle.h" // ?�애�??�더 추�? 
-#include "Images.h"	// 버튼 ?�더 추�?
-#include "ScoreDisplay.h"	// ?�수 ?�더 추�?
-
-
 #define MINIAUDIO_IMPLEMENTATION
 #include "miniaudio.h"	// ?�운???�더 추�?
 #define STB_IMAGE_IMPLEMENTATION
@@ -117,10 +111,10 @@ void main(int argc, char** argv)
 	shaderProgramID = make_shaderProgram();
 	AfterMakeShaders();	//?�이?�에??uniform 변???�치 ?�기
 
-	//// ���� �ý��� �ʱ�ȭ
+	// ���� �ý��� �ʱ�ȭ
 	g_lightManager.InitializeUniforms(shaderProgramID);
 	g_lightManager.SetupSunlight(); // �ڿ������� �¾籤 ����
-	//g_lightManager.EnableLighting(false);
+	g_lightManager.EnableLighting(false);
 
 	glutReshapeFunc(Reshape);
 	glutDisplayFunc(drawScene);
@@ -183,8 +177,8 @@ void InitGameObjects()
 
 		// Ground 객체 ?�성 �?GameWorld??추�?
 		auto ground = std::make_unique<Ground>(1, RGBA{ 231 / 255., 217 / 255., 176 / 255., 1.0f });
-		ground->position.y = -4.0f; // ?�을 ?�간 ?�래�??�동
-		ground->scale = glm::vec3(100.0f, 0.3f, 100.0f); // ?�을 ???�게 ?��??�링
+		ground->position.y = -4.0f; 
+		ground->scale = glm::vec3(100.0f, 0.3f, 100.0f); 
 		g_gameWorld.AddObject(std::move(ground));
 
 
@@ -417,7 +411,7 @@ GLvoid Timer(int value)
 
 	const float deltaTime = 0.016f;
 
-	if (scene == GameState::PLAYING) {	// 게임 ?�코??증�?
+	if (scene == GameState::PLAYING) {
 		gameScore += 1;
 		if (scoreDisplay) {
 			scoreDisplay->SetScore(gameScore);
@@ -428,25 +422,10 @@ GLvoid Timer(int value)
 		InitGameObjects();
 	}
 
-	// ���� ������Ʈ (�Ϸ� �ֱ� �ùķ��̼�)
-	currentTime += deltaTime * 0.02f; // ���� �Ϸ� �ֱ� (�� 50�ʿ� �Ϸ�)
-	if (currentTime >= 1.0f) {
-		currentTime -= 1.0f; // �Ϸ縦 ������ �ٽ� ����
-	}
-	
-	// �¾籤 ������Ʈ �� ���̴��� ����
 	glUseProgram(shaderProgramID);
-	g_lightManager.UpdateSunlight(currentTime);
+	g_lightManager.UpdateSunlight(0.0f);
 	g_lightManager.SendLightsToShader();
 	
-	// ī�޶� ��ġ�� ���� �������� ����
-	glm::vec3 cameraPos = glm::vec3(gView[3]);
-	if (scene == GameState::PLAYING) {
-		cameraPos = glm::vec3(-12.0f, 7.0f, 10.0f);
-	} else {
-		cameraPos = glm::vec3(0.0f, 0.0f, 10.0f);
-	}
-	g_lightManager.SendViewPosition(cameraPos);
 	glUseProgram(0);
 
 	// GameWorld�� ���� ��� ��ü ������Ʈ (ObstacleSpawner ����)
