@@ -369,17 +369,17 @@ GLvoid drawScene()
 	g_gameWorld.DrawAll(gProjection, gView, uMVP_loc);
 
 	// 게임 ?�태 ?�시 (콘솔)
-	static int frameCount = 0;
-	frameCount++;
-	if (frameCount % 300 == 0) { // 5초마??출력
-		std::cout << "?�재 게임 ?�태: ";
-		switch (scene) {
-		case GameState::TITLE: std::cout << "TITLE"; break;
-		case GameState::PLAYING: std::cout << "PLAYING"; break;
-		case GameState::GAME_OVER: std::cout << "GAME_OVER"; break;
-		}
-		std::cout << ", ?�성 객체 ?? " << g_gameWorld.GetActiveObjectCount() << std::endl;
-	}
+	//static int frameCount = 0;
+	//frameCount++;
+	//if (frameCount % 300 == 0) { // 5초마??출력
+	//	//std::cout << "?�재 게임 ?�태: ";
+	//	switch (scene) {
+	//	case GameState::TITLE: //std::cout << "TITLE"; break;
+	//	case GameState::PLAYING: //std::cout << "PLAYING"; break;
+	//	case GameState::GAME_OVER:// std::cout << "GAME_OVER"; break;
+	//	}
+	//	//std::cout << ", ?�성 객체 ?? " << g_gameWorld.GetActiveObjectCount() << std::endl;
+	//}
 
 	glutSwapBuffers();
 }
@@ -419,11 +419,11 @@ GLvoid Timer(int value)
 	}
 	if (scene == GameState::PLAYING and gameover_flag222) {
 		scene = GameState::GAME_OVER;
-		/*std::cout << "이름 입력: " << std::endl;
+		std::cout << "Input your name: ";
 		string name;
 		std::cin >> name;
-		PostScoreToServer(name.c_str(), gameScore);*/
-		PostScoreToServer("Player", gameScore);
+		PostScoreToServer(name.c_str(), gameScore);
+		//PostScoreToServer("Player", gameScore);
 		InitGameObjects();
 	}
 
@@ -491,12 +491,12 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 	case 'b':	// 바운더리 박스 토글
 	case 'B':
 		showBoundaryBox = !showBoundaryBox;
-		std::cout << "바운더리 박스 표시: " << (showBoundaryBox ? "ON" : "OFF") << std::endl;
+		std::cout << "See BoundaryBox: " << (showBoundaryBox ? "ON" : "OFF") << std::endl;
 		break;
 	case 'h':
 	case 'H':
 		tino->SetInvincibility();
-		std::cout << "Tino 무적 모드 토글" << std::endl;
+		std::cout << "Invincibility Toggle" << std::endl;
 		break;
 	case '+':	// 점수 증감(속도 확인용)
 	case '=':
