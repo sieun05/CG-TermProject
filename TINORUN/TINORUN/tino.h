@@ -2,6 +2,7 @@
 #include "Header.h"
 #include "game_object.h"
 #include "common.h"
+#include "Light.h"  // 조명 시스템과 Material 클래스 사용을 위해 추가
 #include <string>
 
 enum State {

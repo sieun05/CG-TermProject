@@ -51,6 +51,9 @@
     <ClCompile Include="collision.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Light.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="game_object.h">
@@ -93,6 +96,9 @@
       <Filter>헤더 파일\object</Filter>
     </ClInclude>
     <ClInclude Include="miniaudio.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

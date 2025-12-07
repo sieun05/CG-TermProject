@@ -34,6 +34,17 @@ extern glm::mat4 gView;
 extern glm::mat4 gModel;
 extern GLint uMVP_loc;
 
+// 변환 행렬 관련 uniform 변수들
+extern GLint uModel_loc;
+extern GLint uView_loc;
+extern GLint uProjection_loc;
+
 // 텍스처 관련 uniform 변수들
 extern GLint uUseTexture_loc;
 extern GLint uTextureSampler_loc;
+
+// 조명 관련 uniform 변수들
+extern GLint uUseLighting_loc;
+
+// 함수 선언
+void InitGameObjects();

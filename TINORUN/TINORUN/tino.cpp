@@ -10,7 +10,7 @@ Tino::Tino(const std::string& objPath, const std::string& jumpPath,
     const std::string& downPath, const std::string& texturePath)
     : textureID(0), bmp(nullptr), state(RUNNING)
 {
-    // 異⑸룎 ?곸뿭 ?ㅼ젙 (Tino??湲곕낯 ?ш린 湲곗?)
+    // 異⑸룎 ?곸뿭 ?ㅼ젙 (Tino??湲곕낯 ?ш린湲곗?)
     // r1~r6??諛뺤뒪??6媛?硫댁쓣 ?섑??대뒗 ?뺤젏??
     boundary.r1 = glm::vec3(-0.8f, 0.2f, -0.8f); // ?쇱そ ?꾨옒 ??
     boundary.r2 = glm::vec3(0.8f, 0.2f, -0.8f);  // ?ㅻⅨ履??꾨옒 ??
@@ -245,14 +245,21 @@ void Tino::SetupMesh(State targetState)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.indices.size() * sizeof(unsigned int), &mesh.indices[0], GL_STATIC_DRAW);
 
+    // 위치 (location = 0)
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
 
+    // 컬러 (location = 1)
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, color));
 
+    // 텍스처 좌표 (location = 2)
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
+
+    // 법선 벡터 (location = 3)
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
 
     glBindVertexArray(0);
 }
@@ -260,7 +267,7 @@ void Tino::SetupMesh(State targetState)
 void Tino::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 {
     if (!meshes[state].isLoaded) {
-        std::cerr << "Tino媛 濡쒕뱶?섏? ?딆븘??洹몃┫ ???놁뒿?덈떎" << std::endl;
+        std::cerr << "Tino가 로드되지 않아 그릴 수 없습니다" << std::endl;
         return;
     }
 
@@ -287,12 +294,31 @@ void Tino::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 	model = model * rotate;
 	model = translate * model;
 
+    // 변환 행렬들을 셰이더에 전송
     glm::mat4 mvp = gProjection * gView * model;
-
-    // ?좊땲???ㅼ젙
     glUniformMatrix4fv(uMVP_loc, 1, GL_FALSE, &mvp[0][0]);
+    
+    // 조명 계산용 행렬들 전송
+    if (uModel_loc >= 0) {
+        glUniformMatrix4fv(uModel_loc, 1, GL_FALSE, glm::value_ptr(model));
+    }
+    if (uView_loc >= 0) {
+        glUniformMatrix4fv(uView_loc, 1, GL_FALSE, glm::value_ptr(gView));
+    }
+    if (uProjection_loc >= 0) {
+        glUniformMatrix4fv(uProjection_loc, 1, GL_FALSE, glm::value_ptr(gProjection));
+    }
+    
+    // 재질 설정 - Tino용 (플라스틱 계열의 밝고 부드러운 재질)
+    Material tinoMaterial = Material(
+        glm::vec3(0.1f, 0.2f, 0.3f),        // 파란색 계열 환경광
+        glm::vec3(0.3f, 0.7f, 1.0f),        // 밝은 파란색 확산광
+        glm::vec3(0.5f, 0.8f, 1.0f),        // 밝고 부드러운 반사광
+        64.0f                                // 높은 광택도 (부드러운 표면)
+    );
+    g_lightManager.SendMaterialToShader(tinoMaterial);
 
-    // 梨꾩썙吏??쇨컖?뺤쑝濡?洹몃━湲?
+    // 채워진 삼각형으로 그리기
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(currentMesh.indices.size()), GL_UNSIGNED_INT, 0);
 
@@ -300,7 +326,7 @@ void Tino::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glBindTexture(GL_TEXTURE_2D, 0);
     glUniform1i(uUseTexture_loc, 0);
     
-    // 寃쎄퀎 諛뺤뒪瑜???댁뼱?꾨젅?꾩쑝濡?洹몃━湲?(?붾쾭洹몄슜)
+    // 경계 박스를 와이어프레임으로 그리기(디버깅용)
     DrawBoundary(gProjection, gView, uMVP_loc);
 }
 
@@ -310,7 +336,7 @@ void Tino::Update()
         rotation.y += 0.5f;
     }
 
-    // ?꾩슂???낅뜲?댄듃 濡쒖쭅 揦ы쁽
+    // ?꾩슂???낅뜲?댄듃 濡쒖쭅 揦и쁽
     if (stateTimer > 0.0f) {
         stateTimer -= 0.016f; // ??60FPS 媛??
         if (state == JUMPING) {

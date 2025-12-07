@@ -8,6 +8,7 @@
 #include "obstacle.h" // 장애물 헤더 추가 
 #include "Images.h"	// 버튼 헤더 추가
 #include "ScoreDisplay.h"	// 점수 헤더 추가
+#include "Light.h"	// 조명 헤더 추가
 
 #define MINIAUDIO_IMPLEMENTATION
 #include "miniaudio.h"	// 사운드 헤더 추가
@@ -32,9 +33,17 @@ glm::mat4 gView(1.0f);
 glm::mat4 gModel(1.0f);
 GLint uMVP_loc = -1;
 
+// 변환 행렬 관련 uniform 변수 정의
+GLint uModel_loc = -1;
+GLint uView_loc = -1;
+GLint uProjection_loc = -1;
+
 // 텍스처 관련 uniform 변수 정의
 GLint uUseTexture_loc = -1;
 GLint uTextureSampler_loc = -1;
+
+// 조명 관련 uniform 변수 정의
+GLint uUseLighting_loc = -1;
 
 // 게임 상태 관련 변수 정의 (scene은 game_world.cpp에서 정의됨)
 bool gameover_flag222 = false;
@@ -46,9 +55,13 @@ int gameScore = 0;
 // 사운드 전역 변수
 ma_engine engine;
 ma_result result;
-ma_sound sounds[3];
+ma_sound sounds[2];
 
+float sky_x = 0.0f;
 bool timer = true;
+
+// 조명 시간 변수 (하루 주기 시뮬레이션용)
+float currentTime = 0.5f; // 0.5 = 정오부터 시작
 
 //--- 메인 함수
 void main(int argc, char** argv)
@@ -75,6 +88,11 @@ void main(int argc, char** argv)
 	shaderProgramID = make_shaderProgram();
 	AfterMakeShaders();	//셰이더에서 uniform 변수 위치 얻기
 
+	// 조명 시스템 초기화
+	g_lightManager.InitializeUniforms(shaderProgramID);
+	g_lightManager.SetupSunlight(); // 자연스러운 태양광 설정
+	g_lightManager.EnableLighting(true);
+
 	glutReshapeFunc(Reshape);
 	glutDisplayFunc(drawScene);
 	glutKeyboardFunc(Keyboard);
@@ -82,7 +100,7 @@ void main(int argc, char** argv)
 	//glutSpecialFunc(SpecialKeyDown);    // 화살표 등 특수키 눌림 처리
 	//glutSpecialUpFunc(SpecialKeyUp);
 	glutTimerFunc(16, Timer, 1); // 약 60FPS로 타이머 시작
-	
+
 	InitBuffer();
 	InitGameObjects();		// 게임 객체 초기화
 	
@@ -98,9 +116,7 @@ void main(int argc, char** argv)
 	// 사운드 초기화
 	ma_sound_init_from_file(&engine, "assets/jump_sound.mp3", 0, NULL, NULL, &sounds[0]);
 	ma_sound_init_from_file(&engine, "assets/gameover_sound.mp3", 0, NULL, NULL, &sounds[1]);
-	ma_sound_init_from_file(&engine, "assets/background.mp3", 0, NULL, NULL, &sounds[2]);
-	ma_sound_set_looping(&sounds[2], MA_TRUE);  // 배경음악 루프 설정
-
+	
 	glutMainLoop();
 }
 
@@ -363,6 +379,27 @@ GLvoid Timer(int value)
 		scene = GameState::GAME_OVER;
 		InitGameObjects();
 	}
+
+	// 조명 업데이트 (하루 주기 시뮬레이션)
+	currentTime += deltaTime * 0.02f; // 느린 하루 주기 (약 50초에 하루)
+	if (currentTime >= 1.0f) {
+		currentTime -= 1.0f; // 하루를 넘으면 다시 시작
+	}
+	
+	// 태양광 업데이트 및 셰이더에 전송
+	glUseProgram(shaderProgramID);
+	g_lightManager.UpdateSunlight(currentTime);
+	g_lightManager.SendLightsToShader();
+	
+	// 카메라 위치를 조명 계산용으로 전송
+	glm::vec3 cameraPos = glm::vec3(gView[3]);
+	if (scene == GameState::PLAYING) {
+		cameraPos = glm::vec3(-12.0f, 7.0f, 10.0f);
+	} else {
+		cameraPos = glm::vec3(0.0f, 0.0f, 10.0f);
+	}
+	g_lightManager.SendViewPosition(cameraPos);
+	glUseProgram(0);
 
 	// GameWorld를 통해 모든 객체 업데이트 (ObstacleSpawner 포함)
 	g_gameWorld.UpdateAll();

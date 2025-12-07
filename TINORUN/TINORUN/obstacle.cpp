@@ -30,13 +30,32 @@ float GetObstacleSpeed() {
     }
     
     // 기본 속도: -6.0f, 1000점마다 10% 증가, 최대 2.5배까지
-    float speedMultiplier = 1.0f + (speedLevel * 0.1f);
-    float speed = -6.0f * std::min(speedMultiplier, 2.5f);
+    float speedMultiplier = 1.0f + (speedLevel * 0.2f);
+    float speed = -6.0f * speedMultiplier;
     
     return speed;
 }
 
 // 기본 Obstacle 클래스 구현
+Obstacle::Obstacle()
+    : VAO(0), VBO(0), EBO(0), textureID(0), moveSpeed(-6.0f), bmp(nullptr), isLoaded(false)
+{
+    position = glm::vec3(SPAWN_X_POSITION, 0.5f, 0.0f);
+    scale = glm::vec3(0.25f, 0.25f, 0.25f);
+    rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+
+    // 충돌 영역 설정 (장애물의 기본 크기 기준)
+    boundary.r1 = glm::vec3(-0.5f, -0.5f, -0.5f); // 왼쪽 아래 뒤
+    boundary.r2 = glm::vec3(0.5f, -0.5f, -0.5f);  // 오른쪽 아래 뒤
+    boundary.r3 = glm::vec3(0.5f, 0.5f, -0.5f);   // 오른쪽 위 뒤
+    boundary.r4 = glm::vec3(-0.5f, 0.5f, -0.5f);  // 왼쪽 위 뒤
+    boundary.r5 = glm::vec3(-0.5f, -0.5f, 0.5f);  // 왼쪽 아래 앞
+    boundary.r6 = glm::vec3(0.5f, 0.5f, 0.5f);    // 오른쪽 위 앞
+    
+    // 경계 박스 메시 설정
+    SetupBoundaryMesh();
+}
+
 Obstacle::Obstacle(const std::string& objPath, const std::string& texturePath)
     : VAO(0), VBO(0), EBO(0), textureID(0), moveSpeed(-6.0f), bmp(nullptr), isLoaded(false)
 {
@@ -298,6 +317,10 @@ void Obstacle::SetupMesh()
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
 
+    // 법선 벡터 (location = 3)
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
+
     glBindVertexArray(0);
 
     std::cout << "obstacle SetupMesh 완료, VAO: " << VAO << std::endl;
@@ -462,8 +485,29 @@ void Cactus::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(-35.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     model = model * rotate;
 
+    // 변환 행렬들을 셰이더에 전송
     glm::mat4 mvp = gProjection * gView * model;
     glUniformMatrix4fv(uMVP_loc, 1, GL_FALSE, &mvp[0][0]);
+    
+    // 조명 계산용 행렬들 전송
+    if (uModel_loc >= 0) {
+        glUniformMatrix4fv(uModel_loc, 1, GL_FALSE, glm::value_ptr(model));
+    }
+    if (uView_loc >= 0) {
+        glUniformMatrix4fv(uView_loc, 1, GL_FALSE, glm::value_ptr(gView));
+    }
+    if (uProjection_loc >= 0) {
+        glUniformMatrix4fv(uProjection_loc, 1, GL_FALSE, glm::value_ptr(gProjection));
+    }
+    
+    // 재질 설정 - 선인장용 (약간 거칠고 녹색 계열)
+    Material cactuseMaterial = Material(
+        glm::vec3(0.0f, 0.1f, 0.0f),       // 어두운 녹색 환경광
+        glm::vec3(0.2f, 0.6f, 0.2f),       // 녹색 확산광
+        glm::vec3(0.1f, 0.3f, 0.1f),       // 약간의 녹색 반사광
+        16.0f                               // 낮은 광택도 (거친 표면)
+    );
+    g_lightManager.SendMaterialToShader(cactuseMaterial);
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
@@ -531,8 +575,24 @@ void Tree::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 
     glm::mat4 model = GetModelMatrix();
 
+    // 변환 행렬들을 셰이더에 전송
     glm::mat4 mvp = gProjection * gView * model;
     glUniformMatrix4fv(uMVP_loc, 1, GL_FALSE, &mvp[0][0]);
+    
+    // 조명 계산용 행렬들 전송
+    if (uModel_loc >= 0) {
+        glUniformMatrix4fv(uModel_loc, 1, GL_FALSE, glm::value_ptr(model));
+    }
+    if (uView_loc >= 0) {
+        glUniformMatrix4fv(uView_loc, 1, GL_FALSE, glm::value_ptr(gView));
+    }
+    if (uProjection_loc >= 0) {
+        glUniformMatrix4fv(uProjection_loc, 1, GL_FALSE, glm::value_ptr(gProjection));
+    }
+    
+    // 재질 설정 - 나무용 (갈색 나무 재질)
+    Material treeMaterial = Material::Wood();
+    g_lightManager.SendMaterialToShader(treeMaterial);
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
@@ -596,8 +656,29 @@ void Mushroom::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 
     glm::mat4 model = GetModelMatrix();
 
+    // 변환 행렬들을 셰이더에 전송
     glm::mat4 mvp = gProjection * gView * model;
     glUniformMatrix4fv(uMVP_loc, 1, GL_FALSE, &mvp[0][0]);
+    
+    // 조명 계산용 행렬들 전송
+    if (uModel_loc >= 0) {
+        glUniformMatrix4fv(uModel_loc, 1, GL_FALSE, glm::value_ptr(model));
+    }
+    if (uView_loc >= 0) {
+        glUniformMatrix4fv(uView_loc, 1, GL_FALSE, glm::value_ptr(gView));
+    }
+    if (uProjection_loc >= 0) {
+        glUniformMatrix4fv(uProjection_loc, 1, GL_FALSE, glm::value_ptr(gProjection));
+    }
+    
+    // 재질 설정 - 버섯용 (부드러운 표면)
+    Material mushroomMaterial = Material(
+        glm::vec3(0.1f, 0.05f, 0.05f),      // 어두운 붉은색 환경광
+        glm::vec3(0.6f, 0.3f, 0.3f),        // 붉은색 확산광
+        glm::vec3(0.3f, 0.3f, 0.3f),        // 은은한 반사광
+        32.0f                                // 중간 광택도
+    );
+    g_lightManager.SendMaterialToShader(mushroomMaterial);
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
@@ -662,8 +743,29 @@ void Bird::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 
     glm::mat4 model = GetModelMatrix();
 
+    // 변환 행렬들을 셰이더에 전송
     glm::mat4 mvp = gProjection * gView * model;
     glUniformMatrix4fv(uMVP_loc, 1, GL_FALSE, &mvp[0][0]);
+    
+    // 조명 계산용 행렬들 전송
+    if (uModel_loc >= 0) {
+        glUniformMatrix4fv(uModel_loc, 1, GL_FALSE, glm::value_ptr(model));
+    }
+    if (uView_loc >= 0) {
+        glUniformMatrix4fv(uView_loc, 1, GL_FALSE, glm::value_ptr(gView));
+    }
+    if (uProjection_loc >= 0) {
+        glUniformMatrix4fv(uProjection_loc, 1, GL_FALSE, glm::value_ptr(gProjection));
+    }
+    
+    // 재질 설정 - 새용 (깃털의 부드러운 표면)
+    Material birdMaterial = Material(
+        glm::vec3(0.05f, 0.05f, 0.1f),      // 어두운 파란색 환경광
+        glm::vec3(0.4f, 0.4f, 0.7f),        // 파란색 확산광
+        glm::vec3(0.5f, 0.5f, 0.8f),        // 밝은 파란색 반사광
+        64.0f                                // 높은 광택도 (깃털의 윤기)
+    );
+    g_lightManager.SendMaterialToShader(birdMaterial);
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
@@ -682,6 +784,7 @@ void Bird::Update()
 }
 
 
+// ObstacleSpawner 구현
 ObstacleSpawner::ObstacleSpawner()
     : spawnTimer(0.0f), spawnInterval(2.0f), gen(rd()), dis(0, 3), random_spawnInterval(4.0f, 7.0f)
 {
@@ -746,6 +849,8 @@ std::unique_ptr<Obstacle> ObstacleSpawner::CreateRandomObstacle()
             std::cout << "새 생성" << std::endl;
             return std::make_unique<Bird>("assets/bird.obj", "assets/bird_base.bmp");
         default:
-            return std::make_unique<Obstacle>("assets/obstacle1.obj", "assets/obstacle1_base.bmp");
+            // 기본값으로 선인장 생성 (추상 클래스 대신 구체적인 클래스 사용)
+            std::cout << "기본 선인장 생성" << std::endl;
+            return std::make_unique<Cactus>("assets/obstacle1.obj", "assets/obstacle1_base.bmp");
     }
 }

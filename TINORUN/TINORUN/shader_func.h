@@ -3,34 +3,60 @@
 #include <gl/glew.h>
 #include <gl/freeglut.h>
 #include <gl/freeglut_ext.h> 
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 void make_vertexShaders();
 void make_fragmentShaders();
 GLuint make_shaderProgram();
 void AfterMakeShaders();
 
-//--- 필요한변수선언
+//--- 필요한변수들
 GLuint shaderProgramID; //--- 셰이더 프로그램 이름
 GLuint vertexShader;	//--- 버텍스셰이더객체
 GLuint fragmentShader;	//--- 프래그먼트 셰이더객체
 
-// 새로운 uniform 변수 위치들
+// 기본 uniform 변수 위치들
+extern GLint uMVP_loc;
+extern GLint uModel_loc;
+extern GLint uView_loc;
+extern GLint uProjection_loc;
 extern GLint uUseTexture_loc;
 extern GLint uTextureSampler_loc;
+extern GLint uUseLighting_loc;
 
 void AfterMakeShaders()
 {
 	glUseProgram(shaderProgramID);
+	
+	// 기본 변환 행렬들
 	uMVP_loc = glGetUniformLocation(shaderProgramID, "uMVP");
-	if (uMVP_loc < 0) { printf("uMVP get error\n"); exit(1); }
+	if (uMVP_loc < 0) { printf("uMVP get error\n"); }
+	
+	uModel_loc = glGetUniformLocation(shaderProgramID, "uModel");
+	if (uModel_loc < 0) { printf("uModel get error\n"); }
+	
+	uView_loc = glGetUniformLocation(shaderProgramID, "uView");
+	if (uView_loc < 0) { printf("uView get error\n"); }
+	
+	uProjection_loc = glGetUniformLocation(shaderProgramID, "uProjection");
+	if (uProjection_loc < 0) { printf("uProjection get error\n"); }
 	
 	// 텍스처 관련 uniform 변수 위치 얻기
 	uUseTexture_loc = glGetUniformLocation(shaderProgramID, "useTexture");
 	uTextureSampler_loc = glGetUniformLocation(shaderProgramID, "textureSampler");
 	
+	// 조명 관련 uniform
+	uUseLighting_loc = glGetUniformLocation(shaderProgramID, "useLighting");
+	
 	// 텍스처 샘플러를 텍스처 유닛 0에 바인딩
 	if (uTextureSampler_loc >= 0) {
 		glUniform1i(uTextureSampler_loc, 0);
+	}
+	
+	// 기본적으로 조명 활성화
+	if (uUseLighting_loc >= 0) {
+		glUniform1i(uUseLighting_loc, 1);
 	}
 	
 	glUseProgram(0);
@@ -63,7 +89,7 @@ void make_vertexShaders()
 {
 	GLchar* vertexSource;
 	//--- 버텍스세이더읽어저장하고컴파일하기
-	//--- filetobuf: 사용자정의 함수로 텍스트를읽어서문자열에저장하는함수
+	//--- filetobuf: 파일내용을 읽는함수는 텍스트를읽어서문자열에저장하는함수
 
 	vertexSource = filetobuf("vertex.glsl");
 
@@ -92,7 +118,7 @@ void make_fragmentShaders()
 	//--- 프래그먼트세이더읽어저장하고컴파일하기
 	fragmentSource = filetobuf("fragment.glsl");    // 프래그세이더 읽어오기
 
-	//--- 프래그먼트세이더 객체 만들기
+	//--- 프래그먼트세이더객체만들기
 	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	//--- 셰이더코드를셰이더객체에넣기
 	glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
