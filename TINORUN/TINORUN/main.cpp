@@ -11,6 +11,11 @@
 #include "ScoreDisplay.h"	// Á¡¼ö Çì´õ Ãß°¡
 #include "Light.h"	// Á¶¸í Çì´õ Ãß°¡
 
+#include "tino.h"  // Tino ?¤ë” ì¶”ê?
+#include "obstacle.h" // ?¥ì• ë¬??¤ë” ì¶”ê? 
+#include "Images.h"	// ë²„íŠ¼ ?¤ë” ì¶”ê?
+#include "ScoreDisplay.h"	// ?ìˆ˜ ?¤ë” ì¶”ê?
+
 
 #define MINIAUDIO_IMPLEMENTATION
 #include "miniaudio.h"	// ?¬ìš´???¤ë” ì¶”ê?
@@ -28,6 +33,8 @@ GLvoid Timer(int value);
 //GLvoid SpecialKeyDown(int key, int x, int y);
 //GLvoid SpecialKeyUp(int key, int x, int y);
 
+// ?„ì—­ ë³€???•ì˜ (CommonHeaders.h?ì„œ extern?¼ë¡œ ? ì–¸??ê²ƒë“¤)
+// shaderProgramID??shader_func.h?ì„œ ?´ë? ?•ì˜??
 glm::mat4 gProjection(1.0f);
 glm::mat4 gView(1.0f);
 glm::mat4 gModel(1.0f);
@@ -63,6 +70,7 @@ bool timer = true;
 
 
 // Á¶¸í ½Ã°£ º¯¼ö (ÇÏ·ç ÁÖ±â ½Ã¹Ä·¹ÀÌ¼Ç¿ë)
+float currentTime = 0.5f; // 0.5 = Á¤¿ÀºÎÅÍ ½ÃÀÛ
 
 //--- ¸ŞÀÎ ÇÔ¼ö
 
@@ -385,7 +393,7 @@ GLvoid Timer(int value)
 
 	const float deltaTime = 0.016f;
 
-	if (scene == GameState::PLAYING) {	// °ÔÀÓ ½ºÄÚ¾î Áõ°¡
+	if (scene == GameState::PLAYING) {	// ê²Œì„ ?¤ì½”??ì¦ê?
 		gameScore += 1;
 		if (scoreDisplay) {
 			scoreDisplay->SetScore(gameScore);
@@ -396,14 +404,33 @@ GLvoid Timer(int value)
 		InitGameObjects();
 	}
 
-	// Á¶¸í ¾÷µ¥ÀÌÆ® Á¦°Å - °íÁ¤µÈ ÅÂ¾çºû À¯Áö
-	// ÃÊ±âÈ­ ½Ã¿¡¸¸ ¼³Á¤µÇ°í ÀÌÈÄ º¯°æÇÏÁö ¾ÊÀ½
+	// Á¶¸í ¾÷µ¥ÀÌÆ® (ÇÏ·ç ÁÖ±â ½Ã¹Ä·¹ÀÌ¼Ç)
+	currentTime += deltaTime * 0.02f; // ´À¸° ÇÏ·ç ÁÖ±â (¾à 50ÃÊ¿¡ ÇÏ·ç)
+	if (currentTime >= 1.0f) {
+		currentTime -= 1.0f; // ÇÏ·ç¸¦ ³ÑÀ¸¸é ´Ù½Ã ½ÃÀÛ
+	}
 	
+	// ÅÂ¾ç±¤ ¾÷µ¥ÀÌÆ® ¹× ¼ÎÀÌ´õ¿¡ Àü¼Û
+	glUseProgram(shaderProgramID);
+	g_lightManager.UpdateSunlight(currentTime);
+	g_lightManager.SendLightsToShader();
+	
+	// Ä«¸Ş¶ó À§Ä¡¸¦ Á¶¸í °è»ê¿ëÀ¸·Î Àü¼Û
+	glm::vec3 cameraPos = glm::vec3(gView[3]);
+	if (scene == GameState::PLAYING) {
+		cameraPos = glm::vec3(-12.0f, 7.0f, 10.0f);
+	} else {
+		cameraPos = glm::vec3(0.0f, 0.0f, 10.0f);
+	}
+	g_lightManager.SendViewPosition(cameraPos);
+	glUseProgram(0);
+
 	// GameWorld¸¦ ÅëÇØ ¸ğµç °´Ã¼ ¾÷µ¥ÀÌÆ® (ObstacleSpawner Æ÷ÇÔ)
+	// GameWorldë¥??µí•´ ëª¨ë“  ê°ì²´ ?…ë°?´íŠ¸ (ObstacleSpawner ?¬í•¨)
 	g_gameWorld.UpdateAll();
 
 	glutPostRedisplay();
-	glutTimerFunc(16, Timer, 1); // ¾à 60FPS·Î Å¸ÀÌ¸Ó ½ÃÀÛ
+	glutTimerFunc(16, Timer, 1); // ??60FPSë¡??€?´ë¨¸ ?œì‘
 
 }
 
