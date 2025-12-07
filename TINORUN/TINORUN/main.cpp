@@ -15,10 +15,12 @@
 #include "miniaudio.h"	
 #define STB_IMAGE_IMPLEMENTATION
 #include "../stb_image.h"	
+#include <Windows.h>
 
 //
 void InitBuffer();
 void InitGameObjects();
+void ShowExistingConsole();
 
 GLvoid drawScene();
 GLvoid Reshape(int w, int h);
@@ -99,7 +101,7 @@ void main(int argc, char** argv)
 	//--- ����������ϱ�
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);		//GLUT_DEPTH 깊이???�른 ?�면제�?
-	glutInitWindowPosition(100, 0);
+	glutInitWindowPosition(0, 0);
 	glutInitWindowSize(width, height);
 	glutCreateWindow("TINO RUN");
 
@@ -145,6 +147,8 @@ void main(int argc, char** argv)
 	ma_sound_init_from_file(&engine, "assets/slide1.mp3", 0, NULL, NULL, &sounds[3]);
 
 	ma_sound_set_looping(&sounds[2], MA_TRUE);  // 배경?�악 루프 ?�정
+
+	ShowWindow(GetConsoleWindow(), SW_HIDE);
 	glutMainLoop();
 }
 
@@ -241,7 +245,7 @@ void InitGameObjects()
 
 		g_gameWorld.AddObject(std::move(tino_ptr));
 
-		std::cout << "PLAYING 모드 ?�작 - ObstacleSpawner 추�?" << std::endl;
+		//std::cout << "PLAYING 모드 ?�작 - ObstacleSpawner 추�?" << std::endl;
 		auto spawner = std::make_unique<ObstacleSpawner>();
 		spawner->SetbackSpawnFlag(false); 
 		g_gameWorld.AddObject(std::move(spawner));
@@ -419,11 +423,15 @@ GLvoid Timer(int value)
 	}
 	if (scene == GameState::PLAYING and gameover_flag222) {
 		scene = GameState::GAME_OVER;
+
+		ShowExistingConsole();
 		std::cout << "Input your name: ";
 		string name;
 		std::cin >> name;
 		PostScoreToServer(name.c_str(), gameScore);
 		//PostScoreToServer("Player", gameScore);
+		ShowWindow(GetConsoleWindow(), SW_HIDE);
+
 		InitGameObjects();
 	}
 
@@ -459,13 +467,13 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 	case '\n':		// ?�터 ?�르�??�작
 		if (scene == GameState::TITLE) {
 			scene = GameState::PLAYING;
-			std::cout << "게임 ?�작" << std::endl;
+			//std::cout << "게임 ?�작" << std::endl;
 			InitGameObjects();		// 게임 객체 초기??
 		}
 		if (scene == GameState::GAME_OVER) {
 			scene = GameState::TITLE;
 			gameover_flag222 = false;
-			std::cout << "?�?��? ?�면?�로 ?�동" << std::endl;
+			//std::cout << "?�?��? ?�면?�로 ?�동" << std::endl;
 			InitGameObjects();
 		}
 		break;
@@ -473,11 +481,11 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 		if (scene == GameState::PLAYING) {
 			// ESC ?�르�??�?��?�?
 			scene = GameState::TITLE;
-			std::cout << "?�?��? ?�면?�로 ?�동" << std::endl;
+			//std::cout << "?�?��? ?�면?�로 ?�동" << std::endl;
 		}
 		else if (scene == GameState::TITLE || scene == GameState::GAME_OVER) {
 			// ?�?��??�서 ?�르�?게임종료
-			std::cout << "게임 종료" << std::endl;
+			//std::cout << "게임 종료" << std::endl;
 			ma_engine_uninit(&engine); // ?�전???�생 중이???�운???�리
 			exit(0);
 		}
@@ -522,5 +530,23 @@ GLvoid Mouse(int button, int state, int x, int y)
 			ma_sound_seek_to_pcm_frame(&sounds[3], 0);
 		}
 		glutPostRedisplay();
+	}
+}
+
+void ShowExistingConsole() {
+	// 1. 현재 프로세스의 콘솔 창 핸들을 가져옵니다.
+	// GetConsoleWindow() 함수는 현재 프로세스에 연결된 콘솔 창의 핸들(HWND)을 반환합니다.
+	HWND consoleWindow = GetConsoleWindow();
+
+	if (consoleWindow) {
+		// 2. 창을 보이게 설정합니다. (창이 숨겨져 있을 경우)
+		// SW_SHOW: 창을 일반적인 상태로 표시합니다. (이전 위치와 크기를 유지)
+		ShowWindow(consoleWindow, SW_SHOW);
+
+		// 3. 창을 최상위로 가져와 포커스를 줍니다.
+		// SetForegroundWindow: 창을 전경으로 가져와 사용자에게 포커스를 줍니다.
+		SetForegroundWindow(consoleWindow);
+
+		// (선택적) 창의 위치나 크기를 조정할 수도 있습니다
 	}
 }

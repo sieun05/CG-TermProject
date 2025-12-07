@@ -61,16 +61,16 @@ bool Tino::LoadOBJ(const std::string& objPath, State targetState)
         std::string altPath2 = ".." + objPath;
         std::string altPath3 = "./TINORUN/" + objPath;
         
-        std::cout << "?泥?寃쎈줈 ?쒕룄: " << altPath1 << std::endl;
+       // std::cout << "?泥?寃쎈줈 ?쒕룄: " << altPath1 << std::endl;
         file.open(altPath1);
         if (!file.is_open()) {
-            std::cout << "?泥?寃쎈줈 ?쒕룄: " << altPath2 << std::endl;
+           // std::cout << "?泥?寃쎈줈 ?쒕룄: " << altPath2 << std::endl;
             file.open(altPath2);
             if (!file.is_open()) {
-                std::cout << "?泥?寃쎈줈 ?쒕룄: " << altPath3 << std::endl;
+              //  std::cout << "?泥?寃쎈줈 ?쒕룄: " << altPath3 << std::endl;
                 file.open(altPath3);
                 if (!file.is_open()) {
-                    std::cout << "OBJ ?뚯씪??李얠쓣 ???놁쓬." << std::endl;
+                  //  std::cout << "OBJ ?뚯씪??李얠쓣 ???놁쓬." << std::endl;
                     return false;
                 }
             }
@@ -195,7 +195,7 @@ bool Tino::LoadOBJ(const std::string& objPath, State targetState)
     //std::cout << "理쒖쥌 Loaded OBJ: " << meshes[targetState].vertices.size() << " vertices, " << meshes[targetState].indices.size() << " indices" << std::endl;
 
     if (meshes[targetState].vertices.empty()) {
-        std::cerr << "寃쎄퀬: ?뺤젏 ?곗씠?곌? ?놁뒿?덈떎!" << std::endl;
+        //std::cerr << "寃쎄퀬: ?뺤젏 ?곗씠?곌? ?놁뒿?덈떎!" << std::endl;
         return false;
     }
 
