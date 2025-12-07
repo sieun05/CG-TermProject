@@ -409,6 +409,7 @@ void Tino::StateChange(State newState)
 
 void Tino::OnCollision(GameObject* other)
 {
+    if (invincibility) return;
     // Check if the other object is an obstacle
     Obstacle* obstacle = dynamic_cast<Obstacle*>(other);
     if (obstacle) {

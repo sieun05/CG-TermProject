@@ -26,6 +26,8 @@ public:
     
     // 충돌 처리 함수 오버라이드
     void OnCollision(GameObject* other) override;
+
+    void SetInvincibility() { invincibility = !invincibility; }
     
     // 경계 박스를 와이어프레임으로 렌더링
     void DrawBoundary(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc);
@@ -56,6 +58,8 @@ private:
 
     State state;
     float stateTimer;
+
+    bool invincibility = false;
 
 	static constexpr float JUMP_DURATION = 1.8f; // 점프 상태 지속 시간 (초)
 	static constexpr float SLIDE_DURATION = 1.0f; // 슬라이드 상태 지속 시간 (초)

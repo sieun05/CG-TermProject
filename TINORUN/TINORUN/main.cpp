@@ -493,6 +493,20 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 		showBoundaryBox = !showBoundaryBox;
 		std::cout << "바운더리 박스 표시: " << (showBoundaryBox ? "ON" : "OFF") << std::endl;
 		break;
+	case 'h':
+	case 'H':
+		tino->SetInvincibility();
+		std::cout << "Tino 무적 모드 토글" << std::endl;
+		break;
+	case '+':	// 점수 증감(속도 확인용)
+	case '=':
+		gameScore += 1000;
+		break;
+	case '-':
+	case '_':
+		if (gameScore >= 1000)
+			gameScore -= 1000;
+		break;
 	default: break;
 	}
 
