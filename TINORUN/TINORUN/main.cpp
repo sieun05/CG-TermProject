@@ -117,10 +117,10 @@ void main(int argc, char** argv)
 	shaderProgramID = make_shaderProgram();
 	AfterMakeShaders();	//?�이?�에??uniform 변???�치 ?�기
 
-	// ���� �ý��� �ʱ�ȭ
-	g_lightManager.InitializeUniforms(shaderProgramID);
-	g_lightManager.SetupSunlight(); // �ڿ������� �¾籤 ����
-	g_lightManager.EnableLighting(false);
+	//// ���� �ý��� �ʱ�ȭ
+	//g_lightManager.InitializeUniforms(shaderProgramID);
+	//g_lightManager.SetupSunlight(); // �ڿ������� �¾籤 ����
+	//g_lightManager.EnableLighting(false);
 
 	glutReshapeFunc(Reshape);
 	glutDisplayFunc(drawScene);
