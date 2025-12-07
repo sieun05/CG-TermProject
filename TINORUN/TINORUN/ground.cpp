@@ -1,6 +1,7 @@
 #include "ground.h"
 #include "game_state.h"
 #include "LoadBitmap.h"
+#include "Light.h"  // Light.h 추가
 
 extern "C" void stbi_set_flip_vertically_on_load(int flag_true_if_should_flip);
 
@@ -143,7 +144,7 @@ void GroundInit()
         0, 1,   1, 2,   2, 3,   3, 0,
         // �޸��� 4�� �𼭸�  
         4, 5,   5, 6,   6, 7,   7, 4,
-        // �յڸ� �����ϴ� 4�� �𼭸�
+        // �й��ؼ� �����ϴ� 4�� �𼭸�
         0, 5,   1, 4,   2, 7,   3, 6
     };
 
@@ -233,7 +234,7 @@ void Ground::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 
     glBindVertexArray(VAO_ground);
 
-    // �θ� Ŭ������ GetModelMatrix() ���
+    // 부모 클래스의 GetModelMatrix() 사용
     glm::mat4 model = GetModelMatrix();
 
     glm::mat4 mvp = gProjection * gView * model;
@@ -243,8 +244,23 @@ void Ground::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     if (uModel_loc >= 0) {
         glUniformMatrix4fv(uModel_loc, 1, GL_FALSE, &model[0][0]);
     }
+    if (uView_loc >= 0) {
+        glUniformMatrix4fv(uView_loc, 1, GL_FALSE, glm::value_ptr(gView));
+    }
+    if (uProjection_loc >= 0) {
+        glUniformMatrix4fv(uProjection_loc, 1, GL_FALSE, glm::value_ptr(gProjection));
+    }
 
-	// �ؽ�ó ��� ����
+    // Ground용 Material 설정 - 빛을 덜 반사하고 자연스러운 지면 색상
+    Material groundMaterial = Material(
+        glm::vec3(0.05f, 0.05f, 0.05f),     // 어두운 환경광 (빛을 적게 받음)
+        glm::vec3(0.3f, 0.3f, 0.3f),        // 낮은 확산광 (반사를 적게 함)
+        glm::vec3(0.1f, 0.1f, 0.1f),        // 매우 낮은 반사광
+        8.0f                                 // 낮은 광택도 (거친 표면)
+    );
+    g_lightManager.SendMaterialToShader(groundMaterial);
+
+	// 텍스처 사용 설정
 	if (useTexture) {
 		glUniform1i(uUseTexture_loc, 1);
 		glActiveTexture(GL_TEXTURE0);
@@ -254,21 +270,21 @@ void Ground::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 		glUniform1i(uUseTexture_loc, 0);
 	}
 
-    // ���� ���� �׸� (ä���� �ﰢ��)
+    // 실제 면을 그림 (채워진 삼각형)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO_ground);
     glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
-    // ������ �𼭸��� �׸� (�����θ�)
+    // 경계선 와이어프레임을 그림 (검은색으로)
     RGBA blackColor = {0.0f, 0.0f, 0.0f, 1.0f};
     ChangeGroundColor(blackColor);
 
-    glLineWidth(2.0f); // �� �β� ����
+    glLineWidth(2.0f); // 선 두께 설정
 
-    // �𼭸��� EBO�� �����ϰ� ������ �׸���
+    // 와이어프레임용 EBO를 사용하고 선으로 그리기
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO_ground_lines);
-    glDrawElements(GL_LINES, 24, GL_UNSIGNED_INT, 0); // 12�� �𼭸� * 2�� �� = 24�� �ε���
+    glDrawElements(GL_LINES, 24, GL_UNSIGNED_INT, 0); // 12개 선분 * 2개 점 = 24개 인덱스
 
-    glLineWidth(1.0f); // �� �β� ����
+    glLineWidth(1.0f); // 선 두께 복원
 
 	if (useTexture) {
 		glBindTexture(GL_TEXTURE_2D, 0);

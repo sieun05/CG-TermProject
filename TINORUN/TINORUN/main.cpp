@@ -405,7 +405,7 @@ GLvoid Timer(int value)
 
 	const float deltaTime = 0.016f;
 
-	if (scene == GameState::PLAYING) {	// 게임 ?�코??증�?
+	if (scene == GameState::PLAYING) {
 		gameScore += 1;
 		if (scoreDisplay) {
 			scoreDisplay->SetScore(gameScore);
@@ -416,25 +416,10 @@ GLvoid Timer(int value)
 		InitGameObjects();
 	}
 
-	// ���� ������Ʈ (�Ϸ� �ֱ� �ùķ��̼�)
-	currentTime += deltaTime * 0.02f; // ���� �Ϸ� �ֱ� (�� 50�ʿ� �Ϸ�)
-	if (currentTime >= 1.0f) {
-		currentTime -= 1.0f; // �Ϸ縦 ������ �ٽ� ����
-	}
-	
-	// �¾籤 ������Ʈ �� ���̴��� ����
 	glUseProgram(shaderProgramID);
-	g_lightManager.UpdateSunlight(currentTime);
+	g_lightManager.UpdateSunlight(0.0f);
 	g_lightManager.SendLightsToShader();
 	
-	// ī�޶� ��ġ�� ���� �������� ����
-	glm::vec3 cameraPos = glm::vec3(gView[3]);
-	if (scene == GameState::PLAYING) {
-		cameraPos = glm::vec3(-12.0f, 7.0f, 10.0f);
-	} else {
-		cameraPos = glm::vec3(0.0f, 0.0f, 10.0f);
-	}
-	g_lightManager.SendViewPosition(cameraPos);
 	glUseProgram(0);
 
 	// GameWorld�� ���� ��� ��ü ������Ʈ (ObstacleSpawner ����)

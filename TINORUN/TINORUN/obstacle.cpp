@@ -447,7 +447,7 @@ Cactus::Cactus() : Obstacle()
     boundary.r4 = glm::vec3(-2.0f, 15.0f, -2.0f);  // ���� �� ��
     boundary.r5 = glm::vec3(-2.0f, 0.0f, 2.0f);  // ���� �Ʒ� ��
     boundary.r6 = glm::vec3(2.0f, 15.0f, 2.0f);    // ������ �� ��
-    
+
     // boundary ���� �� boundary �޽� �ٽ� ����
     SetupBoundaryMesh();
 }
@@ -500,14 +500,7 @@ void Cactus::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
         glUniformMatrix4fv(uProjection_loc, 1, GL_FALSE, glm::value_ptr(gProjection));
     }
     
-    // 재질 설정 - 선인장용 (약간 거칠고 녹색 계열)
-    Material cactuseMaterial = Material(
-        glm::vec3(0.0f, 0.1f, 0.0f),       // 어두운 녹색 환경광
-        glm::vec3(0.2f, 0.6f, 0.2f),       // 녹색 확산광
-        glm::vec3(0.1f, 0.3f, 0.1f),       // 약간의 녹색 반사광
-        16.0f                               // 낮은 광택도 (거친 표면)
-    );
-    g_lightManager.SendMaterialToShader(cactuseMaterial);
+    // Material 설정 제거 - 공통 조명 사용
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
@@ -516,7 +509,7 @@ void Cactus::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glBindTexture(GL_TEXTURE_2D, 0);
     glUniform1i(uUseTexture_loc, 0);
     
-    // ��� �ڽ��� ���̾����������� �׸���
+    // 충돌 박스를 와이어프레임으로 그리기
     DrawBoundary(gProjection, gView, uMVP_loc);
 }
 
@@ -590,9 +583,7 @@ void Tree::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
         glUniformMatrix4fv(uProjection_loc, 1, GL_FALSE, glm::value_ptr(gProjection));
     }
     
-    // 재질 설정 - 나무용 (갈색 나무 재질)
-    Material treeMaterial = Material::Wood();
-    g_lightManager.SendMaterialToShader(treeMaterial);
+    // Material 설정 제거 - 공통 조명 사용
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
@@ -601,7 +592,7 @@ void Tree::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glBindTexture(GL_TEXTURE_2D, 0);
     glUniform1i(uUseTexture_loc, 0);
     
-    // ��� �ڽ��� ���̾����������� �׸���
+    // 충돌 박스를 와이어프레임으로 그리기
     DrawBoundary(gProjection, gView, uMVP_loc);
 }
 
@@ -671,14 +662,7 @@ void Mushroom::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
         glUniformMatrix4fv(uProjection_loc, 1, GL_FALSE, glm::value_ptr(gProjection));
     }
     
-    // 재질 설정 - 버섯용 (부드러운 표면)
-    Material mushroomMaterial = Material(
-        glm::vec3(0.1f, 0.05f, 0.05f),      // 어두운 붉은색 환경광
-        glm::vec3(0.6f, 0.3f, 0.3f),        // 붉은색 확산광
-        glm::vec3(0.3f, 0.3f, 0.3f),        // 은은한 반사광
-        32.0f                                // 중간 광택도
-    );
-    g_lightManager.SendMaterialToShader(mushroomMaterial);
+    // Material 설정 제거 - 공통 조명 사용
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
@@ -687,7 +671,7 @@ void Mushroom::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glBindTexture(GL_TEXTURE_2D, 0);
     glUniform1i(uUseTexture_loc, 0);
     
-    // ��� �ڽ��� ���̾����������� �׸���
+    // 충돌 박스를 와이어프레임으로 그리기
     DrawBoundary(gProjection, gView, uMVP_loc);
 }
 
@@ -758,14 +742,7 @@ void Bird::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
         glUniformMatrix4fv(uProjection_loc, 1, GL_FALSE, glm::value_ptr(gProjection));
     }
     
-    // 재질 설정 - 새용 (깃털의 부드러운 표면)
-    Material birdMaterial = Material(
-        glm::vec3(0.05f, 0.05f, 0.1f),      // 어두운 파란색 환경광
-        glm::vec3(0.4f, 0.4f, 0.7f),        // 파란색 확산광
-        glm::vec3(0.5f, 0.5f, 0.8f),        // 밝은 파란색 반사광
-        64.0f                                // 높은 광택도 (깃털의 윤기)
-    );
-    g_lightManager.SendMaterialToShader(birdMaterial);
+    // Material 설정 제거 - 공통 조명 사용
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
@@ -774,7 +751,7 @@ void Bird::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glBindTexture(GL_TEXTURE_2D, 0);
     glUniform1i(uUseTexture_loc, 0);
     
-    // ��� �ڽ��� ���̾����������� �׸���
+    // 충돌 박스를 와이어프레임으로 그리기
     DrawBoundary(gProjection, gView, uMVP_loc);
 }
 
