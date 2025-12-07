@@ -20,7 +20,9 @@ extern int gameScore;
 
 // ���� �ӵ� ��� �Լ�
 float GetObstacleSpeed() {
-    int speedLevel = gameScore / 1000;  // 1000������ ������
+	int score = min(40000, gameScore); // 스피드 제한
+
+    int speedLevel = score / 1000;  // 1000������ ������
 
     // �ӵ� ���� �˸� (�� ����)
     static int lastNotifiedLevel = -1;
@@ -788,7 +790,7 @@ void Bird::Update()
 
 // ObstacleSpawner 구현
 ObstacleSpawner::ObstacleSpawner()
-    : spawnTimer(0.0f), spawnInterval(2.0f), gen(rd()), dis(0, 3), random_spawnInterval(4.0f, 7.0f)
+    : spawnTimer(0.0f), spawnInterval(2.0f), gen(rd()), dis(0, 3), random_spawnInterval(2.0f, 3.0f)
 {
 }
 
@@ -815,6 +817,7 @@ void ObstacleSpawner::Update()
         spawnTimer = 0.0f;
         // ���ο� ���� �������� ����
         spawnInterval = random_spawnInterval(gen);
+		//std::cout << "Next spawn interval: " << spawnInterval << " seconds" << std::endl;
     }
 }
 
@@ -833,20 +836,20 @@ std::unique_ptr<Obstacle> ObstacleSpawner::CreateRandomObstacle()
 
     switch (obstacleType) {
     case 0:
-        std::cout << "������ ����" << std::endl;
+        //std::cout << "������ ����" << std::endl;
         return std::make_unique<Cactus>("assets/obstacle1.obj", "assets/obstacle1_base.bmp");
     case 1:
-        std::cout << "���� ����" << std::endl;
+        //std::cout << "���� ����" << std::endl;
         return std::make_unique<Tree>("assets/obstacle2.obj", "assets/obstacle2_base.bmp");
     case 2:
-        std::cout << "���� ����" << std::endl;
+        //std::cout << "���� ����" << std::endl;
         return std::make_unique<Mushroom>("assets/obstacle3.obj", "assets/obstacle3_base.bmp");
     case 3:
-        std::cout << "�� ����" << std::endl;
+        //std::cout << "�� ����" << std::endl;
         return std::make_unique<Bird>("assets/bird.obj", "assets/bird_base.bmp");
     default:
         // 기본값으로 선인장 생성 (추상 클래스 대신 구체적인 클래스 사용)
-        std::cout << "기본 선인장 생성" << std::endl;
+        //std::cout << "기본 선인장 생성" << std::endl;
         return std::make_unique<Cactus>("assets/obstacle1.obj", "assets/obstacle1_base.bmp");
     }
 }
