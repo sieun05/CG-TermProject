@@ -4,7 +4,7 @@
 #include "obstacle.h"
 #include <algorithm>
 
-// Tino¿Í ObstacleÀÇ Æ¯¼ö º¯È¯À» °í·ÁÇÑ AABB º¯È¯ ÇÔ¼ö
+// Tinoï¿½ï¿½ Obstacleï¿½ï¿½ Æ¯ï¿½ï¿½ ï¿½ï¿½È¯ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ AABB ï¿½ï¿½È¯ ï¿½Ô¼ï¿½
 AABB BoundaryToAABB(const GameObject* obj)
 {
     const Boundary& boundary = obj->boundary;
@@ -12,19 +12,19 @@ AABB BoundaryToAABB(const GameObject* obj)
     glm::vec3 rotation = obj->rotation;
     glm::vec3 scale = obj->scale;
     
-    // boundaryÀÇ 6°³ Á¡À¸·ÎºÎÅÍ ¿ÏÀüÇÑ 8°³ ¹Ú½º ²ÀÁþÁ¡À» °è»ê
+    // boundaryï¿½ï¿½ 6ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Îºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 8ï¿½ï¿½ ï¿½Ú½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
     std::vector<glm::vec3> boundaryPoints = {
-        boundary.r1,                                                    // ¿ÞÂÊ ¾Æ·¡ µÚ
-        boundary.r2,                                                    // ¿À¸¥ÂÊ ¾Æ·¡ µÚ  
-        boundary.r3,                                                    // ¿À¸¥ÂÊ À§ µÚ
-        boundary.r4,                                                    // ¿ÞÂÊ À§ µÚ
-        boundary.r5,                                                    // ¿ÞÂÊ ¾Æ·¡ ¾Õ
-        glm::vec3(boundary.r6.x, boundary.r5.y, boundary.r5.z),       // ¿À¸¥ÂÊ ¾Æ·¡ ¾Õ
-        boundary.r6,                                                    // ¿À¸¥ÂÊ À§ ¾Õ
-        glm::vec3(boundary.r5.x, boundary.r6.y, boundary.r6.z)        // ¿ÞÂÊ À§ ¾Õ
+        boundary.r1,                                                    // ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ ï¿½ï¿½
+        boundary.r2,                                                    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ ï¿½ï¿½  
+        boundary.r3,                                                    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½
+        boundary.r4,                                                    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½
+        boundary.r5,                                                    // ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ ï¿½ï¿½
+        glm::vec3(boundary.r6.x, boundary.r5.y, boundary.r5.z),       // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ ï¿½ï¿½
+        boundary.r6,                                                    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½
+        glm::vec3(boundary.r5.x, boundary.r6.y, boundary.r6.z)        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½
     };
     
-    // ±âº» º¯È¯ Çà·Ä »ý¼º
+    // ï¿½âº» ï¿½ï¿½È¯ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, position);
     model = glm::rotate(model, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -32,33 +32,33 @@ AABB BoundaryToAABB(const GameObject* obj)
     model = glm::rotate(model, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
     model = glm::scale(model, scale);
     
-    // °´Ã¼º° Ãß°¡ º¯È¯ Àû¿ë
+    // ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ß°ï¿½ ï¿½ï¿½È¯ ï¿½ï¿½ï¿½ï¿½
     const Tino* tino = dynamic_cast<const Tino*>(obj);
     const Obstacle* obstacle = dynamic_cast<const Obstacle*>(obj);
     
     if (tino) {
-        // TinoÀÇ Ãß°¡ º¯È¯ (Draw ÇÔ¼ö¿Í µ¿ÀÏÇÏ°Ô)
+        // Tinoï¿½ï¿½ ï¿½ß°ï¿½ ï¿½ï¿½È¯ (Draw ï¿½Ô¼ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½)
         glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(-7.0f, 0.0f, 0.0f));
         model = model * rotate;
         model = translate * model;
     }
     else if (obstacle) {
-        // Obstacle Å¸ÀÔº° Ãß°¡ º¯È¯
+        // Obstacle Å¸ï¿½Ôºï¿½ ï¿½ß°ï¿½ ï¿½ï¿½È¯
         if (obstacle->GetType() == Obstacle::ObstacleType::CACTUS) {
             glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(-35.0f), glm::vec3(0.0f, 1.0f, 0.0f));
             model = model * rotate;
         }
     }
     
-    // ¸ðµç Á¡À» ¿ùµå ÁÂÇ¥°è·Î º¯È¯
+    // ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ç¥ï¿½ï¿½ï¿½ ï¿½ï¿½È¯
     std::vector<glm::vec3> transformedPoints;
     for (const auto& point : boundaryPoints) {
         glm::vec4 worldPoint = model * glm::vec4(point, 1.0f);
         transformedPoints.push_back(glm::vec3(worldPoint));
     }
     
-    // º¯È¯µÈ Á¡µé·ÎºÎÅÍ AABB °è»ê
+    // ï¿½ï¿½È¯ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Îºï¿½ï¿½ï¿½ AABB ï¿½ï¿½ï¿½
     if (transformedPoints.empty()) {
         return AABB(glm::vec3(0.0f), glm::vec3(0.0f));
     }
@@ -79,23 +79,23 @@ AABB BoundaryToAABB(const GameObject* obj)
     return AABB(minPoint, maxPoint);
 }
 
-// ±âÁ¸ ÇÔ¼öµµ À¯Áö (ÇÏÀ§ È£È¯¼º)
+// ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ È£È¯ï¿½ï¿½)
 AABB BoundaryToAABB(const Boundary& boundary, const glm::vec3& position, 
                     const glm::vec3& rotation, const glm::vec3& scale)
 {
-    // boundaryÀÇ 6°³ Á¡À¸·ÎºÎÅÍ ¿ÏÀüÇÑ 8°³ ¹Ú½º ²ÀÁþÁ¡À» °è»ê
+    // boundaryï¿½ï¿½ 6ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Îºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 8ï¿½ï¿½ ï¿½Ú½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
     std::vector<glm::vec3> boundaryPoints = {
-        boundary.r1,                                                    // ¿ÞÂÊ ¾Æ·¡ µÚ
-        boundary.r2,                                                    // ¿À¸¥ÂÊ ¾Æ·¡ µÚ  
-        boundary.r3,                                                    // ¿À¸¥ÂÊ À§ µÚ
-        boundary.r4,                                                    // ¿ÞÂÊ À§ µÚ
-        boundary.r5,                                                    // ¿ÞÂÊ ¾Æ·¡ ¾Õ
-        glm::vec3(boundary.r6.x, boundary.r5.y, boundary.r5.z),       // ¿À¸¥ÂÊ ¾Æ·¡ ¾Õ
-        boundary.r6,                                                    // ¿À¸¥ÂÊ À§ ¾Õ
-        glm::vec3(boundary.r5.x, boundary.r6.y, boundary.r6.z)        // ¿ÞÂÊ À§ ¾Õ
+        boundary.r1,                                                    // ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ ï¿½ï¿½
+        boundary.r2,                                                    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ ï¿½ï¿½  
+        boundary.r3,                                                    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½
+        boundary.r4,                                                    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½
+        boundary.r5,                                                    // ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ ï¿½ï¿½
+        glm::vec3(boundary.r6.x, boundary.r5.y, boundary.r5.z),       // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ ï¿½ï¿½
+        boundary.r6,                                                    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½
+        glm::vec3(boundary.r5.x, boundary.r6.y, boundary.r6.z)        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½
     };
     
-    // º¯È¯ Çà·Ä »ý¼º (GameObject¿Í °°Àº ¼ø¼­·Î)
+    // ï¿½ï¿½È¯ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (GameObjectï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½)
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, position);
     model = glm::rotate(model, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -103,14 +103,14 @@ AABB BoundaryToAABB(const Boundary& boundary, const glm::vec3& position,
     model = glm::rotate(model, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
     model = glm::scale(model, scale);
     
-    // ¸ðµç Á¡À» ¿ùµå ÁÂÇ¥°è·Î º¯È¯
+    // ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ç¥ï¿½ï¿½ï¿½ ï¿½ï¿½È¯
     std::vector<glm::vec3> transformedPoints;
     for (const auto& point : boundaryPoints) {
         glm::vec4 worldPoint = model * glm::vec4(point, 1.0f);
         transformedPoints.push_back(glm::vec3(worldPoint));
     }
     
-    // º¯È¯µÈ Á¡µé·ÎºÎÅÍ AABB °è»ê
+    // ï¿½ï¿½È¯ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Îºï¿½ï¿½ï¿½ AABB ï¿½ï¿½ï¿½
     if (transformedPoints.empty()) {
         return AABB(glm::vec3(0.0f), glm::vec3(0.0f));
     }
@@ -131,89 +131,89 @@ AABB BoundaryToAABB(const Boundary& boundary, const glm::vec3& position,
     return AABB(minPoint, maxPoint);
 }
 
-// ´õ Á¤È®ÇÑ AABB Ãæµ¹ °Ë»ç ÇÔ¼ö (Çã¿ë ¿ÀÂ÷ Ãß°¡)
-bool AABBIntersect(const AABB& box1, const AABB& box2, float tolerance = 0.01f)
+// ï¿½ï¿½ ï¿½ï¿½È®ï¿½ï¿½ AABB ï¿½æµ¹ ï¿½Ë»ï¿½ ï¿½Ô¼ï¿½ (ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ß°ï¿½)
+bool AABBIntersect(const AABB& box1, const AABB& box2, float tolerance)
 {
-    // Çã¿ë ¿ÀÂ÷¸¦ Àû¿ëÇÏ¿© ´õ Á¤È®ÇÑ Ãæµ¹ °Ë»ç
-    // XÃà¿¡¼­ °ãÄ¡´ÂÁö È®ÀÎ
+    // ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¿ï¿½ ï¿½ï¿½ ï¿½ï¿½È®ï¿½ï¿½ ï¿½æµ¹ ï¿½Ë»ï¿½
+    // Xï¿½à¿¡ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½
     bool xOverlap = (box1.max.x - tolerance) > (box2.min.x + tolerance) && 
                     (box1.min.x + tolerance) < (box2.max.x - tolerance);
     
-    // YÃà¿¡¼­ °ãÄ¡´ÂÁö È®ÀÎ  
+    // Yï¿½à¿¡ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½  
     bool yOverlap = (box1.max.y - tolerance) > (box2.min.y + tolerance) && 
                     (box1.min.y + tolerance) < (box2.max.y - tolerance);
     
-    // ZÃà¿¡¼­ °ãÄ¡´ÂÁö È®ÀÎ
+    // Zï¿½à¿¡ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½
     bool zOverlap = (box1.max.z - tolerance) > (box2.min.z + tolerance) && 
                     (box1.min.z + tolerance) < (box2.max.z - tolerance);
     
-    // ¸ðµç Ãà¿¡¼­ °ãÃÄ¾ß Ãæµ¹
+    // ï¿½ï¿½ï¿½ ï¿½à¿¡ï¿½ï¿½ ï¿½ï¿½ï¿½Ä¾ï¿½ ï¿½æµ¹
     return xOverlap && yOverlap && zOverlap;
 }
 
-// ±âÁ¸ ÇÔ¼öµµ À¯Áö (ÇÏÀ§ È£È¯¼º)
+// ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ È£È¯ï¿½ï¿½)
 bool AABBIntersect(const AABB& box1, const AABB& box2)
 {
     return AABBIntersect(box1, box2, 0.01f);
 }
 
-// °³¼±µÈ GameObject Ãæµ¹ °Ë»ç ÇÔ¼ö
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ GameObject ï¿½æµ¹ ï¿½Ë»ï¿½ ï¿½Ô¼ï¿½
 bool CheckCollision(const GameObject* obj1, const GameObject* obj2)
 {
     if (!obj1 || !obj2) {
         return false;
     }
     
-    // ºñÈ°¼º °´Ã¼´Â Ãæµ¹ÇÏÁö ¾ÊÀ½
+    // ï¿½ï¿½È°ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½æµ¹ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     if (!obj1->isActive || !obj2->isActive) {
         return false;
     }
     
-    // °¢ °´Ã¼ÀÇ boundary¸¦ Á¤È®ÇÑ AABB·Î º¯È¯
+    // ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ boundaryï¿½ï¿½ ï¿½ï¿½È®ï¿½ï¿½ AABBï¿½ï¿½ ï¿½ï¿½È¯
     AABB aabb1 = BoundaryToAABB(obj1);
     AABB aabb2 = BoundaryToAABB(obj2);
     
-    // µð¹ö±× Ãâ·Â (ÇÊ¿ä½Ã ÁÖ¼® ÇØÁ¦)
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ (ï¿½Ê¿ï¿½ï¿½ ï¿½Ö¼ï¿½ ï¿½ï¿½ï¿½ï¿½)
     // PrintAABB(aabb1, "Object1");
     // PrintAABB(aabb2, "Object2");
     
-    // ´õ Á¤È®ÇÑ AABB Ãæµ¹ °Ë»ç (Çã¿ë ¿ÀÂ÷ Àû¿ë)
-    return AABBIntersect(aabb1, aabb2, 0.1f); // 0.1f Çã¿ë ¿ÀÂ÷·Î ´õ ¾ö°ÝÇÑ Ãæµ¹ °Ë»ç
+    // ï¿½ï¿½ ï¿½ï¿½È®ï¿½ï¿½ AABB ï¿½æµ¹ ï¿½Ë»ï¿½ (ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
+    return AABBIntersect(aabb1, aabb2, 0.1f); // 0.1f ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½æµ¹ ï¿½Ë»ï¿½
 }
 
-// µð¹ö±×¿ë AABB Á¤º¸ Ãâ·Â ÇÔ¼ö
+// ï¿½ï¿½ï¿½ï¿½×¿ï¿½ AABB ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½
 void PrintAABB(const AABB& aabb, const std::string& name)
 {
     std::cout << name << " AABB - Min: (" << aabb.min.x << ", " << aabb.min.y << ", " << aabb.min.z 
               << "), Max: (" << aabb.max.x << ", " << aabb.max.y << ", " << aabb.max.z << ")" << std::endl;
     
-    // AABB Å©±â Á¤º¸µµ Ãâ·Â
+    // AABB Å©ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
     glm::vec3 size = aabb.max - aabb.min;
     std::cout << name << " Size: (" << size.x << ", " << size.y << ", " << size.z << ")" << std::endl;
 }
 
-// Ãæµ¹ ½Ã½ºÅÛ Å×½ºÆ® ÇÔ¼ö
+// ï¿½æµ¹ ï¿½Ã½ï¿½ï¿½ï¿½ ï¿½×½ï¿½Æ® ï¿½Ô¼ï¿½
 void TestCollisionSystem()
 {
-    std::cout << "\n=== Ãæµ¹ ½Ã½ºÅÛ Å×½ºÆ® ½ÃÀÛ ===" << std::endl;
+    std::cout << "\n=== ï¿½æµ¹ ï¿½Ã½ï¿½ï¿½ï¿½ ï¿½×½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ ===" << std::endl;
     
-    // Å×½ºÆ®¿ë AABB »ý¼º (´õ Çö½ÇÀûÀÎ °ªµé·Î)
+    // ï¿½×½ï¿½Æ®ï¿½ï¿½ AABB ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½)
     AABB box1(glm::vec3(-1.0f, 0.0f, -1.0f), glm::vec3(1.0f, 2.0f, 1.0f));
-    AABB box2(glm::vec3(0.9f, 0.0f, -1.0f), glm::vec3(2.9f, 2.0f, 1.0f));  // ¾à°£ °ãÄ§
-    AABB box3(glm::vec3(1.2f, 0.0f, -1.0f), glm::vec3(3.2f, 2.0f, 1.0f));  // °ÅÀÇ °ãÄ¡Áö ¾ÊÀ½
-    AABB box4(glm::vec3(3.0f, 0.0f, -1.0f), glm::vec3(5.0f, 2.0f, 1.0f));  // ¿ÏÀüÈ÷ ºÐ¸®
+    AABB box2(glm::vec3(0.9f, 0.0f, -1.0f), glm::vec3(2.9f, 2.0f, 1.0f));  // ï¿½à°£ ï¿½ï¿½Ä§
+    AABB box3(glm::vec3(1.2f, 0.0f, -1.0f), glm::vec3(3.2f, 2.0f, 1.0f));  // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    AABB box4(glm::vec3(3.0f, 0.0f, -1.0f), glm::vec3(5.0f, 2.0f, 1.0f));  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ð¸ï¿½
     
     PrintAABB(box1, "Box1");
     PrintAABB(box2, "Box2");
     PrintAABB(box3, "Box3");
     PrintAABB(box4, "Box4");
     
-    std::cout << "\n=== Ãæµ¹ Å×½ºÆ® °á°ú ===" << std::endl;
-    std::cout << "Box1°ú Box2 Ãæµ¹ (Çã¿ë¿ÀÂ÷ 0.01): " << (AABBIntersect(box1, box2, 0.01f) ? "¿¹" : "¾Æ´Ï¿À") << std::endl;
-    std::cout << "Box1°ú Box2 Ãæµ¹ (Çã¿ë¿ÀÂ÷ 0.1): " << (AABBIntersect(box1, box2, 0.1f) ? "¿¹" : "¾Æ´Ï¿À") << std::endl;
-    std::cout << "Box1°ú Box3 Ãæµ¹ (Çã¿ë¿ÀÂ÷ 0.01): " << (AABBIntersect(box1, box3, 0.01f) ? "¿¹" : "¾Æ´Ï¿À") << std::endl;
-    std::cout << "Box1°ú Box3 Ãæµ¹ (Çã¿ë¿ÀÂ÷ 0.1): " << (AABBIntersect(box1, box3, 0.1f) ? "¿¹" : "¾Æ´Ï¿À") << std::endl;
-    std::cout << "Box1°ú Box4 Ãæµ¹ (Çã¿ë¿ÀÂ÷ 0.1): " << (AABBIntersect(box1, box4, 0.1f) ? "¿¹" : "¾Æ´Ï¿À") << std::endl;
+    std::cout << "\n=== ï¿½æµ¹ ï¿½×½ï¿½Æ® ï¿½ï¿½ï¿½ ===" << std::endl;
+    std::cout << "Box1ï¿½ï¿½ Box2 ï¿½æµ¹ (ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 0.01): " << (AABBIntersect(box1, box2, 0.01f) ? "ï¿½ï¿½" : "ï¿½Æ´Ï¿ï¿½") << std::endl;
+    std::cout << "Box1ï¿½ï¿½ Box2 ï¿½æµ¹ (ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 0.1): " << (AABBIntersect(box1, box2, 0.1f) ? "ï¿½ï¿½" : "ï¿½Æ´Ï¿ï¿½") << std::endl;
+    std::cout << "Box1ï¿½ï¿½ Box3 ï¿½æµ¹ (ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 0.01): " << (AABBIntersect(box1, box3, 0.01f) ? "ï¿½ï¿½" : "ï¿½Æ´Ï¿ï¿½") << std::endl;
+    std::cout << "Box1ï¿½ï¿½ Box3 ï¿½æµ¹ (ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 0.1): " << (AABBIntersect(box1, box3, 0.1f) ? "ï¿½ï¿½" : "ï¿½Æ´Ï¿ï¿½") << std::endl;
+    std::cout << "Box1ï¿½ï¿½ Box4 ï¿½æµ¹ (ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 0.1): " << (AABBIntersect(box1, box4, 0.1f) ? "ï¿½ï¿½" : "ï¿½Æ´Ï¿ï¿½") << std::endl;
     
-    std::cout << "=== Ãæµ¹ ½Ã½ºÅÛ Å×½ºÆ® ¿Ï·á ===" << std::endl;
+    std::cout << "=== ï¿½æµ¹ ï¿½Ã½ï¿½ï¿½ï¿½ ï¿½×½ï¿½Æ® ï¿½Ï·ï¿½ ===" << std::endl;
 }

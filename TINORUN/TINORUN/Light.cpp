@@ -1,15 +1,15 @@
 #include "Light.h"
 #include <cmath>
 #include <algorithm>
-#include <string>  // to_string ÇÔ¼ö »ç¿ëÀ» À§ÇØ Ãß°¡
+#include <string>  // to_string ï¿½Ô¼ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ß°ï¿½
 
-// ÇÊ¿äÇÑ extern ¼±¾ðµé (shader_func.h ´ë½Å)
+// ï¿½Ê¿ï¿½ï¿½ï¿½ extern ï¿½ï¿½ï¿½ï¿½ï¿½ (shader_func.h ï¿½ï¿½ï¿½)
 extern GLuint shaderProgramID;
 
-// Àü¿ª Á¶¸í °ü¸®ÀÚ Á¤ÀÇ
+// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 LightManager g_lightManager;
 
-// Light ±¸Á¶Ã¼ ±¸Çö
+// Light ï¿½ï¿½ï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½
 Light::Light() 
     : type(LightType::DIRECTIONAL),
       position(0.0f, 0.0f, 0.0f),
@@ -82,7 +82,7 @@ Light Light::CreateSpotLight(
     return light;
 }
 
-// Material ±¸Á¶Ã¼ ±¸Çö
+// Material ï¿½ï¿½ï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½
 Material::Material() 
     : ambient(0.2f, 0.2f, 0.2f),
       diffuse(0.8f, 0.8f, 0.8f),
@@ -159,9 +159,9 @@ Material Material::Stone() {
     );
 }
 
-// LightManager ±¸Çö
+// LightManager ï¿½ï¿½ï¿½ï¿½
 LightManager::LightManager() : lightCount(0) {
-    // uniform À§Ä¡µéÀ» -1·Î ÃÊ±âÈ­
+    // uniform ï¿½ï¿½Ä¡ï¿½ï¿½ï¿½ï¿½ -1ï¿½ï¿½ ï¿½Ê±ï¿½È­
     uLightCount_loc = -1;
     uMaterialAmbient_loc = -1;
     uMaterialDiffuse_loc = -1;
@@ -191,10 +191,10 @@ LightManager::~LightManager() {
 void LightManager::InitializeUniforms(GLuint shaderProgram) {
     glUseProgram(shaderProgram);
     
-    // Á¶¸í °³¼ö
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     uLightCount_loc = glGetUniformLocation(shaderProgram, "lightCount");
     
-    // °¢ Á¶¸íÀÇ uniform À§Ä¡µé
+    // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ uniform ï¿½ï¿½Ä¡ï¿½ï¿½
     for (int i = 0; i < MAX_LIGHTS; ++i) {
         std::string base = "lights[" + std::to_string(i) + "]";
         
@@ -211,16 +211,16 @@ void LightManager::InitializeUniforms(GLuint shaderProgram) {
         uLightOuterCutOff_loc[i] = glGetUniformLocation(shaderProgram, (base + ".outerCutOff").c_str());
     }
     
-    // ÀçÁú uniform À§Ä¡µé
+    // ï¿½ï¿½ï¿½ï¿½ uniform ï¿½ï¿½Ä¡ï¿½ï¿½
     uMaterialAmbient_loc = glGetUniformLocation(shaderProgram, "material.ambient");
     uMaterialDiffuse_loc = glGetUniformLocation(shaderProgram, "material.diffuse");
     uMaterialSpecular_loc = glGetUniformLocation(shaderProgram, "material.specular");
     uMaterialShininess_loc = glGetUniformLocation(shaderProgram, "material.shininess");
     
-    // ºä À§Ä¡
+    // ï¿½ï¿½ ï¿½ï¿½Ä¡
     uViewPos_loc = glGetUniformLocation(shaderProgram, "viewPos");
     
-    // Á¶¸í È°¼ºÈ­
+    // ï¿½ï¿½ï¿½ï¿½ È°ï¿½ï¿½È­
     uUseLighting_loc = glGetUniformLocation(shaderProgram, "useLighting");
     
     glUseProgram(0);
@@ -235,7 +235,7 @@ void LightManager::AddLight(const Light& light) {
 
 void LightManager::RemoveLight(int index) {
     if (index >= 0 && index < lightCount) {
-        // ¹è¿­À» ¾ÕÀ¸·Î ÀÌµ¿
+        // ï¿½è¿­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½
         for (int i = index; i < lightCount - 1; ++i) {
             lights[i] = lights[i + 1];
         }
@@ -327,24 +327,23 @@ void LightManager::EnableLighting(bool enable) {
 void LightManager::SetupSunlight() {
     ClearLights();
     
-    // yÃà ³ôÀº °÷¿¡¼­ ¾öÃ»³ª°Ô ¹àÀº Á¤¿ÀÀÇ ³ë¶õºû ÅÂ¾ç
+    // ë°ê³  ìžì—°ìŠ¤ëŸ¬ìš´ ë°±ìƒ‰ê´‘
     Light sunlight = Light::CreateDirectionalLight(
-        glm::vec3(0.0f, -1.0f, 0.0f),      // Á¤È®È÷ À§¿¡¼­ ¾Æ·¡·Î ÇâÇÏ´Â ÅÂ¾ç
-        glm::vec3(1.5f, 1.4f, 1.2f),       // ¸Å¿ì °­ÇÑ ³ë¶õ»ö È¯°æ±¤
-        glm::vec3(2.0f, 1.8f, 1.4f),       // ¾öÃ»³ª°Ô ¹àÀº ³ë¶õ Á÷»ç±¤
-        glm::vec3(2.2f, 2.0f, 1.6f)        // ¸Å¿ì °­ÇÑ ³ë¶õ»ö ¹Ý»ç±¤
+        glm::vec3(0.0f, -1.0f, 0.0f),      // ë¹›ì˜ ë°©í–¥ (ìœ„ì—ì„œ ì•„ëž˜ë¡œ)
+        glm::vec3(2.0f, 2.0f, 2.0f),       // ë°ì€ í™˜ê²½ê´‘
+        glm::vec3(2.5f, 2.5f, 2.5f),       // ë°ì€ í™•ì‚°ê´‘
+        glm::vec3(2.0f, 2.0f, 2.0f)        // ë°ì€ ë°˜ì‚¬ê´‘
     );
     
     AddLight(sunlight);
 }
 
 void LightManager::UpdateSunlight(float timeOfDay) {
-    // ½Ã°£ º¯È­ ¿ÏÀü ºñÈ°¼ºÈ­ - Ç×»ó Á¤¿ÀÀÇ °­ÇÑ ÅÂ¾çºû À¯Áö
+    // ë°ê³  ìžì—°ìŠ¤ëŸ¬ìš´ ì¡°ëª… ìœ ì§€
     if (lightCount > 0 && lights[0].type == LightType::DIRECTIONAL) {
-        // yÃà ³ôÀº °÷¿¡¼­ ¾öÃ»³ª°Ô ¹àÀº Á¤¿ÀÀÇ ³ë¶õºûÀ¸·Î ¿ÏÀü °íÁ¤
-        lights[0].direction = glm::normalize(glm::vec3(0.0f, -1.0f, 0.0f));  // Á¤È®È÷ À§¿¡¼­ ¾Æ·¡·Î
-        lights[0].ambient = glm::vec3(1.5f, 1.4f, 1.2f);      // ¸Å¿ì °­ÇÑ ³ë¶õ»ö È¯°æ±¤
-        lights[0].diffuse = glm::vec3(2.0f, 1.8f, 1.4f);      // ¾öÃ»³ª°Ô ¹àÀº ³ë¶õ È®»ê±¤
-        lights[0].specular = glm::vec3(2.2f, 2.0f, 1.6f);     // ¸Å¿ì °­ÇÑ ³ë¶õ»ö ¹Ý»ç±¤
+        lights[0].direction = glm::normalize(glm::vec3(0.0f, -1.0f, 0.0f));
+        lights[0].ambient = glm::vec3(2.0f, 2.0f, 2.0f);
+        lights[0].diffuse = glm::vec3(2.5f, 2.5f, 2.5f);
+        lights[0].specular = glm::vec3(2.0f, 2.0f, 2.0f);
     }
 }

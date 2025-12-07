@@ -1,47 +1,34 @@
 #version 330 core
 //--- in_Position: attribute index 0
 //--- in_Color: attribute index 1
-//--- in_TexCoord: attribute index 2 (ÅØ½ºÃ³ ÁÂÇ¥)
-//--- in_Normal: attribute index 3 (¹ý¼± º¤ÅÍ)
+//--- in_TexCoord: attribute index 2 (ï¿½Ø½ï¿½Ã³ ï¿½ï¿½Ç¥)
+//--- in_Normal: attribute index 3 (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
 
-layout (location = 0) in vec3 in_Position; //--- À§Ä¡ º¯¼ö: attribute position 0
-layout (location = 1) in vec3 in_Color; //--- ÄÃ·¯ º¯¼ö: attribute position 1
-layout (location = 2) in vec2 in_TexCoord; //--- ÅØ½ºÃ³ ÁÂÇ¥: attribute position 2
-layout (location = 3) in vec3 in_Normal; //--- ¹ý¼± º¤ÅÍ: attribute position 3
+layout (location = 0) in vec3 in_Position; //--- ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½: attribute position 0
+layout (location = 1) in vec3 in_Color; //--- ï¿½Ã·ï¿½ ï¿½ï¿½ï¿½ï¿½: attribute position 1
+layout (location = 2) in vec2 in_TexCoord; //--- ï¿½Ø½ï¿½Ã³ ï¿½ï¿½Ç¥: attribute position 2
+layout (location = 3) in vec3 in_Normal; //--- ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½: attribute position 3
 
-uniform mat4 uMVP; //--- MVP Çà·Ä
-uniform mat4 uModel; //--- ¸ðµ¨ Çà·Ä (Á¶¸í °è»ê¿ë)
-uniform mat4 uView; //--- ºä Çà·Ä
-uniform mat4 uProjection; //--- Åõ¿µ Çà·Ä
-uniform bool useTexture; //--- ÅØ½ºÃ³ »ç¿ë ¿©ºÎ
-uniform bool useLighting; //--- Á¶¸í »ç¿ë ¿©ºÎ
+uniform mat4 uMVP; //--- MVP ï¿½ï¿½ï¿½
+uniform mat4 uModel; //--- ï¿½ï¿½ ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
 
-out vec3 out_Color; //--- ÇÁ·¡±×¸ÕÆ® ¼ÎÀÌ´õ·Î Ãâ·Â
-out vec2 out_TexCoord; //--- ÅØ½ºÃ³ ÁÂÇ¥ Ãâ·Â
-out vec3 FragPos; //--- ¿ùµå °ø°£ÀÇ Á¤Á¡ À§Ä¡
-out vec3 Normal; //--- ¿ùµå °ø°£ÀÇ ¹ý¼± º¤ÅÍ
+out vec3 out_Color; //--- ï¿½ï¿½ï¿½ï¿½ï¿½×¸ï¿½Æ® ï¿½ï¿½ï¿½Ì´ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
+out vec2 out_TexCoord; //--- ï¿½Ø½ï¿½Ã³ ï¿½ï¿½Ç¥ ï¿½ï¿½ï¿½
+out vec3 FragPos; //--- ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡
+out vec3 Normal; //--- ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
 void main()
 {
-    // Á¤Á¡ À§Ä¡ º¯È¯
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ ï¿½ï¿½È¯
     gl_Position = uMVP * vec4(in_Position, 1.0);
-    
-    // Á¶¸í °è»êÀ» À§ÇÑ ¿ùµå °ø°£ À§Ä¡
+
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡
     FragPos = vec3(uModel * vec4(in_Position, 1.0));
-    
-    // ¹ý¼± º¤ÅÍ¸¦ ¿ùµå °ø°£À¸·Î º¯È¯ (ºñ±Õµî ½ºÄÉÀÏ¸µ °í·Á)
+
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯ (ï¿½ï¿½Õµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½ ï¿½ï¿½ï¿½ï¿½)
     Normal = mat3(transpose(inverse(uModel))) * in_Normal;
-    
-    // ±âº» Ãâ·Â
+
+    // ï¿½âº» ï¿½ï¿½ï¿½
     out_Color = in_Color;
     out_TexCoord = in_TexCoord;
-
-    // Transform fragment position to world space
-    out_FragPos = vec3(uModel * vec4(in_Position, 1.0));
-
-    // Transform normal (using normal matrix for non-uniform scaling)
-    out_Normal = mat3(transpose(inverse(uModel))) * in_Normal;
-
-    // Calculate fragment position in light space for shadow mapping
-    out_FragPosLightSpace = uLightSpaceMatrix * vec4(out_FragPos, 1.0);
 }

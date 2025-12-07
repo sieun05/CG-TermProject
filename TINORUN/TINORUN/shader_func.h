@@ -2,7 +2,7 @@
 #include <iostream>
 #include <gl/glew.h>
 #include <gl/freeglut.h>
-#include <gl/freeglut_ext.h> 
+#include <gl/freeglut_ext.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -11,10 +11,20 @@ void make_fragmentShaders();
 GLuint make_shaderProgram();
 void AfterMakeShaders();
 
+// Shadow shader 함수들
+void make_shadowVertexShaders();
+void make_shadowFragmentShaders();
+GLuint make_shadowShaderProgram();
+void InitShadowMap();
+
 //--- 필요한변수들
-GLuint shaderProgramID; //--- 셰이더 프로그램 이름
-GLuint vertexShader;	//--- 버텍스셰이더객체
-GLuint fragmentShader;	//--- 프래그먼트 셰이더객체
+extern GLuint shaderProgramID; //--- 셰이더 프로그램 이름
+extern GLuint vertexShader;	//--- 버텍스셰이더객체
+extern GLuint fragmentShader;	//--- 프래그먼트 셰이더객체
+
+// Shadow shader 변수들
+extern GLuint shadowVertexShader;
+extern GLuint shadowFragmentShader;
 
 // 기본 uniform 변수 위치들
 extern GLint uMVP_loc;
@@ -24,31 +34,37 @@ extern GLint uProjection_loc;
 extern GLint uUseTexture_loc;
 extern GLint uTextureSampler_loc;
 extern GLint uUseLighting_loc;
+extern GLint uShadowMap_loc;
 
-void AfterMakeShaders()
+// Shadow system extern declarations
+extern GLuint shadowMapFBO;
+extern GLuint shadowMapTexture;
+extern const unsigned int SHADOW_WIDTH;
+extern const unsigned int SHADOW_HEIGHT;
+extern GLuint shadowShaderProgram;
+
+inline void AfterMakeShaders()
 {
 	glUseProgram(shaderProgramID);
-	
+
 	// 기본 변환 행렬들
 	uMVP_loc = glGetUniformLocation(shaderProgramID, "uMVP");
 	if (uMVP_loc < 0) { printf("uMVP get error\n"); }
-	
+
 	uModel_loc = glGetUniformLocation(shaderProgramID, "uModel");
 	if (uModel_loc < 0) { printf("uModel get error\n"); }
-	
+
+	// uView와 uProjection은 선택적 (사용되지 않으면 -1 반환)
 	uView_loc = glGetUniformLocation(shaderProgramID, "uView");
-	if (uView_loc < 0) { printf("uView get error\n"); }
-	
 	uProjection_loc = glGetUniformLocation(shaderProgramID, "uProjection");
-	if (uProjection_loc < 0) { printf("uProjection get error\n"); }
-	
+
 	// 텍스처 관련 uniform 변수 위치 얻기
 	uUseTexture_loc = glGetUniformLocation(shaderProgramID, "useTexture");
 	uTextureSampler_loc = glGetUniformLocation(shaderProgramID, "textureSampler");
-	
+
 	// 조명 관련 uniform
 	uUseLighting_loc = glGetUniformLocation(shaderProgramID, "useLighting");
-	
+
 	// 텍스처 샘플러를 텍스처 유닛 0에 바인딩
 	if (uTextureSampler_loc >= 0) {
 		glUniform1i(uTextureSampler_loc, 0);  // Texture unit 0
@@ -56,16 +72,16 @@ void AfterMakeShaders()
 	if (uShadowMap_loc >= 0) {
 		glUniform1i(uShadowMap_loc, 1);  // Texture unit 1
 	}
-	
+
 	// 기본적으로 조명 활성화
 	if (uUseLighting_loc >= 0) {
 		glUniform1i(uUseLighting_loc, 1);
 	}
-	
+
 	glUseProgram(0);
 }
 
-char* filetobuf(const char* file)	//���̴� ������ �о� ���ڿ��� ��ȯ�ϴ� ��ƿ��Ƽ �Լ�
+inline char* filetobuf(const char* file)	//���̴� ������ �о� ���ڿ��� ��ȯ�ϴ� ��ƿ��Ƽ �Լ�
 {
 	FILE* fptr;
 	long length;
@@ -88,7 +104,7 @@ char* filetobuf(const char* file)	//���̴� ������ �о� �
 }
 
 //--- ���ؽ����̴���ü�����
-void make_vertexShaders()
+inline void make_vertexShaders()
 {
 	GLchar* vertexSource;
 	//--- 버텍스세이더읽어저장하고컴파일하기
@@ -115,7 +131,7 @@ void make_vertexShaders()
 	}
 }
 //--- �����׸�Ʈ���̴���ü�����
-void make_fragmentShaders()
+inline void make_fragmentShaders()
 {
 	GLchar* fragmentSource;
 	//--- �����׸�Ʈ���̴��о������ϰ��������ϱ�
@@ -140,7 +156,7 @@ void make_fragmentShaders()
 	}
 }
 
-GLuint make_shaderProgram()
+inline GLuint make_shaderProgram()
 {
 	GLint result;
 	GLchar errorLog[512];
@@ -166,7 +182,7 @@ GLuint make_shaderProgram()
 }
 
 // Shadow shader functions
-void make_shadowVertexShaders()
+inline void make_shadowVertexShaders()
 {
 	GLchar* vertexSource;
 	vertexSource = filetobuf("shadow_vertex.glsl");
@@ -186,7 +202,7 @@ void make_shadowVertexShaders()
 	}
 }
 
-void make_shadowFragmentShaders()
+inline void make_shadowFragmentShaders()
 {
 	GLchar* fragmentSource;
 	fragmentSource = filetobuf("shadow_fragment.glsl");
@@ -206,7 +222,7 @@ void make_shadowFragmentShaders()
 	}
 }
 
-GLuint make_shadowShaderProgram()
+inline GLuint make_shadowShaderProgram()
 {
 	GLint result;
 	GLchar errorLog[512];
@@ -230,7 +246,7 @@ GLuint make_shadowShaderProgram()
 	return shaderID;
 }
 
-void InitShadowMap()
+inline void InitShadowMap()
 {
 	// Generate framebuffer
 	glGenFramebuffers(1, &shadowMapFBO);
