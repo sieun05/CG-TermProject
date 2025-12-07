@@ -12,10 +12,11 @@
 #include "Light.h"	// ���� ��� �߰�
 
 #define MINIAUDIO_IMPLEMENTATION
-#include "miniaudio.h"	// ?�운???�더 추�?
+#include "miniaudio.h"	
 #define STB_IMAGE_IMPLEMENTATION
-#include "../stb_image.h"	// png ?�용
+#include "../stb_image.h"	
 
+//
 void InitBuffer();
 void InitGameObjects();
 
@@ -413,6 +414,7 @@ GLvoid Timer(int value)
 	}
 	if (scene == GameState::PLAYING and gameover_flag222) {
 		scene = GameState::GAME_OVER;
+		PostScoreToServer("abcd", gameScore);
 		InitGameObjects();
 	}
 

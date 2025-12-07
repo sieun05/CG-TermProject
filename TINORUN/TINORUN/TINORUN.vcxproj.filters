@@ -54,6 +54,9 @@
     <ClCompile Include="Light.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="network.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="game_object.h">
@@ -109,6 +112,8 @@
     <None Include="vertex.glsl">
       <Filter>소스 파일\shader</Filter>
     </None>
+    <None Include="shadow_fragment.glsl" />
+    <None Include="shadow_vertex.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="진행사항.txt" />

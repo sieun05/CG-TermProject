@@ -5,6 +5,8 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <string>
+#include <sstream>
 
 #include <gl/glew.h>
 #include <gl/freeglut.h>
@@ -14,9 +16,15 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <wininet.h>
+#pragma comment(lib, "wininet.lib")
+
+// 함수 선언만 (구현은 별도 파일에서)
+void PostScoreToServer(const char* id, int score);
+
 using namespace std;
 
-// ���� ����ü �� Ÿ�� ����
+// 색상 구조체 및 타입 정의
 struct RGBA { float r, g, b, a; };
 
 struct Boundary {

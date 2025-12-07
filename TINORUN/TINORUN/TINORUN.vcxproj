@@ -129,6 +129,7 @@
     <ClCompile Include="game_world.cpp" />
     <ClCompile Include="ground.cpp" />
     <ClCompile Include="Light.cpp" />
+    <ClCompile Include="network.cpp" />
     <ClCompile Include="obstacle.cpp" />
     <ClCompile Include="ScoreDisplay.cpp" />
     <ClCompile Include="tino.cpp" />
