@@ -4,16 +4,23 @@
 #include "game_state.h"
 #include "game_world.h"
 #include "ground.h"
-#include "tino.h"  // Tino 헤더 추가
-#include "obstacle.h" // 장애물 헤더 추가 
-#include "Images.h"	// 버튼 헤더 추가
-#include "ScoreDisplay.h"	// 점수 헤더 추가
-#include "Light.h"	// 조명 헤더 추가
+
+#include "tino.h"  // Tino ��� �߰�
+#include "obstacle.h" // ��ֹ� ��� �߰� 
+#include "Images.h"	// ��ư ��� �߰�
+#include "ScoreDisplay.h"	// ���� ��� �߰�
+#include "Light.h"	// ���� ��� �߰�
+
+#include "tino.h"  // Tino ?�더 추�?
+#include "obstacle.h" // ?�애�??�더 추�? 
+#include "Images.h"	// 버튼 ?�더 추�?
+#include "ScoreDisplay.h"	// ?�수 ?�더 추�?
+
 
 #define MINIAUDIO_IMPLEMENTATION
-#include "miniaudio.h"	// 사운드 헤더 추가
+#include "miniaudio.h"	// ?�운???�더 추�?
 #define STB_IMAGE_IMPLEMENTATION
-#include "../stb_image.h"	// png 사용
+#include "../stb_image.h"	// png ?�용
 
 void InitBuffer();
 void InitGameObjects();
@@ -26,119 +33,128 @@ GLvoid Timer(int value);
 //GLvoid SpecialKeyDown(int key, int x, int y);
 //GLvoid SpecialKeyUp(int key, int x, int y);
 
-// 전역 변수 정의 (CommonHeaders.h에서 extern으로 선언된 것들)
-// shaderProgramID는 shader_func.h에서 이미 정의됨
+// ?�역 변???�의 (CommonHeaders.h?�서 extern?�로 ?�언??것들)
+// shaderProgramID??shader_func.h?�서 ?��? ?�의??
 glm::mat4 gProjection(1.0f);
 glm::mat4 gView(1.0f);
 glm::mat4 gModel(1.0f);
 GLint uMVP_loc = -1;
 
-// 변환 행렬 관련 uniform 변수 정의
+
+// ��ȯ ��� ���� uniform ���� ����
 GLint uModel_loc = -1;
 GLint uView_loc = -1;
 GLint uProjection_loc = -1;
 
-// 텍스처 관련 uniform 변수 정의
+// �ؽ�ó ���� uniform ���� ����
 GLint uUseTexture_loc = -1;
 GLint uTextureSampler_loc = -1;
 
-// 조명 관련 uniform 변수 정의
+// ���� ���� uniform ���� ����
 GLint uUseLighting_loc = -1;
 
-// 게임 상태 관련 변수 정의 (scene은 game_world.cpp에서 정의됨)
+// ���� ���� ���� ���� ���� (scene�� game_world.cpp���� ���ǵ�)
 bool gameover_flag222 = false;
 
 Tino* tino = nullptr;
 ScoreDisplay* scoreDisplay = nullptr;
 int gameScore = 0;
 
-// 사운드 전역 변수
+// ?�운???�역 변??
 ma_engine engine;
 ma_result result;
+
 ma_sound sounds[4];
+
 
 float sky_x = 0.0f;
 bool timer = true;
 
-// 조명 시간 변수 (하루 주기 시뮬레이션용)
-float currentTime = 0.5f; // 0.5 = 정오부터 시작
 
-//--- 메인 함수
+// ���� �ð� ���� (�Ϸ� �ֱ� �ùķ��̼ǿ�)
+float currentTime = 0.5f; // 0.5 = �������� ����
+
+//--- ���� �Լ�
+
 void main(int argc, char** argv)
-//--- 윈도우출력하고콜백함수설정
+//--- ?�도?�출?�하고콜백함?�설??
 {
 	GLint width, height;
 
 	width = 1600;
 	height = 900;
-	//--- 윈도우생성하기
+	//--- ?�도?�생?�하�?
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);		//GLUT_DEPTH 깊이에 따른 은면제거
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);		//GLUT_DEPTH 깊이???�른 ?�면제�?
 	glutInitWindowPosition(100, 0);
 	glutInitWindowSize(width, height);
 	glutCreateWindow("TINO RUN");
 
-	//--- GLEW 초기화하기
+	//--- GLEW 초기?�하�?
 	glewExperimental = GL_TRUE;
 	glewInit();
 
-	//--- 세이더읽어와서세이더프로그램만들기: 사용자정의함수호출
+	//--- ?�이?�읽?��??�세?�더?�로그램만들�? ?�용?�정?�함?�호�?
 	make_vertexShaders();
 	make_fragmentShaders();
 	shaderProgramID = make_shaderProgram();
-	AfterMakeShaders();	//셰이더에서 uniform 변수 위치 얻기
+	AfterMakeShaders();	//?�이?�에??uniform 변???�치 ?�기
 
-	// 조명 시스템 초기화
+	// ���� �ý��� �ʱ�ȭ
 	g_lightManager.InitializeUniforms(shaderProgramID);
-	g_lightManager.SetupSunlight(); // 자연스러운 태양광 설정
+	g_lightManager.SetupSunlight(); // �ڿ������� �¾籤 ����
 	g_lightManager.EnableLighting(true);
 
 	glutReshapeFunc(Reshape);
 	glutDisplayFunc(drawScene);
 	glutKeyboardFunc(Keyboard);
 	glutMouseFunc(Mouse);
-	//glutSpecialFunc(SpecialKeyDown);    // 화살표 등 특수키 눌림 처리
+	//glutSpecialFunc(SpecialKeyDown);    // ?�살?????�수???�림 처리
 	//glutSpecialUpFunc(SpecialKeyUp);
-	glutTimerFunc(16, Timer, 1); // 약 60FPS로 타이머 시작
+
+	glutTimerFunc(16, Timer, 1); // �� 60FPS�� Ÿ�̸� ����
+
+
+	glutTimerFunc(16, Timer, 1); // ??60FPS�??�?�머 ?�작
 
 	InitBuffer();
-	InitGameObjects();		// 게임 객체 초기화
+	InitGameObjects();		// 게임 객체 초기??
 	
-	// 게임 상태를 PLAYING으로 설정 (테스트용)
+	// 게임 ?�태�?PLAYING?�로 ?�정 (?�스?�용)
 	scene = GameState::TITLE;
 
-	// 사운드 초기화
+	// ?�운??초기??
 	result = ma_engine_init(NULL, &engine);
 	if (result != MA_SUCCESS) {
 		std::cout << "Failed to initialize audio engine." << std::endl;
 		return;
 	}
-	// 사운드 초기화
+	// ?�운??초기??
 	ma_sound_init_from_file(&engine, "assets/jump_sound.mp3", 0, NULL, NULL, &sounds[0]);
 	ma_sound_init_from_file(&engine, "assets/gameover_sound.mp3", 0, NULL, NULL, &sounds[1]);
+
 	ma_sound_init_from_file(&engine, "assets/background.mp3", 0, NULL, NULL, &sounds[2]);
 	ma_sound_init_from_file(&engine, "assets/slide1.mp3", 0, NULL, NULL, &sounds[3]);
 
-	ma_sound_set_looping(&sounds[2], MA_TRUE);  // 배경음악 루프 설정
-
+	ma_sound_set_looping(&sounds[2], MA_TRUE);  // 배경?�악 루프 ?�정
 	glutMainLoop();
 }
 
 void InitBuffer()
 {
-	glEnable(GL_DEPTH_TEST); // 깊이버퍼 활성화
+	glEnable(GL_DEPTH_TEST); // 깊이버퍼 ?�성??
 	glEnable(GL_CULL_FACE);
 
-	//RectInit();<< 따로 초기화 함수 만들어서 호출만 하기 
+	//RectInit();<< ?�로 초기???�수 만들?�서 ?�출�??�기 
 	GroundInit();
 }
 
 void InitGameObjects()
 {
 	if (scene == GameState::TITLE) {
-		g_gameWorld.Clear(); // 이전 게임 객체들 제거
+		g_gameWorld.Clear(); // ?�전 게임 객체???�거
 
-		// 포인터 초기화
+		// ?�인??초기??
 		scoreDisplay = nullptr;
 		tino = nullptr;
 
@@ -148,20 +164,20 @@ void InitGameObjects()
 		auto start_tex = std::move(std::make_unique<Images>(0.0f, 0.0f, 0.0f, 2.0f, 2.0f, "assets/start_texture.png"));
 		g_gameWorld.AddObject(std::move(start_tex));
 
-		// Ground 객체 생성 및 GameWorld에 추가
+		// Ground 객체 ?�성 �?GameWorld??추�?
 		auto ground = std::make_unique<Ground>(1, RGBA{ 231 / 255., 217 / 255., 176 / 255., 1.0f });
-		ground->position.y = -4.0f; // 땅을 약간 아래로 이동
-		ground->scale = glm::vec3(100.0f, 0.3f, 100.0f); // 땅을 더 넓게 스케일링
+		ground->position.y = -4.0f; // ?�을 ?�간 ?�래�??�동
+		ground->scale = glm::vec3(100.0f, 0.3f, 100.0f); // ?�을 ???�게 ?��??�링
 		g_gameWorld.AddObject(std::move(ground));
 
 
-		// Tino 객체 생성 및 GameWorld에 추가
-		// 경로 수정: assets 폴더로 직접 접근
+		// Tino 객체 ?�성 �?GameWorld??추�?
+		// 경로 ?�정: assets ?�더�?직접 ?�근
 		auto tino_ptr = std::make_unique<Tino>("assets/Tino.obj", "assets/Tino_jump.obj",
 			"assets/Tino_down.obj", "assets/Tino_base.png");
-		tino = tino_ptr.get(); // 전역 포인터에 할당
-		tino->position = glm::vec3(3.0f, -3.0f, 0.0f);  // Ground 위에 배치
-		tino->scale = glm::vec3(1.3f, 1.3f, 1.3f);     // 크기 조정 (우선 기본 크기로)
+		tino = tino_ptr.get(); // ?�역 ?�인?�에 ?�당
+		tino->position = glm::vec3(3.0f, -3.0f, 0.0f);  // Ground ?�에 배치
+		tino->scale = glm::vec3(1.3f, 1.3f, 1.3f);     // ?�기 조정 (?�선 기본 ?�기�?
 		g_gameWorld.AddObject(std::move(tino_ptr));
 
 		gView = glm::mat4(1.0f);
@@ -175,47 +191,47 @@ void InitGameObjects()
 			timer = true;
 			glutTimerFunc(16, Timer, 1);
 		}
-		ma_sound_stop(&sounds[2]); // 배경음악 정지
+		ma_sound_stop(&sounds[2]); // 배경?�악 ?��?
 	}
-	// PLAYING 상태에서만 ObstacleSpawner 추가
+	// PLAYING ?�태?�서�?ObstacleSpawner 추�?
 	else if (scene == GameState::PLAYING) {
 
-		g_gameWorld.Clear(); // 이전 게임 객체들 제거
+		g_gameWorld.Clear(); // ?�전 게임 객체???�거
 
-		// 하늘 배경
+		// ?�늘 배경
 		auto sky = std::move(std::make_unique<Images>(0.0f, 0.7f, -1.0f, 2.0f, 0.6f, "assets/sky_2.png"));
 		g_gameWorld.AddObject(std::move(sky));
 
-		// Ground 객체 생성 및 GameWorld에 추가
+		// Ground 객체 ?�성 �?GameWorld??추�?
 		auto ground = std::make_unique<Ground>(1, RGBA{ 231 / 255., 217 / 255., 176 / 255., 1.0f }, "assets/sand_texture4.png");
-		ground->scale = glm::vec3(100.0f, 0.3f, 1.3f); // 땅을 더 넓게 스케일링
+		ground->scale = glm::vec3(100.0f, 0.3f, 1.3f); // ?�을 ???�게 ?��??�링
 		g_gameWorld.AddObject(std::move(ground));
 
-		// Ground 객체 생성 및 GameWorld에 추가
+		// Ground 객체 ?�성 �?GameWorld??추�?
 		auto back_ground = std::make_unique<Ground>(1, RGBA{ 231 / 255., 217 / 255., 176 / 255., 1.0f }, "assets/sand_texture4.png");
-		back_ground->scale = glm::vec3(100.0f, 0.3f, 1.3f); // 땅을 더 넓게 스케일링
-		back_ground->position.z = -10.0f; // 뒤쪽에 배치
+		back_ground->scale = glm::vec3(100.0f, 0.3f, 1.3f); // ?�을 ???�게 ?��??�링
+		back_ground->position.z = -10.0f; // ?�쪽??배치
 		g_gameWorld.AddObject(std::move(back_ground));
 
 
-		// Ground 객체 생성 및 GameWorld에 추가
+		// Ground 객체 ?�성 �?GameWorld??추�?
 		auto ground2 = std::make_unique<Ground>(1, RGBA{ 175 / 255., 145 / 255., 100 / 255., 1.0f } , "assets/ground_texture2.png");
-		ground2->position.y = -4.0f; // 땅을 약간 아래로 이동
-		ground2->scale = glm::vec3(100.0f, 0.3f, 100.0f); // 땅을 더 넓게 스케일링
+		ground2->position.y = -4.0f; // ?�을 ?�간 ?�래�??�동
+		ground2->scale = glm::vec3(100.0f, 0.3f, 100.0f); // ?�을 ???�게 ?��??�링
 		g_gameWorld.AddObject(std::move(ground2));
 		
 
-		// Tino 객체 생성 및 GameWorld에 추가
-		// 경로 수정: assets 폴더로 직접 접근
+		// Tino 객체 ?�성 �?GameWorld??추�?
+		// 경로 ?�정: assets ?�더�?직접 ?�근
 		auto tino_ptr = std::make_unique<Tino>("assets/Tino.obj", "assets/Tino_jump.obj", 
 			"assets/Tino_down.obj", "assets/Tino_base.png");
-		tino = tino_ptr.get(); // 전역 포인터에 할당
-		tino->position = glm::vec3(0.0f, 0.5f, 0.0f);  // Ground 위에 배치
-		tino->scale = glm::vec3(1.0f, 1.0f, 1.0f);     // 크기 조정 (우선 기본 크기로)
+		tino = tino_ptr.get(); // ?�역 ?�인?�에 ?�당
+		tino->position = glm::vec3(0.0f, 0.5f, 0.0f);  // Ground ?�에 배치
+		tino->scale = glm::vec3(1.0f, 1.0f, 1.0f);     // ?�기 조정 (?�선 기본 ?�기�?
 
 		g_gameWorld.AddObject(std::move(tino_ptr));
 
-		std::cout << "PLAYING 모드 시작 - ObstacleSpawner 추가" << std::endl;
+		std::cout << "PLAYING 모드 ?�작 - ObstacleSpawner 추�?" << std::endl;
 		auto spawner = std::make_unique<ObstacleSpawner>();
 		g_gameWorld.AddObject(std::move(spawner));
 
@@ -231,16 +247,16 @@ void InitGameObjects()
 		g_gameWorld.AddObject(std::move(score));
 
 		gView = glm::mat4(1.0f);
-		gView = glm::lookAt(		//카메라 외부파라미터
-			glm::vec3(-12.0f, 7.0f, 10.0f),  // 카메라 위치 (x, y, z축이 모두 보이는 위치)	EYE
-			glm::vec3(0.0f, 2.0f, -3.0f),  // 바라보는 지점 (원점) 							AT
-			glm::vec3(0.0f, 1.0f, 0.0f)   // 위쪽 방향 벡터 					 			UP
+		gView = glm::lookAt(		//카메???��??�라미터
+			glm::vec3(-12.0f, 7.0f, 10.0f),  // 카메???�치 (x, y, z축이 모두 보이???�치)	EYE
+			glm::vec3(0.0f, 2.0f, -3.0f),  // 바라보는 지??(?�점) 							AT
+			glm::vec3(0.0f, 1.0f, 0.0f)   // ?�쪽 방향 벡터 					 			UP
 		);
 
-		// 배경음악 재생 (처음부터 시작)
-		ma_sound_stop(&sounds[2]);  // 혹시 재생 중이면 정지
-		ma_sound_seek_to_pcm_frame(&sounds[2], 0);  // 처음으로
-		ma_sound_start(&sounds[2]);  // 재생 시작
+		// 배경?�악 ?�생 (처음부???�작)
+		ma_sound_stop(&sounds[2]);  // ?�시 ?�생 중이�??��?
+		ma_sound_seek_to_pcm_frame(&sounds[2], 0);  // 처음?�로
+		ma_sound_start(&sounds[2]);  // ?�생 ?�작
 
 		if (!timer) {
 			timer = true;
@@ -248,7 +264,7 @@ void InitGameObjects()
 		}
 	}
 	else if (scene == GameState::GAME_OVER) {
-		g_gameWorld.Clear(); // 이전 게임 객체들 제거
+		g_gameWorld.Clear(); // ?�전 게임 객체???�거
 
 		if(timer) timer = false;
 
@@ -268,21 +284,21 @@ void InitGameObjects()
 
 		auto tino_ptr = std::make_unique<Tino>("assets/Tino.obj", "assets/Tino_jump.obj",
 			"assets/Tino_down.obj", "assets/Tino_base.png");
-		tino = tino_ptr.get(); // 전역 포인터에 할당
-		tino->position = glm::vec3(-0.1f, 0.0f, 0.0f);  // Ground 위에 배치
-		tino->scale = glm::vec3(1.0f, 1.0f, 1.0f);     // 크기 조정 (우선 기본 크기로)
-		//tino->rotation = glm::vec3(0.0f, 90.0f, 0.0f); // 눕힌 상태로 회전
+		tino = tino_ptr.get(); // ?�역 ?�인?�에 ?�당
+		tino->position = glm::vec3(-0.1f, 0.0f, 0.0f);  // Ground ?�에 배치
+		tino->scale = glm::vec3(1.0f, 1.0f, 1.0f);     // ?�기 조정 (?�선 기본 ?�기�?
+		//tino->rotation = glm::vec3(0.0f, 90.0f, 0.0f); // ?�힌 ?�태�??�전
 		tino->StateChange(State::JUMPING);
 
-		// 선인장 - 왼쪽
+		// ?�인??- ?�쪽
 		auto cactus = std::make_unique<Cactus>("assets/obstacle1.obj", "assets/obstacle1_base.bmp");
 		cactus->position = glm::vec3(-3.0f, -3.0f, 0.0f);
 		cactus->scale = glm::vec3(0.2f, 0.2f, 0.2f);
 		cactus->rotation = glm::vec3(0.0f, 30.0f, 20.0f);
-		cactus->SetSpeed(0.0f);  // 움직이지 않게
+		cactus->SetSpeed(0.0f);  // ?�직이지 ?�게
 		g_gameWorld.AddObject(std::move(cactus));
 
-		// 나무 - 오른쪽
+		// ?�무 - ?�른�?
 		auto tree = std::make_unique<Tree>("assets/obstacle2.obj", "assets/obstacle2_base.bmp");
 		tree->position = glm::vec3(8.0f, 2.0f, -2.0f);
 		tree->scale = glm::vec3(0.3f, 0.3f, 0.3f);
@@ -290,7 +306,7 @@ void InitGameObjects()
 		tree->SetSpeed(0.0f);
 		g_gameWorld.AddObject(std::move(tree));
 
-		// 버섯 - 중앙 뒤쪽
+		// 버섯 - 중앙 ?�쪽
 		auto mushroom = std::make_unique<Mushroom>("assets/obstacle3.obj", "assets/obstacle3_base.bmp");
 		mushroom->position = glm::vec3(-8.0f, 2.0f, -5.0f);
 		mushroom->scale = glm::vec3(1.2f, 1.2f, 1.2f);
@@ -298,7 +314,7 @@ void InitGameObjects()
 		mushroom->SetSpeed(0.0f);
 		g_gameWorld.AddObject(std::move(mushroom));
 
-		// 새 - 공중
+		// ??- 공중
 		auto bird = std::make_unique<Bird>("assets/bird.obj", "assets/bird_base.bmp");
 		bird->position = glm::vec3(5.0f, -2.0f, 0.0f);
 		bird->scale = glm::vec3(0.8f, 0.8f, 0.8f);
@@ -313,46 +329,46 @@ void InitGameObjects()
 			glm::vec3(0.0f, 1.0f, 0.0f)   //				 			UP
 		);
 
-		// 배경음악 정지
+		// 배경?�악 ?��?
 		ma_sound_stop(&sounds[2]);
 
-		// 게임오버 사운드 재생
+		// 게임?�버 ?�운???�생
 		ma_sound_start(&sounds[1]);
 		ma_sound_seek_to_pcm_frame(&sounds[1], 0);
 	}
 }
 
-//--- 출력 콜백함수
+//--- 출력 콜백?�수
 GLvoid drawScene()
 {
 	glClearColor(0.7f, 0.95f, 1.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		//GL_DEPTH_BUFFER_BIT 깊이에 따른 은면제거
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		//GL_DEPTH_BUFFER_BIT 깊이???�른 ?�면제�?
 
 
-	//--- 렌더링 파이프라인에 세이더 불러우기
+	//--- ?�더�??�이?�라?�에 ?�이??불러?�기
 	glUseProgram(shaderProgramID);
 
 
-	// GameWorld를 통해 모든 객체 렌더링
+	// GameWorld�??�해 모든 객체 ?�더�?
 	g_gameWorld.DrawAll(gProjection, gView, uMVP_loc);
 
-	// 게임 상태 표시 (콘솔)
+	// 게임 ?�태 ?�시 (콘솔)
 	static int frameCount = 0;
 	frameCount++;
-	if (frameCount % 300 == 0) { // 5초마다 출력
-		std::cout << "현재 게임 상태: ";
+	if (frameCount % 300 == 0) { // 5초마??출력
+		std::cout << "?�재 게임 ?�태: ";
 		switch (scene) {
 		case GameState::TITLE: std::cout << "TITLE"; break;
 		case GameState::PLAYING: std::cout << "PLAYING"; break;
 		case GameState::GAME_OVER: std::cout << "GAME_OVER"; break;
 		}
-		std::cout << ", 활성 객체 수: " << g_gameWorld.GetActiveObjectCount() << std::endl;
+		std::cout << ", ?�성 객체 ?? " << g_gameWorld.GetActiveObjectCount() << std::endl;
 	}
 
 	glutSwapBuffers();
 }
 
-//--- 다시그리기콜백함수
+//--- ?�시그리기콜백함??
 GLvoid Reshape(int w, int h)
 {
 	glViewport(0, 0, w, h);
@@ -361,15 +377,15 @@ GLvoid Reshape(int w, int h)
 
 	float aspect = (h == 0) ? 1 : (float)w / (float)h;
 
-	//원근 투영 사용 (3D 효과를 더 잘 보여줌)
+	//?�근 ?�영 ?�용 (3D ?�과�?????보여�?
 	gProjection = glm::perspective(
-		glm::radians(45.0f),  // 시야각 45도	fovy
-		aspect,               // 종횡비			aspect
-		0.1f,                 // 근평면			-n
-		100.0f                // 원평면			-f
+		glm::radians(45.0f),  // ?�야�?45??fovy
+		aspect,               // 종횡�?		aspect
+		0.1f,                 // 근평�?		-n
+		100.0f                // ?�평�?		-f
 	);
 
-	glEnable(GL_DEPTH_TEST); // 깊이버퍼 활성화
+	glEnable(GL_DEPTH_TEST); // 깊이버퍼 ?�성??
 	glUseProgram(0);
 }
 
@@ -379,7 +395,7 @@ GLvoid Timer(int value)
 
 	const float deltaTime = 0.016f;
 
-	if (scene == GameState::PLAYING) {	// 게임 스코어 증가
+	if (scene == GameState::PLAYING) {	// 게임 ?�코??증�?
 		gameScore += 1;
 		if (scoreDisplay) {
 			scoreDisplay->SetScore(gameScore);
@@ -390,18 +406,18 @@ GLvoid Timer(int value)
 		InitGameObjects();
 	}
 
-	// 조명 업데이트 (하루 주기 시뮬레이션)
-	currentTime += deltaTime * 0.02f; // 느린 하루 주기 (약 50초에 하루)
+	// ���� ������Ʈ (�Ϸ� �ֱ� �ùķ��̼�)
+	currentTime += deltaTime * 0.02f; // ���� �Ϸ� �ֱ� (�� 50�ʿ� �Ϸ�)
 	if (currentTime >= 1.0f) {
-		currentTime -= 1.0f; // 하루를 넘으면 다시 시작
+		currentTime -= 1.0f; // �Ϸ縦 ������ �ٽ� ����
 	}
 	
-	// 태양광 업데이트 및 셰이더에 전송
+	// �¾籤 ������Ʈ �� ���̴��� ����
 	glUseProgram(shaderProgramID);
 	g_lightManager.UpdateSunlight(currentTime);
 	g_lightManager.SendLightsToShader();
 	
-	// 카메라 위치를 조명 계산용으로 전송
+	// ī�޶� ��ġ�� ���� �������� ����
 	glm::vec3 cameraPos = glm::vec3(gView[3]);
 	if (scene == GameState::PLAYING) {
 		cameraPos = glm::vec3(-12.0f, 7.0f, 10.0f);
@@ -411,56 +427,57 @@ GLvoid Timer(int value)
 	g_lightManager.SendViewPosition(cameraPos);
 	glUseProgram(0);
 
-	// GameWorld를 통해 모든 객체 업데이트 (ObstacleSpawner 포함)
+	// GameWorld�� ���� ��� ��ü ������Ʈ (ObstacleSpawner ����)
+	// GameWorld�??�해 모든 객체 ?�데?�트 (ObstacleSpawner ?�함)
 	g_gameWorld.UpdateAll();
 
 	glutPostRedisplay();
-	glutTimerFunc(16, Timer, 1); // 약 60FPS로 타이머 시작
+	glutTimerFunc(16, Timer, 1); // ??60FPS�??�?�머 ?�작
 
 }
 
 GLvoid Keyboard(unsigned char key, int x, int y)
 {
-	const float deltaTime = 0.016f; // 약 60FPS 기준
+	const float deltaTime = 0.016f; // ??60FPS 기�?
 
 	switch (key) {
-	case ' ':	// 점프 (추후 구현)
+	case ' ':	// ?�프 (추후 구현)
 		if (scene == GameState::PLAYING) {
 			tino->StateChange(State::JUMPING);
 			
-			ma_sound_start(&sounds[0]);	// 점프 사운드
+			ma_sound_start(&sounds[0]);	// ?�프 ?�운??
 			ma_sound_seek_to_pcm_frame(&sounds[0], 0);
 		}
 		break;
 	case '\r': 
-	case '\n':		// 엔터 누르면 시작
+	case '\n':		// ?�터 ?�르�??�작
 		if (scene == GameState::TITLE) {
 			scene = GameState::PLAYING;
-			std::cout << "게임 시작" << std::endl;
-			InitGameObjects();		// 게임 객체 초기화
+			std::cout << "게임 ?�작" << std::endl;
+			InitGameObjects();		// 게임 객체 초기??
 		}
 		if(scene == GameState::GAME_OVER) {
 			scene = GameState::TITLE;
 			gameover_flag222 = false;
-			std::cout << "타이틀 화면으로 이동" << std::endl;
+			std::cout << "?�?��? ?�면?�로 ?�동" << std::endl;
 			InitGameObjects();
 		}
 		break;
 	case 27:		
 		if (scene == GameState::PLAYING) {
-			// ESC 누르면 타이틀로
+			// ESC ?�르�??�?��?�?
 			scene = GameState::TITLE;
-			std::cout << "타이틀 화면으로 이동" << std::endl;
+			std::cout << "?�?��? ?�면?�로 ?�동" << std::endl;
 		}
 		else if (scene == GameState::TITLE || scene == GameState::GAME_OVER) {
-			// 타이틀에서 누르면 게임종료
+			// ?�?��??�서 ?�르�?게임종료
 			std::cout << "게임 종료" << std::endl;
-			ma_engine_uninit(&engine); // 이전에 재생 중이던 사운드 정리
+			ma_engine_uninit(&engine); // ?�전???�생 중이???�운???�리
 			exit(0);
 		}
 		InitGameObjects();
 		break;
-	case 'g':	// 확인용
+	case 'g':	// ?�인??
 		scene = GameState::GAME_OVER;
 		InitGameObjects();
 		break;
