@@ -44,6 +44,8 @@ protected:
     virtual void SetupMesh();
     void SetupBoundaryMesh(); // protected로 변경
 
+    bool backupSpawnFlag;
+
 public:
     Obstacle();
     Obstacle(const std::string& objPath, const std::string& texturePath);
@@ -66,6 +68,9 @@ public:
     
     // 이동 속도 설정
     void SetSpeed(float speed) { moveSpeed = speed; }
+
+    // 배경용
+    void SetbackSpawnFlag(bool flag) { backupSpawnFlag = flag; }
 
     // 장애물 타입 반환 (각 파생 클래스에서 구현)
     virtual ObstacleType GetType() const = 0;
@@ -127,7 +132,7 @@ class ObstacleSpawner : public GameObject {
 private:
     float spawnTimer;
     float spawnInterval;
-	bool backupSpawnFlag = false;
+	bool backupSpawnFlag;
     
     // 랜덤 생성을 위한 변수들
     std::random_device rd;

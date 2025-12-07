@@ -59,7 +59,9 @@ Obstacle::Obstacle()
 Obstacle::Obstacle(const std::string& objPath, const std::string& texturePath)
     : VAO(0), VBO(0), EBO(0), textureID(0), moveSpeed(-6.0f), bmp(nullptr), isLoaded(false)
 {
-    position = glm::vec3(SPAWN_X_POSITION, 0.5f, 0.0f);
+	if (backupSpawnFlag) position = glm::vec3(SPAWN_X_POSITION, 0.5f, -20.0f);
+
+    else position = glm::vec3(SPAWN_X_POSITION, 0.5f, 0.0f);
     scale = glm::vec3(0.25f, 0.25f, 0.25f);
     rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 
@@ -333,6 +335,7 @@ bool Obstacle::ShouldBeRemoved() const
 
 void Obstacle::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 {
+    
 }
 
 void Obstacle::Update()
@@ -455,7 +458,6 @@ Cactus::Cactus() : Obstacle()
 Cactus::Cactus(const std::string& objPath, const std::string& texturePath)
     : Obstacle(objPath, texturePath)
 {
-
     scale = glm::vec3(0.2f, 0.2f, 0.2f);
 
     // Cactus ���� boundary ���� (�� ũ�� ����)
@@ -481,6 +483,10 @@ void Cactus::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glBindVertexArray(VAO);
     glBindTexture(GL_TEXTURE_2D, textureID);
 
+    if (backupSpawnFlag) {
+        position.z = -10.0f;
+		scale = glm::vec3(0.15f, 0.15f, 0.15f);
+    }
     glm::mat4 model = GetModelMatrix();
     glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(-35.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     model = model * rotate;
@@ -566,6 +572,10 @@ void Tree::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glBindVertexArray(VAO);
     glBindTexture(GL_TEXTURE_2D, textureID);
 
+    if (backupSpawnFlag) {
+        position.z = -10.0f;
+        scale = glm::vec3(0.15f, 0.15f, 0.15f);
+    }
     glm::mat4 model = GetModelMatrix();
 
     // 변환 행렬들을 셰이더에 전송
@@ -645,6 +655,10 @@ void Mushroom::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glBindVertexArray(VAO);
     glBindTexture(GL_TEXTURE_2D, textureID);
 
+    if (backupSpawnFlag) {
+        position.z = -10.0f;
+        scale = glm::vec3(0.7f, 0.7f, 0.7f);
+    }
     glm::mat4 model = GetModelMatrix();
 
     // 변환 행렬들을 셰이더에 전송
@@ -725,6 +739,10 @@ void Bird::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     glBindVertexArray(VAO);
     glBindTexture(GL_TEXTURE_2D, textureID);
 
+    if (backupSpawnFlag) {
+        position.z = -10.0f;
+        scale = glm::vec3(0.7f, 0.7f, 0.7f);
+    }
     glm::mat4 model = GetModelMatrix();
 
     // 변환 행렬들을 셰이더에 전송
@@ -797,6 +815,7 @@ void ObstacleSpawner::SpawnObstacle()
 {
     auto obstacle = CreateRandomObstacle();
     if (obstacle) {
+        obstacle->SetbackSpawnFlag(backupSpawnFlag);
         g_gameWorld.AddPendingObject(std::move(obstacle));
     }
 }

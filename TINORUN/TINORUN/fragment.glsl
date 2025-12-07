@@ -32,28 +32,28 @@ struct Material {
     float shininess;
 };
 
-uniform sampler2D textureSampler; //--- �ؽ�ó ���÷�
-uniform bool useTexture; //--- �ؽ�ó ��� ����
-uniform bool useLighting; //--- ���� ��� ����
+uniform sampler2D textureSampler; //---  ؽ ó    ÷ 
+uniform bool useTexture; //---  ؽ ó         
+uniform bool useLighting; //---              
 
-// ���� ���� uniform
+//           uniform
 uniform int lightCount;
-uniform Light lights[8]; // �ִ� 8�� ����
+uniform Light lights[8]; //  ִ  8       
 uniform Material material;
-uniform vec3 viewPos; // ī�޶� ��ġ
+uniform vec3 viewPos; // ī ޶    ġ
 
-//--- ���౤ ��� �Լ�
+//---    ౤      Լ 
 vec3 CalcDirectionalLight(Light light, vec3 normal, vec3 viewDir, vec3 matDiffuse) {
     vec3 lightDir = normalize(-light.direction);
     
-    // Ȯ�걤 ���
+    // Ȯ 걤    
     float diff = max(dot(normal, lightDir), 0.0);
     
-    // �ݻ籤 ��� (Blinn-Phong)
+    //  ݻ籤     (Blinn-Phong)
     vec3 halfwayDir = normalize(lightDir + viewDir);
     float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess);
     
-    // �� ���� ���
+    //            
     vec3 ambient = light.ambient * material.ambient * matDiffuse;
     vec3 diffuse = light.diffuse * diff * material.diffuse * matDiffuse;
     vec3 specular = light.specular * spec * material.specular;
@@ -61,22 +61,22 @@ vec3 CalcDirectionalLight(Light light, vec3 normal, vec3 viewDir, vec3 matDiffus
     return ambient + diffuse + specular;
 }
 
-//--- ������ ��� �Լ�
+//---             Լ 
 vec3 CalcPointLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 matDiffuse) {
     vec3 lightDir = normalize(light.position - fragPos);
     
-    // Ȯ�걤 ���
+    // Ȯ 걤    
     float diff = max(dot(normal, lightDir), 0.0);
     
-    // �ݻ籤 ��� (Blinn-Phong)
+    //  ݻ籤     (Blinn-Phong)
     vec3 halfwayDir = normalize(lightDir + viewDir);
     float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess);
     
-    // ���� ���
+    //         
     float distance = length(light.position - fragPos);
     float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
     
-    // �� ���� ���
+    //            
     vec3 ambient = light.ambient * material.ambient * matDiffuse;
     vec3 diffuse = light.diffuse * diff * material.diffuse * matDiffuse;
     vec3 specular = light.specular * spec * material.specular;
@@ -88,27 +88,27 @@ vec3 CalcPointLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 m
     return ambient + diffuse + specular;
 }
 
-//--- ����Ʈ����Ʈ ��� �Լ�
+//---     Ʈ    Ʈ      Լ 
 vec3 CalcSpotLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 matDiffuse) {
     vec3 lightDir = normalize(light.position - fragPos);
     
-    // Ȯ�걤 ���
+    // Ȯ 걤    
     float diff = max(dot(normal, lightDir), 0.0);
     
-    // �ݻ籤 ��� (Blinn-Phong)
+    //  ݻ籤     (Blinn-Phong)
     vec3 halfwayDir = normalize(lightDir + viewDir);
     float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess);
     
-    // ���� ���
+    //         
     float distance = length(light.position - fragPos);
     float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
     
-    // ����Ʈ����Ʈ ���� ���
+    //     Ʈ    Ʈ         
     float theta = dot(lightDir, normalize(-light.direction));
     float epsilon = light.cutOff - light.outerCutOff;
     float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
     
-    // �� ���� ���
+    //            
     vec3 ambient = light.ambient * material.ambient * matDiffuse;
     vec3 diffuse = light.diffuse * diff * material.diffuse * matDiffuse;
     vec3 specular = light.specular * spec * material.specular;
@@ -121,44 +121,36 @@ vec3 CalcSpotLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 ma
 }
 
 void main()
-{
-    // �⺻ ���� ���� ����
+{            
     vec3 materialColor;
     if (useTexture) {
         vec4 texColor = texture(textureSampler, out_TexCoord);
-        // ���� �׽�Ʈ
         if(texColor.a < 0.1)
             discard;
         materialColor = texColor.rgb;
     } else {
         materialColor = out_Color;
     }
-    
-    // ���� ���
+         
     if (useLighting && lightCount > 0) {
         vec3 normal = normalize(Normal);
         vec3 viewDir = normalize(viewPos - FragPos);
         vec3 result = vec3(0.0);
-        
-        // ��� ������ ���� ���
+         
         for(int i = 0; i < lightCount && i < 8; i++) {
             if (lights[i].type == 0) {
-                // ���౤ (�¾籤)
                 result += CalcDirectionalLight(lights[i], normal, viewDir, materialColor);
             }
-            else if (lights[i].type == 1) {
-                // ������
+            else if (lights[i].type == 1) {     
                 result += CalcPointLight(lights[i], normal, FragPos, viewDir, materialColor);
             }
             else if (lights[i].type == 2) {
-                // ����Ʈ����Ʈ
                 result += CalcSpotLight(lights[i], normal, FragPos, viewDir, materialColor);
             }
         }
         
         FragColor = vec4(result, 1.0);
-    } else {
-        // ���� ���� �⺻ ������
+    } else {  
         if (useTexture) {
             vec4 texColor = texture(textureSampler, out_TexCoord);
             if(texColor.a < 0.1)

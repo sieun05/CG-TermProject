@@ -245,7 +245,12 @@ void InitGameObjects()
 
 		std::cout << "PLAYING 모드 ?�작 - ObstacleSpawner 추�?" << std::endl;
 		auto spawner = std::make_unique<ObstacleSpawner>();
+		spawner->SetbackSpawnFlag(false); 
 		g_gameWorld.AddObject(std::move(spawner));
+
+		auto back_spawner = std::make_unique<ObstacleSpawner>();
+		back_spawner->SetbackSpawnFlag(true); // 배경용
+		g_gameWorld.AddObject(std::move(back_spawner));
 
 		auto score = std::make_unique<ScoreDisplay>(
 			-0.95f,
@@ -414,7 +419,11 @@ GLvoid Timer(int value)
 	}
 	if (scene == GameState::PLAYING and gameover_flag222) {
 		scene = GameState::GAME_OVER;
-		PostScoreToServer("abcd", gameScore);
+		/*std::cout << "이름 입력: " << std::endl;
+		string name;
+		std::cin >> name;
+		PostScoreToServer(name.c_str(), gameScore);*/
+		PostScoreToServer("Player", gameScore);
 		InitGameObjects();
 	}
 
