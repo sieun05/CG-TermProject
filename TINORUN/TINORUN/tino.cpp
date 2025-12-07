@@ -311,9 +311,9 @@ void Tino::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
     
     // 재질 설정 - Tino용 (플라스틱 계열의 밝고 부드러운 재질)
     Material tinoMaterial = Material(
-        glm::vec3(0.1f, 0.2f, 0.3f),        // 파란색 계열 환경광
-        glm::vec3(0.3f, 0.7f, 1.0f),        // 밝은 파란색 확산광
-        glm::vec3(0.5f, 0.8f, 1.0f),        // 밝고 부드러운 반사광
+        glm::vec3(1.5f, 1.4f, 1.2f),        // 파란색 계열 환경광
+        glm::vec3(1.0f, 0.8f, 0.4f),        // 밝은 파란색 확산광
+        glm::vec3(2.2f, 2.0f, 1.6f),        // 밝고 부드러운 반사광
         64.0f                                // 높은 광택도 (부드러운 표면)
     );
     g_lightManager.SendMaterialToShader(tinoMaterial);

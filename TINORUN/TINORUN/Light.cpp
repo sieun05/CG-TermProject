@@ -330,8 +330,8 @@ void LightManager::SetupSunlight() {
     // y축 높은 곳에서 엄청나게 밝은 정오의 노란빛 태양
     Light sunlight = Light::CreateDirectionalLight(
         glm::vec3(0.0f, -1.0f, 0.0f),      // 정확히 위에서 아래로 향하는 태양
-        glm::vec3(1.5f, 1.4f, 1.2f),       // 매우 강한 노란색 환경광
-        glm::vec3(2.0f, 1.8f, 1.4f),       // 엄청나게 밝은 노란 직사광
+        glm::vec3(1.0f, 1.0f, 1.0f),       // 매우 강한 노란색 환경광
+        glm::vec3(1.0f, 0.8f, 0.4f),       // 엄청나게 밝은 노란 직사광
         glm::vec3(2.2f, 2.0f, 1.6f)        // 매우 강한 노란색 반사광
     );
     
@@ -339,12 +339,7 @@ void LightManager::SetupSunlight() {
 }
 
 void LightManager::UpdateSunlight(float timeOfDay) {
-    // 시간 변화 완전 비활성화 - 항상 정오의 강한 태양빛 유지
-    if (lightCount > 0 && lights[0].type == LightType::DIRECTIONAL) {
-        // y축 높은 곳에서 엄청나게 밝은 정오의 노란빛으로 완전 고정
-        lights[0].direction = glm::normalize(glm::vec3(0.0f, -1.0f, 0.0f));  // 정확히 위에서 아래로
-        lights[0].ambient = glm::vec3(1.5f, 1.4f, 1.2f);      // 매우 강한 노란색 환경광
-        lights[0].diffuse = glm::vec3(2.0f, 1.8f, 1.4f);      // 엄청나게 밝은 노란 확산광
-        lights[0].specular = glm::vec3(2.2f, 2.0f, 1.6f);     // 매우 강한 노란색 반사광
-    }
+    // 조명 색상 변경 완전 비활성화
+    // 이 함수는 아무것도 하지 않음 - SetupSunlight()에서 설정한 색상 그대로 유지
+    return;
 }
