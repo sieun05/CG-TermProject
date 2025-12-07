@@ -58,7 +58,7 @@ private:
     float stateTimer;
 
 	static constexpr float JUMP_DURATION = 1.5f; // 점프 상태 지속 시간 (초)
-	static constexpr float SLIDE_DURATION = 0.8f; // 슬라이드 상태 지속 시간 (초)
+	static constexpr float SLIDE_DURATION = 1.0f; // 슬라이드 상태 지속 시간 (초)
 
     void SetupMesh(State targetState);
     

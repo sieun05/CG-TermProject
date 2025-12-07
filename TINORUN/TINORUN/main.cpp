@@ -4,16 +4,16 @@
 #include "game_state.h"
 #include "game_world.h"
 #include "ground.h"
-#include "tino.h"  // Tino Çì´õ Ãß°¡
-#include "obstacle.h" // Àå¾Ö¹° Çì´õ Ãß°¡ 
-#include "Images.h"	// ¹öÆ° Çì´õ Ãß°¡
-#include "ScoreDisplay.h"	// Á¡¼ö Çì´õ Ãß°¡
-#include "Light.h"	// Á¶¸í Çì´õ Ãß°¡
+#include "tino.h"  // Tino í—¤ë” ì¶”ê°€
+#include "obstacle.h" // ì¥ì• ë¬¼ í—¤ë” ì¶”ê°€ 
+#include "Images.h"	// ë²„íŠ¼ í—¤ë” ì¶”ê°€
+#include "ScoreDisplay.h"	// ì ìˆ˜ í—¤ë” ì¶”ê°€
+#include "Light.h"	// ì¡°ëª… í—¤ë” ì¶”ê°€
 
 #define MINIAUDIO_IMPLEMENTATION
-#include "miniaudio.h"	// »ç¿îµå Çì´õ Ãß°¡
+#include "miniaudio.h"	// ì‚¬ìš´ë“œ í—¤ë” ì¶”ê°€
 #define STB_IMAGE_IMPLEMENTATION
-#include "../stb_image.h"	// png »ç¿ë
+#include "../stb_image.h"	// png ì‚¬ìš©
 
 void InitBuffer();
 void InitGameObjects();
@@ -26,115 +26,119 @@ GLvoid Timer(int value);
 //GLvoid SpecialKeyDown(int key, int x, int y);
 //GLvoid SpecialKeyUp(int key, int x, int y);
 
-// Àü¿ª º¯¼ö Á¤ÀÇ (CommonHeaders.h¿¡¼­ externÀ¸·Î ¼±¾ğµÈ °Íµé)
-// shaderProgramID´Â shader_func.h¿¡¼­ ÀÌ¹Ì Á¤ÀÇµÊ
+// ì „ì—­ ë³€ìˆ˜ ì •ì˜ (CommonHeaders.hì—ì„œ externìœ¼ë¡œ ì„ ì–¸ëœ ê²ƒë“¤)
+// shaderProgramIDëŠ” shader_func.hì—ì„œ ì´ë¯¸ ì •ì˜ë¨
 glm::mat4 gProjection(1.0f);
 glm::mat4 gView(1.0f);
 glm::mat4 gModel(1.0f);
 GLint uMVP_loc = -1;
 
-// º¯È¯ Çà·Ä °ü·Ã uniform º¯¼ö Á¤ÀÇ
+// ë³€í™˜ í–‰ë ¬ ê´€ë ¨ uniform ë³€ìˆ˜ ì •ì˜
 GLint uModel_loc = -1;
 GLint uView_loc = -1;
 GLint uProjection_loc = -1;
 
-// ÅØ½ºÃ³ °ü·Ã uniform º¯¼ö Á¤ÀÇ
+// í…ìŠ¤ì²˜ ê´€ë ¨ uniform ë³€ìˆ˜ ì •ì˜
 GLint uUseTexture_loc = -1;
 GLint uTextureSampler_loc = -1;
 
-// Á¶¸í °ü·Ã uniform º¯¼ö Á¤ÀÇ
+// ì¡°ëª… ê´€ë ¨ uniform ë³€ìˆ˜ ì •ì˜
 GLint uUseLighting_loc = -1;
 
-// °ÔÀÓ »óÅÂ °ü·Ã º¯¼ö Á¤ÀÇ (sceneÀº game_world.cpp¿¡¼­ Á¤ÀÇµÊ)
+// ê²Œì„ ìƒíƒœ ê´€ë ¨ ë³€ìˆ˜ ì •ì˜ (sceneì€ game_world.cppì—ì„œ ì •ì˜ë¨)
 bool gameover_flag222 = false;
 
 Tino* tino = nullptr;
 ScoreDisplay* scoreDisplay = nullptr;
 int gameScore = 0;
 
-// »ç¿îµå Àü¿ª º¯¼ö
+// ì‚¬ìš´ë“œ ì „ì—­ ë³€ìˆ˜
 ma_engine engine;
 ma_result result;
-ma_sound sounds[2];
+ma_sound sounds[4];
 
 float sky_x = 0.0f;
 bool timer = true;
 
-// Á¶¸í ½Ã°£ º¯¼ö (ÇÏ·ç ÁÖ±â ½Ã¹Ä·¹ÀÌ¼Ç¿ë)
-float currentTime = 0.5f; // 0.5 = Á¤¿ÀºÎÅÍ ½ÃÀÛ
+// ì¡°ëª… ì‹œê°„ ë³€ìˆ˜ (í•˜ë£¨ ì£¼ê¸° ì‹œë®¬ë ˆì´ì…˜ìš©)
+float currentTime = 0.5f; // 0.5 = ì •ì˜¤ë¶€í„° ì‹œì‘
 
-//--- ¸ŞÀÎ ÇÔ¼ö
+//--- ë©”ì¸ í•¨ìˆ˜
 void main(int argc, char** argv)
-//--- À©µµ¿ìÃâ·ÂÇÏ°íÄİ¹éÇÔ¼ö¼³Á¤
+//--- ìœˆë„ìš°ì¶œë ¥í•˜ê³ ì½œë°±í•¨ìˆ˜ì„¤ì •
 {
 	GLint width, height;
 
 	width = 1600;
 	height = 900;
-	//--- À©µµ¿ì»ı¼ºÇÏ±â
+	//--- ìœˆë„ìš°ìƒì„±í•˜ê¸°
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);		//GLUT_DEPTH ±íÀÌ¿¡ µû¸¥ Àº¸éÁ¦°Å
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);		//GLUT_DEPTH ê¹Šì´ì— ë”°ë¥¸ ì€ë©´ì œê±°
 	glutInitWindowPosition(100, 0);
 	glutInitWindowSize(width, height);
 	glutCreateWindow("TINO RUN");
 
-	//--- GLEW ÃÊ±âÈ­ÇÏ±â
+	//--- GLEW ì´ˆê¸°í™”í•˜ê¸°
 	glewExperimental = GL_TRUE;
 	glewInit();
 
-	//--- ¼¼ÀÌ´õÀĞ¾î¿Í¼­¼¼ÀÌ´õÇÁ·Î±×·¥¸¸µé±â: »ç¿ëÀÚÁ¤ÀÇÇÔ¼öÈ£Ãâ
+	//--- ì„¸ì´ë”ì½ì–´ì™€ì„œì„¸ì´ë”í”„ë¡œê·¸ë¨ë§Œë“¤ê¸°: ì‚¬ìš©ìì •ì˜í•¨ìˆ˜í˜¸ì¶œ
 	make_vertexShaders();
 	make_fragmentShaders();
 	shaderProgramID = make_shaderProgram();
-	AfterMakeShaders();	//¼ÎÀÌ´õ¿¡¼­ uniform º¯¼ö À§Ä¡ ¾ò±â
+	AfterMakeShaders();	//ì…°ì´ë”ì—ì„œ uniform ë³€ìˆ˜ ìœ„ì¹˜ ì–»ê¸°
 
-	// Á¶¸í ½Ã½ºÅÛ ÃÊ±âÈ­
+	// ì¡°ëª… ì‹œìŠ¤í…œ ì´ˆê¸°í™”
 	g_lightManager.InitializeUniforms(shaderProgramID);
-	g_lightManager.SetupSunlight(); // ÀÚ¿¬½º·¯¿î ÅÂ¾ç±¤ ¼³Á¤
+	g_lightManager.SetupSunlight(); // ìì—°ìŠ¤ëŸ¬ìš´ íƒœì–‘ê´‘ ì„¤ì •
 	g_lightManager.EnableLighting(true);
 
 	glutReshapeFunc(Reshape);
 	glutDisplayFunc(drawScene);
 	glutKeyboardFunc(Keyboard);
 	glutMouseFunc(Mouse);
-	//glutSpecialFunc(SpecialKeyDown);    // È­»ìÇ¥ µî Æ¯¼öÅ° ´­¸² Ã³¸®
+	//glutSpecialFunc(SpecialKeyDown);    // í™”ì‚´í‘œ ë“± íŠ¹ìˆ˜í‚¤ ëˆŒë¦¼ ì²˜ë¦¬
 	//glutSpecialUpFunc(SpecialKeyUp);
-	glutTimerFunc(16, Timer, 1); // ¾à 60FPS·Î Å¸ÀÌ¸Ó ½ÃÀÛ
+	glutTimerFunc(16, Timer, 1); // ì•½ 60FPSë¡œ íƒ€ì´ë¨¸ ì‹œì‘
 
 	InitBuffer();
-	InitGameObjects();		// °ÔÀÓ °´Ã¼ ÃÊ±âÈ­
+	InitGameObjects();		// ê²Œì„ ê°ì²´ ì´ˆê¸°í™”
 	
-	// °ÔÀÓ »óÅÂ¸¦ PLAYINGÀ¸·Î ¼³Á¤ (Å×½ºÆ®¿ë)
+	// ê²Œì„ ìƒíƒœë¥¼ PLAYINGìœ¼ë¡œ ì„¤ì • (í…ŒìŠ¤íŠ¸ìš©)
 	scene = GameState::TITLE;
 
-	// »ç¿îµå ÃÊ±âÈ­
+	// ì‚¬ìš´ë“œ ì´ˆê¸°í™”
 	result = ma_engine_init(NULL, &engine);
 	if (result != MA_SUCCESS) {
 		std::cout << "Failed to initialize audio engine." << std::endl;
 		return;
 	}
-	// »ç¿îµå ÃÊ±âÈ­
+	// ì‚¬ìš´ë“œ ì´ˆê¸°í™”
 	ma_sound_init_from_file(&engine, "assets/jump_sound.mp3", 0, NULL, NULL, &sounds[0]);
 	ma_sound_init_from_file(&engine, "assets/gameover_sound.mp3", 0, NULL, NULL, &sounds[1]);
-	
+	ma_sound_init_from_file(&engine, "assets/background.mp3", 0, NULL, NULL, &sounds[2]);
+	ma_sound_init_from_file(&engine, "assets/slide1.mp3", 0, NULL, NULL, &sounds[3]);
+
+	ma_sound_set_looping(&sounds[2], MA_TRUE);  // ë°°ê²½ìŒì•… ë£¨í”„ ì„¤ì •
+
 	glutMainLoop();
 }
 
 void InitBuffer()
 {
-	glEnable(GL_DEPTH_TEST); // ±íÀÌ¹öÆÛ È°¼ºÈ­
+	glEnable(GL_DEPTH_TEST); // ê¹Šì´ë²„í¼ í™œì„±í™”
 	glEnable(GL_CULL_FACE);
 
-	//RectInit();<< µû·Î ÃÊ±âÈ­ ÇÔ¼ö ¸¸µé¾î¼­ È£Ãâ¸¸ ÇÏ±â 
+	//RectInit();<< ë”°ë¡œ ì´ˆê¸°í™” í•¨ìˆ˜ ë§Œë“¤ì–´ì„œ í˜¸ì¶œë§Œ í•˜ê¸° 
 	GroundInit();
 }
 
 void InitGameObjects()
 {
 	if (scene == GameState::TITLE) {
-		g_gameWorld.Clear(); // ÀÌÀü °ÔÀÓ °´Ã¼µé Á¦°Å
+		g_gameWorld.Clear(); // ì´ì „ ê²Œì„ ê°ì²´ë“¤ ì œê±°
 
-		// Æ÷ÀÎÅÍ ÃÊ±âÈ­
+		// í¬ì¸í„° ì´ˆê¸°í™”
 		scoreDisplay = nullptr;
 		tino = nullptr;
 
@@ -144,20 +148,20 @@ void InitGameObjects()
 		auto start_tex = std::move(std::make_unique<Images>(0.0f, 0.0f, 0.0f, 2.0f, 2.0f, "assets/start_texture.png"));
 		g_gameWorld.AddObject(std::move(start_tex));
 
-		// Ground °´Ã¼ »ı¼º ¹× GameWorld¿¡ Ãß°¡
+		// Ground ê°ì²´ ìƒì„± ë° GameWorldì— ì¶”ê°€
 		auto ground = std::make_unique<Ground>(1, RGBA{ 231 / 255., 217 / 255., 176 / 255., 1.0f });
-		ground->position.y = -4.0f; // ¶¥À» ¾à°£ ¾Æ·¡·Î ÀÌµ¿
-		ground->scale = glm::vec3(100.0f, 0.3f, 100.0f); // ¶¥À» ´õ ³Ğ°Ô ½ºÄÉÀÏ¸µ
+		ground->position.y = -4.0f; // ë•…ì„ ì•½ê°„ ì•„ë˜ë¡œ ì´ë™
+		ground->scale = glm::vec3(100.0f, 0.3f, 100.0f); // ë•…ì„ ë” ë„“ê²Œ ìŠ¤ì¼€ì¼ë§
 		g_gameWorld.AddObject(std::move(ground));
 
 
-		// Tino °´Ã¼ »ı¼º ¹× GameWorld¿¡ Ãß°¡
-		// °æ·Î ¼öÁ¤: assets Æú´õ·Î Á÷Á¢ Á¢±Ù
+		// Tino ê°ì²´ ìƒì„± ë° GameWorldì— ì¶”ê°€
+		// ê²½ë¡œ ìˆ˜ì •: assets í´ë”ë¡œ ì§ì ‘ ì ‘ê·¼
 		auto tino_ptr = std::make_unique<Tino>("assets/Tino.obj", "assets/Tino_jump.obj",
 			"assets/Tino_down.obj", "assets/Tino_base.png");
-		tino = tino_ptr.get(); // Àü¿ª Æ÷ÀÎÅÍ¿¡ ÇÒ´ç
-		tino->position = glm::vec3(3.0f, -3.0f, 0.0f);  // Ground À§¿¡ ¹èÄ¡
-		tino->scale = glm::vec3(1.3f, 1.3f, 1.3f);     // Å©±â Á¶Á¤ (¿ì¼± ±âº» Å©±â·Î)
+		tino = tino_ptr.get(); // ì „ì—­ í¬ì¸í„°ì— í• ë‹¹
+		tino->position = glm::vec3(3.0f, -3.0f, 0.0f);  // Ground ìœ„ì— ë°°ì¹˜
+		tino->scale = glm::vec3(1.3f, 1.3f, 1.3f);     // í¬ê¸° ì¡°ì • (ìš°ì„  ê¸°ë³¸ í¬ê¸°ë¡œ)
 		g_gameWorld.AddObject(std::move(tino_ptr));
 
 		gView = glm::mat4(1.0f);
@@ -171,41 +175,47 @@ void InitGameObjects()
 			timer = true;
 			glutTimerFunc(16, Timer, 1);
 		}
-		ma_sound_stop(&sounds[2]); // ¹è°æÀ½¾Ç Á¤Áö
+		ma_sound_stop(&sounds[2]); // ë°°ê²½ìŒì•… ì •ì§€
 	}
-	// PLAYING »óÅÂ¿¡¼­¸¸ ObstacleSpawner Ãß°¡
+	// PLAYING ìƒíƒœì—ì„œë§Œ ObstacleSpawner ì¶”ê°€
 	else if (scene == GameState::PLAYING) {
 
-		g_gameWorld.Clear(); // ÀÌÀü °ÔÀÓ °´Ã¼µé Á¦°Å
+		g_gameWorld.Clear(); // ì´ì „ ê²Œì„ ê°ì²´ë“¤ ì œê±°
 
-		// ÇÏ´Ã ¹è°æ
+		// í•˜ëŠ˜ ë°°ê²½
 		auto sky = std::move(std::make_unique<Images>(0.0f, 0.7f, -1.0f, 2.0f, 0.6f, "assets/sky_2.png"));
 		g_gameWorld.AddObject(std::move(sky));
 
-		// Ground °´Ã¼ »ı¼º ¹× GameWorld¿¡ Ãß°¡
-		auto ground = std::make_unique<Ground>(1, RGBA{ 231 / 255., 217 / 255., 176 / 255., 1.0f });
-		ground->scale = glm::vec3(100.0f, 0.3f, 1.3f); // ¶¥À» ´õ ³Ğ°Ô ½ºÄÉÀÏ¸µ
-
+		// Ground ê°ì²´ ìƒì„± ë° GameWorldì— ì¶”ê°€
+		auto ground = std::make_unique<Ground>(1, RGBA{ 231 / 255., 217 / 255., 176 / 255., 1.0f }, "assets/sand_texture4.png");
+		ground->scale = glm::vec3(100.0f, 0.3f, 1.3f); // ë•…ì„ ë” ë„“ê²Œ ìŠ¤ì¼€ì¼ë§
 		g_gameWorld.AddObject(std::move(ground));
 
-		// Ground °´Ã¼ »ı¼º ¹× GameWorld¿¡ Ãß°¡
+		// Ground ê°ì²´ ìƒì„± ë° GameWorldì— ì¶”ê°€
+		auto back_ground = std::make_unique<Ground>(1, RGBA{ 231 / 255., 217 / 255., 176 / 255., 1.0f }, "assets/sand_texture4.png");
+		back_ground->scale = glm::vec3(100.0f, 0.3f, 1.3f); // ë•…ì„ ë” ë„“ê²Œ ìŠ¤ì¼€ì¼ë§
+		back_ground->position.z = -10.0f; // ë’¤ìª½ì— ë°°ì¹˜
+		g_gameWorld.AddObject(std::move(back_ground));
+
+
+		// Ground ê°ì²´ ìƒì„± ë° GameWorldì— ì¶”ê°€
 		auto ground2 = std::make_unique<Ground>(1, RGBA{ 175 / 255., 145 / 255., 100 / 255., 1.0f } , "assets/ground_texture2.png");
-		ground2->position.y = -4.0f; // ¶¥À» ¾à°£ ¾Æ·¡·Î ÀÌµ¿
-		ground2->scale = glm::vec3(100.0f, 0.3f, 100.0f); // ¶¥À» ´õ ³Ğ°Ô ½ºÄÉÀÏ¸µ
+		ground2->position.y = -4.0f; // ë•…ì„ ì•½ê°„ ì•„ë˜ë¡œ ì´ë™
+		ground2->scale = glm::vec3(100.0f, 0.3f, 100.0f); // ë•…ì„ ë” ë„“ê²Œ ìŠ¤ì¼€ì¼ë§
 		g_gameWorld.AddObject(std::move(ground2));
 		
 
-		// Tino °´Ã¼ »ı¼º ¹× GameWorld¿¡ Ãß°¡
-		// °æ·Î ¼öÁ¤: assets Æú´õ·Î Á÷Á¢ Á¢±Ù
+		// Tino ê°ì²´ ìƒì„± ë° GameWorldì— ì¶”ê°€
+		// ê²½ë¡œ ìˆ˜ì •: assets í´ë”ë¡œ ì§ì ‘ ì ‘ê·¼
 		auto tino_ptr = std::make_unique<Tino>("assets/Tino.obj", "assets/Tino_jump.obj", 
 			"assets/Tino_down.obj", "assets/Tino_base.png");
-		tino = tino_ptr.get(); // Àü¿ª Æ÷ÀÎÅÍ¿¡ ÇÒ´ç
-		tino->position = glm::vec3(0.0f, 0.5f, 0.0f);  // Ground À§¿¡ ¹èÄ¡
-		tino->scale = glm::vec3(1.0f, 1.0f, 1.0f);     // Å©±â Á¶Á¤ (¿ì¼± ±âº» Å©±â·Î)
+		tino = tino_ptr.get(); // ì „ì—­ í¬ì¸í„°ì— í• ë‹¹
+		tino->position = glm::vec3(0.0f, 0.5f, 0.0f);  // Ground ìœ„ì— ë°°ì¹˜
+		tino->scale = glm::vec3(1.0f, 1.0f, 1.0f);     // í¬ê¸° ì¡°ì • (ìš°ì„  ê¸°ë³¸ í¬ê¸°ë¡œ)
 
 		g_gameWorld.AddObject(std::move(tino_ptr));
 
-		std::cout << "PLAYING ¸ğµå ½ÃÀÛ - ObstacleSpawner Ãß°¡" << std::endl;
+		std::cout << "PLAYING ëª¨ë“œ ì‹œì‘ - ObstacleSpawner ì¶”ê°€" << std::endl;
 		auto spawner = std::make_unique<ObstacleSpawner>();
 		g_gameWorld.AddObject(std::move(spawner));
 
@@ -221,16 +231,16 @@ void InitGameObjects()
 		g_gameWorld.AddObject(std::move(score));
 
 		gView = glm::mat4(1.0f);
-		gView = glm::lookAt(		//Ä«¸Ş¶ó ¿ÜºÎÆÄ¶ó¹ÌÅÍ
-			glm::vec3(-12.0f, 7.0f, 10.0f),  // Ä«¸Ş¶ó À§Ä¡ (x, y, zÃàÀÌ ¸ğµÎ º¸ÀÌ´Â À§Ä¡)	EYE
-			glm::vec3(0.0f, 2.0f, -3.0f),  // ¹Ù¶óº¸´Â ÁöÁ¡ (¿øÁ¡) 							AT
-			glm::vec3(0.0f, 1.0f, 0.0f)   // À§ÂÊ ¹æÇâ º¤ÅÍ 					 			UP
+		gView = glm::lookAt(		//ì¹´ë©”ë¼ ì™¸ë¶€íŒŒë¼ë¯¸í„°
+			glm::vec3(-12.0f, 7.0f, 10.0f),  // ì¹´ë©”ë¼ ìœ„ì¹˜ (x, y, zì¶•ì´ ëª¨ë‘ ë³´ì´ëŠ” ìœ„ì¹˜)	EYE
+			glm::vec3(0.0f, 2.0f, -3.0f),  // ë°”ë¼ë³´ëŠ” ì§€ì  (ì›ì ) 							AT
+			glm::vec3(0.0f, 1.0f, 0.0f)   // ìœ„ìª½ ë°©í–¥ ë²¡í„° 					 			UP
 		);
 
-		// ¹è°æÀ½¾Ç Àç»ı (Ã³À½ºÎÅÍ ½ÃÀÛ)
-		ma_sound_stop(&sounds[2]);  // È¤½Ã Àç»ı ÁßÀÌ¸é Á¤Áö
-		ma_sound_seek_to_pcm_frame(&sounds[2], 0);  // Ã³À½À¸·Î
-		ma_sound_start(&sounds[2]);  // Àç»ı ½ÃÀÛ
+		// ë°°ê²½ìŒì•… ì¬ìƒ (ì²˜ìŒë¶€í„° ì‹œì‘)
+		ma_sound_stop(&sounds[2]);  // í˜¹ì‹œ ì¬ìƒ ì¤‘ì´ë©´ ì •ì§€
+		ma_sound_seek_to_pcm_frame(&sounds[2], 0);  // ì²˜ìŒìœ¼ë¡œ
+		ma_sound_start(&sounds[2]);  // ì¬ìƒ ì‹œì‘
 
 		if (!timer) {
 			timer = true;
@@ -238,7 +248,7 @@ void InitGameObjects()
 		}
 	}
 	else if (scene == GameState::GAME_OVER) {
-		g_gameWorld.Clear(); // ÀÌÀü °ÔÀÓ °´Ã¼µé Á¦°Å
+		g_gameWorld.Clear(); // ì´ì „ ê²Œì„ ê°ì²´ë“¤ ì œê±°
 
 		if(timer) timer = false;
 
@@ -258,21 +268,21 @@ void InitGameObjects()
 
 		auto tino_ptr = std::make_unique<Tino>("assets/Tino.obj", "assets/Tino_jump.obj",
 			"assets/Tino_down.obj", "assets/Tino_base.png");
-		tino = tino_ptr.get(); // Àü¿ª Æ÷ÀÎÅÍ¿¡ ÇÒ´ç
-		tino->position = glm::vec3(-0.1f, 0.0f, 0.0f);  // Ground À§¿¡ ¹èÄ¡
-		tino->scale = glm::vec3(1.0f, 1.0f, 1.0f);     // Å©±â Á¶Á¤ (¿ì¼± ±âº» Å©±â·Î)
-		//tino->rotation = glm::vec3(0.0f, 90.0f, 0.0f); // ´¯Èù »óÅÂ·Î È¸Àü
+		tino = tino_ptr.get(); // ì „ì—­ í¬ì¸í„°ì— í• ë‹¹
+		tino->position = glm::vec3(-0.1f, 0.0f, 0.0f);  // Ground ìœ„ì— ë°°ì¹˜
+		tino->scale = glm::vec3(1.0f, 1.0f, 1.0f);     // í¬ê¸° ì¡°ì • (ìš°ì„  ê¸°ë³¸ í¬ê¸°ë¡œ)
+		//tino->rotation = glm::vec3(0.0f, 90.0f, 0.0f); // ëˆ•íŒ ìƒíƒœë¡œ íšŒì „
 		tino->StateChange(State::JUMPING);
 
-		// ¼±ÀÎÀå - ¿ŞÂÊ
+		// ì„ ì¸ì¥ - ì™¼ìª½
 		auto cactus = std::make_unique<Cactus>("assets/obstacle1.obj", "assets/obstacle1_base.bmp");
 		cactus->position = glm::vec3(-3.0f, -3.0f, 0.0f);
 		cactus->scale = glm::vec3(0.2f, 0.2f, 0.2f);
 		cactus->rotation = glm::vec3(0.0f, 30.0f, 20.0f);
-		cactus->SetSpeed(0.0f);  // ¿òÁ÷ÀÌÁö ¾Ê°Ô
+		cactus->SetSpeed(0.0f);  // ì›€ì§ì´ì§€ ì•Šê²Œ
 		g_gameWorld.AddObject(std::move(cactus));
 
-		// ³ª¹« - ¿À¸¥ÂÊ
+		// ë‚˜ë¬´ - ì˜¤ë¥¸ìª½
 		auto tree = std::make_unique<Tree>("assets/obstacle2.obj", "assets/obstacle2_base.bmp");
 		tree->position = glm::vec3(8.0f, 2.0f, -2.0f);
 		tree->scale = glm::vec3(0.3f, 0.3f, 0.3f);
@@ -280,7 +290,7 @@ void InitGameObjects()
 		tree->SetSpeed(0.0f);
 		g_gameWorld.AddObject(std::move(tree));
 
-		// ¹ö¼¸ - Áß¾Ó µÚÂÊ
+		// ë²„ì„¯ - ì¤‘ì•™ ë’¤ìª½
 		auto mushroom = std::make_unique<Mushroom>("assets/obstacle3.obj", "assets/obstacle3_base.bmp");
 		mushroom->position = glm::vec3(-8.0f, 2.0f, -5.0f);
 		mushroom->scale = glm::vec3(1.2f, 1.2f, 1.2f);
@@ -288,7 +298,7 @@ void InitGameObjects()
 		mushroom->SetSpeed(0.0f);
 		g_gameWorld.AddObject(std::move(mushroom));
 
-		// »õ - °øÁß
+		// ìƒˆ - ê³µì¤‘
 		auto bird = std::make_unique<Bird>("assets/bird.obj", "assets/bird_base.bmp");
 		bird->position = glm::vec3(5.0f, -2.0f, 0.0f);
 		bird->scale = glm::vec3(0.8f, 0.8f, 0.8f);
@@ -303,46 +313,46 @@ void InitGameObjects()
 			glm::vec3(0.0f, 1.0f, 0.0f)   //				 			UP
 		);
 
-		// ¹è°æÀ½¾Ç Á¤Áö
+		// ë°°ê²½ìŒì•… ì •ì§€
 		ma_sound_stop(&sounds[2]);
 
-		// °ÔÀÓ¿À¹ö »ç¿îµå Àç»ı
+		// ê²Œì„ì˜¤ë²„ ì‚¬ìš´ë“œ ì¬ìƒ
 		ma_sound_start(&sounds[1]);
 		ma_sound_seek_to_pcm_frame(&sounds[1], 0);
 	}
 }
 
-//--- Ãâ·Â Äİ¹éÇÔ¼ö
+//--- ì¶œë ¥ ì½œë°±í•¨ìˆ˜
 GLvoid drawScene()
 {
 	glClearColor(0.7f, 0.95f, 1.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		//GL_DEPTH_BUFFER_BIT ±íÀÌ¿¡ µû¸¥ Àº¸éÁ¦°Å
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		//GL_DEPTH_BUFFER_BIT ê¹Šì´ì— ë”°ë¥¸ ì€ë©´ì œê±°
 
 
-	//--- ·»´õ¸µ ÆÄÀÌÇÁ¶óÀÎ¿¡ ¼¼ÀÌ´õ ºÒ·¯¿ì±â
+	//--- ë Œë”ë§ íŒŒì´í”„ë¼ì¸ì— ì„¸ì´ë” ë¶ˆëŸ¬ìš°ê¸°
 	glUseProgram(shaderProgramID);
 
 
-	// GameWorld¸¦ ÅëÇØ ¸ğµç °´Ã¼ ·»´õ¸µ
+	// GameWorldë¥¼ í†µí•´ ëª¨ë“  ê°ì²´ ë Œë”ë§
 	g_gameWorld.DrawAll(gProjection, gView, uMVP_loc);
 
-	// °ÔÀÓ »óÅÂ Ç¥½Ã (ÄÜ¼Ö)
+	// ê²Œì„ ìƒíƒœ í‘œì‹œ (ì½˜ì†”)
 	static int frameCount = 0;
 	frameCount++;
-	if (frameCount % 300 == 0) { // 5ÃÊ¸¶´Ù Ãâ·Â
-		std::cout << "ÇöÀç °ÔÀÓ »óÅÂ: ";
+	if (frameCount % 300 == 0) { // 5ì´ˆë§ˆë‹¤ ì¶œë ¥
+		std::cout << "í˜„ì¬ ê²Œì„ ìƒíƒœ: ";
 		switch (scene) {
 		case GameState::TITLE: std::cout << "TITLE"; break;
 		case GameState::PLAYING: std::cout << "PLAYING"; break;
 		case GameState::GAME_OVER: std::cout << "GAME_OVER"; break;
 		}
-		std::cout << ", È°¼º °´Ã¼ ¼ö: " << g_gameWorld.GetActiveObjectCount() << std::endl;
+		std::cout << ", í™œì„± ê°ì²´ ìˆ˜: " << g_gameWorld.GetActiveObjectCount() << std::endl;
 	}
 
 	glutSwapBuffers();
 }
 
-//--- ´Ù½Ã±×¸®±âÄİ¹éÇÔ¼ö
+//--- ë‹¤ì‹œê·¸ë¦¬ê¸°ì½œë°±í•¨ìˆ˜
 GLvoid Reshape(int w, int h)
 {
 	glViewport(0, 0, w, h);
@@ -351,15 +361,15 @@ GLvoid Reshape(int w, int h)
 
 	float aspect = (h == 0) ? 1 : (float)w / (float)h;
 
-	//¿ø±Ù Åõ¿µ »ç¿ë (3D È¿°ú¸¦ ´õ Àß º¸¿©ÁÜ)
+	//ì›ê·¼ íˆ¬ì˜ ì‚¬ìš© (3D íš¨ê³¼ë¥¼ ë” ì˜ ë³´ì—¬ì¤Œ)
 	gProjection = glm::perspective(
-		glm::radians(45.0f),  // ½Ã¾ß°¢ 45µµ	fovy
-		aspect,               // Á¾È¾ºñ			aspect
-		0.1f,                 // ±ÙÆò¸é			-n
-		100.0f                // ¿øÆò¸é			-f
+		glm::radians(45.0f),  // ì‹œì•¼ê° 45ë„	fovy
+		aspect,               // ì¢…íš¡ë¹„			aspect
+		0.1f,                 // ê·¼í‰ë©´			-n
+		100.0f                // ì›í‰ë©´			-f
 	);
 
-	glEnable(GL_DEPTH_TEST); // ±íÀÌ¹öÆÛ È°¼ºÈ­
+	glEnable(GL_DEPTH_TEST); // ê¹Šì´ë²„í¼ í™œì„±í™”
 	glUseProgram(0);
 }
 
@@ -369,7 +379,7 @@ GLvoid Timer(int value)
 
 	const float deltaTime = 0.016f;
 
-	if (scene == GameState::PLAYING) {	// °ÔÀÓ ½ºÄÚ¾î Áõ°¡
+	if (scene == GameState::PLAYING) {	// ê²Œì„ ìŠ¤ì½”ì–´ ì¦ê°€
 		gameScore += 1;
 		if (scoreDisplay) {
 			scoreDisplay->SetScore(gameScore);
@@ -380,18 +390,18 @@ GLvoid Timer(int value)
 		InitGameObjects();
 	}
 
-	// Á¶¸í ¾÷µ¥ÀÌÆ® (ÇÏ·ç ÁÖ±â ½Ã¹Ä·¹ÀÌ¼Ç)
-	currentTime += deltaTime * 0.02f; // ´À¸° ÇÏ·ç ÁÖ±â (¾à 50ÃÊ¿¡ ÇÏ·ç)
+	// ì¡°ëª… ì—…ë°ì´íŠ¸ (í•˜ë£¨ ì£¼ê¸° ì‹œë®¬ë ˆì´ì…˜)
+	currentTime += deltaTime * 0.02f; // ëŠë¦° í•˜ë£¨ ì£¼ê¸° (ì•½ 50ì´ˆì— í•˜ë£¨)
 	if (currentTime >= 1.0f) {
-		currentTime -= 1.0f; // ÇÏ·ç¸¦ ³ÑÀ¸¸é ´Ù½Ã ½ÃÀÛ
+		currentTime -= 1.0f; // í•˜ë£¨ë¥¼ ë„˜ìœ¼ë©´ ë‹¤ì‹œ ì‹œì‘
 	}
 	
-	// ÅÂ¾ç±¤ ¾÷µ¥ÀÌÆ® ¹× ¼ÎÀÌ´õ¿¡ Àü¼Û
+	// íƒœì–‘ê´‘ ì—…ë°ì´íŠ¸ ë° ì…°ì´ë”ì— ì „ì†¡
 	glUseProgram(shaderProgramID);
 	g_lightManager.UpdateSunlight(currentTime);
 	g_lightManager.SendLightsToShader();
 	
-	// Ä«¸Ş¶ó À§Ä¡¸¦ Á¶¸í °è»ê¿ëÀ¸·Î Àü¼Û
+	// ì¹´ë©”ë¼ ìœ„ì¹˜ë¥¼ ì¡°ëª… ê³„ì‚°ìš©ìœ¼ë¡œ ì „ì†¡
 	glm::vec3 cameraPos = glm::vec3(gView[3]);
 	if (scene == GameState::PLAYING) {
 		cameraPos = glm::vec3(-12.0f, 7.0f, 10.0f);
@@ -401,56 +411,56 @@ GLvoid Timer(int value)
 	g_lightManager.SendViewPosition(cameraPos);
 	glUseProgram(0);
 
-	// GameWorld¸¦ ÅëÇØ ¸ğµç °´Ã¼ ¾÷µ¥ÀÌÆ® (ObstacleSpawner Æ÷ÇÔ)
+	// GameWorldë¥¼ í†µí•´ ëª¨ë“  ê°ì²´ ì—…ë°ì´íŠ¸ (ObstacleSpawner í¬í•¨)
 	g_gameWorld.UpdateAll();
 
 	glutPostRedisplay();
-	glutTimerFunc(16, Timer, 1); // ¾à 60FPS·Î Å¸ÀÌ¸Ó ½ÃÀÛ
+	glutTimerFunc(16, Timer, 1); // ì•½ 60FPSë¡œ íƒ€ì´ë¨¸ ì‹œì‘
 
 }
 
 GLvoid Keyboard(unsigned char key, int x, int y)
 {
-	const float deltaTime = 0.016f; // ¾à 60FPS ±âÁØ
+	const float deltaTime = 0.016f; // ì•½ 60FPS ê¸°ì¤€
 
 	switch (key) {
-	case ' ':	// Á¡ÇÁ (ÃßÈÄ ±¸Çö)
+	case ' ':	// ì í”„ (ì¶”í›„ êµ¬í˜„)
 		if (scene == GameState::PLAYING) {
 			tino->StateChange(State::JUMPING);
 			
-			ma_sound_start(&sounds[0]);	// Á¡ÇÁ »ç¿îµå
+			ma_sound_start(&sounds[0]);	// ì í”„ ì‚¬ìš´ë“œ
 			ma_sound_seek_to_pcm_frame(&sounds[0], 0);
 		}
 		break;
 	case '\r': 
-	case '\n':		// ¿£ÅÍ ´©¸£¸é ½ÃÀÛ
+	case '\n':		// ì—”í„° ëˆ„ë¥´ë©´ ì‹œì‘
 		if (scene == GameState::TITLE) {
 			scene = GameState::PLAYING;
-			std::cout << "°ÔÀÓ ½ÃÀÛ" << std::endl;
-			InitGameObjects();		// °ÔÀÓ °´Ã¼ ÃÊ±âÈ­
+			std::cout << "ê²Œì„ ì‹œì‘" << std::endl;
+			InitGameObjects();		// ê²Œì„ ê°ì²´ ì´ˆê¸°í™”
 		}
 		if(scene == GameState::GAME_OVER) {
 			scene = GameState::TITLE;
 			gameover_flag222 = false;
-			std::cout << "Å¸ÀÌÆ² È­¸éÀ¸·Î ÀÌµ¿" << std::endl;
+			std::cout << "íƒ€ì´í‹€ í™”ë©´ìœ¼ë¡œ ì´ë™" << std::endl;
 			InitGameObjects();
 		}
 		break;
 	case 27:		
 		if (scene == GameState::PLAYING) {
-			// ESC ´©¸£¸é Å¸ÀÌÆ²·Î
+			// ESC ëˆ„ë¥´ë©´ íƒ€ì´í‹€ë¡œ
 			scene = GameState::TITLE;
-			std::cout << "Å¸ÀÌÆ² È­¸éÀ¸·Î ÀÌµ¿" << std::endl;
+			std::cout << "íƒ€ì´í‹€ í™”ë©´ìœ¼ë¡œ ì´ë™" << std::endl;
 		}
 		else if (scene == GameState::TITLE || scene == GameState::GAME_OVER) {
-			// Å¸ÀÌÆ²¿¡¼­ ´©¸£¸é °ÔÀÓÁ¾·á
-			std::cout << "°ÔÀÓ Á¾·á" << std::endl;
-			ma_engine_uninit(&engine); // ÀÌÀü¿¡ Àç»ı ÁßÀÌ´ø »ç¿îµå Á¤¸®
+			// íƒ€ì´í‹€ì—ì„œ ëˆ„ë¥´ë©´ ê²Œì„ì¢…ë£Œ
+			std::cout << "ê²Œì„ ì¢…ë£Œ" << std::endl;
+			ma_engine_uninit(&engine); // ì´ì „ì— ì¬ìƒ ì¤‘ì´ë˜ ì‚¬ìš´ë“œ ì •ë¦¬
 			exit(0);
 		}
 		InitGameObjects();
 		break;
-	case 'g':	// È®ÀÎ¿ë
+	case 'g':	// í™•ì¸ìš©
 		scene = GameState::GAME_OVER;
 		InitGameObjects();
 		break;
@@ -465,6 +475,8 @@ GLvoid Mouse(int button, int state, int x, int y)
 	if (button == GLUT_LEFT && state == GLUT_DOWN) {
 		if (scene == GameState::PLAYING) {
 			tino->StateChange(State::SLIDING);
+			ma_sound_start(&sounds[3]);
+			ma_sound_seek_to_pcm_frame(&sounds[3], 0);
 		}
 		glutPostRedisplay();
 	}
