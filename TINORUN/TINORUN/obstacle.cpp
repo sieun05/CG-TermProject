@@ -788,21 +788,17 @@ void Bird::Update()
 ObstacleSpawner::ObstacleSpawner()
     : spawnTimer(0.0f), spawnInterval(2.0f), gen(rd()), dis(0, 3), random_spawnInterval(4.0f, 7.0f)
 {
-    // �����ʴ� ���������� �ʴ� ��ü�̹Ƿ� ��ġ�� �������
-    std::cout << "ObstacleSpawner ������" << std::endl;
 }
 
 void ObstacleSpawner::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 {
-    // �����ʴ� ���������� ����
 }
 
 void ObstacleSpawner::Update()
-{
-    // PLAYING ������ ���� ��ֹ� ����
+{ 
     if (scene != GameState::PLAYING) {
-        spawnTimer = 0.0f; // �ٸ� ���¿����� Ÿ�̸� �ʱ�ȭ
-        return;
+        spawnTimer = 0.0f; 
+        return; 
     }
 
     const float deltaTime = 0.016f; // �� 60FPS ����
@@ -822,9 +818,6 @@ void ObstacleSpawner::Update()
 
 void ObstacleSpawner::SpawnObstacle()
 {
-    std::cout << "ObstacleSpawner: ���ο� ��ֹ� ���� ��⿭�� �߰�!" << std::endl;
-
-    // �����ϰ� ��ֹ� ���� ����
     auto obstacle = CreateRandomObstacle();
     if (obstacle) {
         g_gameWorld.AddPendingObject(std::move(obstacle));
