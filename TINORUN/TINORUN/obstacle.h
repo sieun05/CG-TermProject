@@ -127,6 +127,7 @@ class ObstacleSpawner : public GameObject {
 private:
     float spawnTimer;
     float spawnInterval;
+	bool backupSpawnFlag = false;
     
     // 랜덤 생성을 위한 변수들
     std::random_device rd;
@@ -136,7 +137,9 @@ private:
 
 public:
     ObstacleSpawner();
-    
+
+	void SetbackSpawnFlag(bool flag) { backupSpawnFlag = flag; }
+
     void Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc) override;
     void Update() override;
     

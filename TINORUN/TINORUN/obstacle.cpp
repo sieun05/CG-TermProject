@@ -792,6 +792,8 @@ ObstacleSpawner::ObstacleSpawner()
     std::cout << "ObstacleSpawner ������" << std::endl;
 }
 
+
+
 void ObstacleSpawner::Draw(glm::mat4 gProjection, glm::mat4 gView, GLuint uMVP_loc)
 {
     // �����ʴ� ���������� ����

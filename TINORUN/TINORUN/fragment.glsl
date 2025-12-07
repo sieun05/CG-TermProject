@@ -1,36 +1,30 @@
 #version 330 core
 
-//--- �Է� ������
-in vec3 out_Color; //--- ���� ���̴����� ���� �÷� ��
-in vec2 out_TexCoord; //--- ���� ���̴����� ���� �ؽ�ó ��ǥ
-in vec3 FragPos; //--- ���� ������ ���� ��ġ
-in vec3 Normal; //--- ���� ������ ���� ����
+in vec3 out_Color; 
+in vec2 out_TexCoord;
+in vec3 FragPos;
+in vec3 Normal; 
 
-//--- ��� ������
 out vec4 FragColor;
 
-//--- ���� ����ü
 struct Light {
     int type; // 0: Directional, 1: Point, 2: Spot
     
-    vec3 position; // ������, ����Ʈ����Ʈ��
-    vec3 direction; // ���౤, ����Ʈ����Ʈ��
+    vec3 position;
+    vec3 direction; 
     
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
     
-    // ���� ��� (������, ����Ʈ����Ʈ��)
     float constant;
     float linear;
     float quadratic;
     
-    // ����Ʈ����Ʈ��
     float cutOff;
     float outerCutOff;
 };
 
-//--- ���� ����ü
 struct Material {
     vec3 ambient;
     vec3 diffuse;
@@ -38,7 +32,6 @@ struct Material {
     float shininess;
 };
 
-//--- Uniform ������
 uniform sampler2D textureSampler; //--- �ؽ�ó ���÷�
 uniform bool useTexture; //--- �ؽ�ó ��� ����
 uniform bool useLighting; //--- ���� ��� ����

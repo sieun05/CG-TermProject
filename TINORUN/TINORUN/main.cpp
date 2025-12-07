@@ -118,8 +118,8 @@ void main(int argc, char** argv)
 	AfterMakeShaders();	//?�이?�에??uniform 변???�치 ?�기
 
 	//// ���� �ý��� �ʱ�ȭ
-	//g_lightManager.InitializeUniforms(shaderProgramID);
-	//g_lightManager.SetupSunlight(); // �ڿ������� �¾籤 ����
+	g_lightManager.InitializeUniforms(shaderProgramID);
+	g_lightManager.SetupSunlight(); // �ڿ������� �¾籤 ����
 	//g_lightManager.EnableLighting(false);
 
 	glutReshapeFunc(Reshape);
@@ -250,7 +250,13 @@ void InitGameObjects()
 
 		std::cout << "PLAYING 모드 ?�작 - ObstacleSpawner 추�?" << std::endl;
 		auto spawner = std::make_unique<ObstacleSpawner>();
+		spawner.get()->SetbackSpawnFlag(false); 
 		g_gameWorld.AddObject(std::move(spawner));
+
+		// 배경용 ObstacleSpawner 추가
+		auto back_spawner = std::make_unique<ObstacleSpawner>();
+		back_spawner.get()->SetbackSpawnFlag(true); // 배경용
+		g_gameWorld.AddObject(std::move(back_spawner));
 
 		auto score = std::make_unique<ScoreDisplay>(
 			-0.95f,
