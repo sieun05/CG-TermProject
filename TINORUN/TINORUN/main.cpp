@@ -499,12 +499,12 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 	case 'b':	// 바운더리 박스 토글
 	case 'B':
 		showBoundaryBox = !showBoundaryBox;
-		std::cout << "See BoundaryBox: " << (showBoundaryBox ? "ON" : "OFF") << std::endl;
+		//std::cout << "See BoundaryBox: " << (showBoundaryBox ? "ON" : "OFF") << std::endl;
 		break;
 	case 'h':
 	case 'H':
 		tino->SetInvincibility();
-		std::cout << "Invincibility Toggle" << std::endl;
+		//std::cout << "Invincibility Toggle" << std::endl;
 		break;
 	case '+':	// 점수 증감(속도 확인용)
 	case '=':

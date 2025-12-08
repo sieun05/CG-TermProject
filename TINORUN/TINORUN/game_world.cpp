@@ -42,7 +42,7 @@ void GameWorld::RemoveInactiveObjects() {
 
                 Obstacle* obstacle = dynamic_cast<Obstacle*>(obj.get());
                 if (obstacle && obstacle->ShouldBeRemoved()) {
-                    std::cout << "장애물 제거: x = " << obstacle->position.x << std::endl;
+                    //std::cout << "장애물 제거: x = " << obstacle->position.x << std::endl;
                     return true;
                 }
 

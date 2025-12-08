@@ -790,7 +790,7 @@ void Bird::Update()
 
 // ObstacleSpawner 구현
 ObstacleSpawner::ObstacleSpawner()
-    : spawnTimer(0.0f), spawnInterval(2.0f), gen(rd()), dis(0, 3), random_spawnInterval(2.0f, 3.0f)
+    : spawnTimer(0.0f), spawnInterval(2.0f), gen(rd()), dis(0, 3), random_spawnInterval(2.0f, 5.0f)
 {
 }
 
